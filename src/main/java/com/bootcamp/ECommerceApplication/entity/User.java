@@ -1,6 +1,12 @@
 package com.bootcamp.ECommerceApplication.entity;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -8,21 +14,41 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(updatable = false, nullable = false)
     private Long id;
+
+    @Email(message = "The Email ID is not valid or already exist")
+    @NotEmpty(message = "Email Id is a mandatory field")
+    @Column(unique = true)
     private String email;
+
+    @NotEmpty(message = "First Name is a mandatory field")
     private String first_name;
     private String middle_name;
+
+    @NotEmpty(message = "Last Name is a mandatory field")
     private String last_name;
+
+    @NotEmpty(message = "Password is a mandatory field")
+    @Length(min = 8,max = 15,message = "The Length of the password should be between 8 to 15 characters.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d.*)(?=.*\\W.*)[a-zA-Z0-9\\S]{8,15}$",
+            message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
+
+
     private Boolean is_deleted;
     private Boolean is_active;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id",referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
     private List<Role> roles;
+
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private List<Address> addresses;
+
+
 
     public Long getId() {
         return id;
@@ -96,6 +122,26 @@ public class User {
         this.roles = roles;
     }
 
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        addresses.stream().forEach(e -> e.setUser(this));
+        this.addresses = addresses;
+    }
+
+    public void addAddress(Address address)
+    {
+        if(address != null){
+            if(addresses == null){
+                addresses = new ArrayList<>();
+            }
+            address.setUser(this);
+            addresses.add(address);
+        }
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -108,6 +154,7 @@ public class User {
                 ", is_deleted=" + is_deleted +
                 ", is_active=" + is_active +
                 ", roles=" + roles +
+                ", addresses=" + addresses +
                 '}';
     }
 }

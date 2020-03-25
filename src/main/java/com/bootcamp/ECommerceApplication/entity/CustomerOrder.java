@@ -17,16 +17,16 @@ public class CustomerOrder{
     @JoinColumn(name="customer_user_id")
     private Customer customer;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "city", column = @Column(name = "customer_address_city")),
-            @AttributeOverride(name = "state", column = @Column(name = "customer_address_state")),
-            @AttributeOverride(name = "country", column = @Column(name = "customer_address_country")),
-            @AttributeOverride(name = "address", column = @Column(name = "customer_address_address")),
-            @AttributeOverride(name = "zip_code", column = @Column(name = "customer_address_zip_code")),
-            @AttributeOverride(name = "label", column = @Column(name = "customer_address_label")),
-    })
-    private Address address;
+//    @Embedded
+//    @AttributeOverrides({
+//            @AttributeOverride(name = "city", column = @Column(name = "customer_address_city")),
+//            @AttributeOverride(name = "state", column = @Column(name = "customer_address_state")),
+//            @AttributeOverride(name = "country", column = @Column(name = "customer_address_country")),
+//            @AttributeOverride(name = "address", column = @Column(name = "customer_address_address")),
+//            @AttributeOverride(name = "zip_code", column = @Column(name = "customer_address_zip_code")),
+//            @AttributeOverride(name = "label", column = @Column(name = "customer_address_label")),
+//    })
+//    private Address address;
 
     @OneToMany(mappedBy = "customerOrder")
     private List<OrderProduct> orderProducts;

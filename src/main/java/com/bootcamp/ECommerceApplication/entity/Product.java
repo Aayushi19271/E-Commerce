@@ -30,4 +30,7 @@ public class Product {
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     List<ProductReview> product_reviews;
 
+//    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+//    List<ProductReviewID> productReviewIDS;
+
 }
