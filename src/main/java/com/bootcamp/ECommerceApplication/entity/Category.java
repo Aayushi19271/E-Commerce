@@ -6,20 +6,23 @@ import java.util.List;
 @Entity
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long Id;
+    @GeneratedValue
+    private Long id;
     private String name;
-    private Integer parent_id;
+
+    @ManyToOne
+    private Category parent;
+    private boolean leafNode = false;
 
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
     List<Product> products;
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getName() {
@@ -30,20 +33,38 @@ public class Category {
         this.name = name;
     }
 
-    public Integer getParent_id() {
-        return parent_id;
+    public Category getParent() {
+        return parent;
     }
 
-    public void setParent_id(Integer parent_id) {
-        this.parent_id = parent_id;
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
+
+    public boolean isLeafNode() {
+        return leafNode;
+    }
+
+    public void setLeafNode(boolean leafNode) {
+        this.leafNode = leafNode;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     @Override
     public String toString() {
         return "Category{" +
-                "Id=" + Id +
+                "id=" + id +
                 ", name='" + name + '\'' +
-                ", parent_id=" + parent_id +
+                ", parent=" + parent +
+                ", leafNode=" + leafNode +
+                ", products=" + products +
                 '}';
     }
 }

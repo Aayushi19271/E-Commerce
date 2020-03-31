@@ -11,11 +11,11 @@ public class Address{
     private String state;
     private String country;
     private String address;
-    private Integer zip_code;
+    private Integer zipCode;
     private String label;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private User user;
 
     public Long getId() {
@@ -58,12 +58,12 @@ public class Address{
         this.address = address;
     }
 
-    public Integer getZip_code() {
-        return zip_code;
+    public Integer getZipCode() {
+        return zipCode;
     }
 
-    public void setZip_code(Integer zip_code) {
-        this.zip_code = zip_code;
+    public void setZipCode(Integer zipCode) {
+        this.zipCode = zipCode;
     }
 
     public String getLabel() {
@@ -81,5 +81,19 @@ public class Address{
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "id=" + id +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", country='" + country + '\'' +
+                ", address='" + address + '\'' +
+                ", zipCode=" + zipCode +
+                ", label='" + label + '\'' +
+                ", user=" + user +
+                '}';
     }
 }

@@ -6,7 +6,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "user_id")
+@PrimaryKeyJoinColumn(name = "user_id",  referencedColumnName = "id")
 public class Seller extends User{
 
     //VALID GST NUMBER - 37adapm1724a2Z6
@@ -60,5 +60,15 @@ public class Seller extends User{
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    @Override
+    public String toString() {
+        return "Seller{" +
+                "gst='" + gst + '\'' +
+                ", company_contact='" + company_contact + '\'' +
+                ", company_name='" + company_name + '\'' +
+                ", products=" + products +
+                '}';
     }
 }

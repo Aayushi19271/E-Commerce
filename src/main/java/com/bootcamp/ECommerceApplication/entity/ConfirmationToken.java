@@ -9,7 +9,7 @@ import java.util.UUID;
 public class ConfirmationToken {
 
     //THE TOKEN EXPIRES IN 30 MINUTES
-    private static final int EXPIRATION = 1;
+    private static final int EXPIRATION = 30;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,9 +18,6 @@ public class ConfirmationToken {
 
     @Column(name = "confirmation_token")
     private String confirmationToken;
-
-//    @Column(name = "expired_token")
-//    private String expiredToken;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
@@ -62,14 +59,6 @@ public class ConfirmationToken {
         Date time = calculateExpiry(expiryDate);
         this.expiryDate = time;
     }
-//
-//    public String getExpiredToken() {
-//        return expiredToken;
-//    }
-//
-//    public void setExpiredToken(String expiredToken) {
-//        this.expiredToken = expiredToken;
-//    }
 
     public long getTokenid() {
         return tokenid;
@@ -103,4 +92,14 @@ public class ConfirmationToken {
         this.customer = customer;
     }
 
+    @Override
+    public String toString() {
+        return "ConfirmationToken{" +
+                "tokenid=" + tokenid +
+                ", confirmationToken='" + confirmationToken + '\'' +
+                ", createdDate=" + createdDate +
+                ", expiryDate=" + expiryDate +
+                ", customer=" + customer +
+                '}';
+    }
 }

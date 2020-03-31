@@ -42,12 +42,12 @@ public class UserService {
     {
         Customer customer = new Customer();
         customer.setEmail("yeodbdvdj@yahoo.in");
-        customer.setFirst_name("abcd");
-        customer.setMiddle_name("Kumar");
-        customer.setLast_name("Thani");
+        customer.setFirstName("abcd");
+        customer.setMiddleName("Kumar");
+        customer.setLastName("Thani");
         customer.setPassword("Aayushi12@");
-        customer.setIs_active(false);
-        customer.setIs_deleted(false);
+        customer.setActive(false);
+        customer.setDeleted(false);
         customer.setContact("8130170780");
 
         List<Address> list = new ArrayList<>();
@@ -56,7 +56,7 @@ public class UserService {
         address.setState("Delhi");
         address.setCountry("India");
         address.setAddress("B7- Pitmapura");
-        address.setZip_code(110085);
+        address.setZipCode(110085);
         address.setLabel("Home");
         address.setUser(customer);
         list.add(address);
@@ -83,6 +83,7 @@ public class UserService {
         return confirmationTokenRepository.findByConfirmationToken(token);
     }
 
+    //FIND CUSTOMER BY EMAIL ID
     public Customer findCustomerByEmail(String email)
     {
        return customerRepository.findByEmailIgnoreCase(email);
@@ -95,8 +96,8 @@ public class UserService {
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
         if(user == null)
         {
-            customer.setIs_deleted(false);
-            customer.setIs_active(false);
+            customer.setDeleted(false);
+            customer.setActive(false);
 
             ArrayList<Role> tempRole = new ArrayList<>();
             Role role = roleRepository.findById((long) 3).get();
@@ -111,20 +112,29 @@ public class UserService {
     }
 
     //Create a New Seller
-    public void createSeller(Seller seller)
+    public Seller createSeller(Seller seller)
     {
-        seller.setIs_active(false);
-        seller.setIs_deleted(false);
+        String customerEmail = seller.getEmail();
+        final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
-        String companyname = seller.getCompany_name().toLowerCase();
-        seller.setCompany_name(companyname);
+        if(user == null)
+        {
+            seller.setActive(false);
+            seller.setDeleted(false);
 
-        ArrayList<Role> tempRole = new ArrayList<>();
-        Role role = roleRepository.findById((long) 2).get();
-        tempRole.add(role);
-        seller.setRoles(tempRole);
+            String companyname = seller.getCompany_name().toLowerCase();
+            seller.setCompany_name(companyname);
 
-        Seller saveseller = userRepository.save(seller);
+            ArrayList<Role> tempRole = new ArrayList<>();
+            Role role = roleRepository.findById((long) 2).get();
+            tempRole.add(role);
+            seller.setRoles(tempRole);
+
+            Seller saveseller = userRepository.save(seller);
+            return saveseller;
+        }
+        else
+            return null;
     }
 
     //CREATE CUSTOMER WHERE IS_ACTIVE = FALSE AND SAVE THE CONFIRMATION TOKEN IN ENTITY
@@ -171,12 +181,12 @@ public class UserService {
         else
         {
             User user = userRepository.findByEmailIgnoreCase(token.getCustomer().getEmail());
-            user.setIs_active(true);
+            user.setActive(true);
             userRepository.save(user);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
 
             smtpMailSender.send(customer.getEmail(), "Account Activated",
-                    "Dear "+customer.getFirst_name()+", Your Account Has Been Activated!!");
+                    "Dear "+customer.getFirstName()+", Your Account Has Been Activated!!");
             return 2;
         }
     }

@@ -36,11 +36,11 @@ public class Bootstrap implements ApplicationRunner {
 
         User user = new User();
         user.setEmail("aayushithani@yahoo.in");
-        user.setFirst_name("Aayushi");
-        user.setLast_name("Thani");
+        user.setFirstName("Aayushi");
+        user.setLastName("Thani");
         user.setPassword("Aayushi12#");
-        user.setIs_active(true);
-        user.setIs_deleted(false);
+        user.setActive(true);
+        user.setDeleted(false);
 
         List<Address> list = new ArrayList<>();
         Address address = new Address();
@@ -48,7 +48,7 @@ public class Bootstrap implements ApplicationRunner {
         address.setState("Delhi");
         address.setCountry("India");
         address.setAddress("B7- Pitmapura");
-        address.setZip_code(110085);
+        address.setZipCode(110085);
         address.setLabel("Home");
         list.add(address);
         user.setAddresses(list);

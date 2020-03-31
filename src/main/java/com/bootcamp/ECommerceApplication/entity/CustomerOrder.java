@@ -1,6 +1,7 @@
 package com.bootcamp.ECommerceApplication.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -9,27 +10,27 @@ public class CustomerOrder{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Integer amount_paid;
-    private Date date;
-    private String payment_method;
-
     @ManyToOne
-    @JoinColumn(name="customer_user_id")
+    @JoinColumn(name="customerUserId")
+    @NotNull
     private Customer customer;
 
-//    @Embedded
-//    @AttributeOverrides({
-//            @AttributeOverride(name = "city", column = @Column(name = "customer_address_city")),
-//            @AttributeOverride(name = "state", column = @Column(name = "customer_address_state")),
-//            @AttributeOverride(name = "country", column = @Column(name = "customer_address_country")),
-//            @AttributeOverride(name = "address", column = @Column(name = "customer_address_address")),
-//            @AttributeOverride(name = "zip_code", column = @Column(name = "customer_address_zip_code")),
-//            @AttributeOverride(name = "label", column = @Column(name = "customer_address_label")),
-//    })
-//    private Address address;
+    private Float amountPaid;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateCreated;
+
+    private String paymentMethod;
+    private String customerAddressCity;
+    private String customerAddressState;
+    private String customerAddressCountry;
+    private String customerAddressAddressLine;
+    private Integer customerZipCode;
+    private String customerAddressLabel;
 
     @OneToMany(mappedBy = "customerOrder")
     private List<OrderProduct> orderProducts;
+
 
     public Long getId() {
         return id;
@@ -37,30 +38,6 @@ public class CustomerOrder{
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getAmount_paid() {
-        return amount_paid;
-    }
-
-    public void setAmount_paid(Integer amount_paid) {
-        this.amount_paid = amount_paid;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getPayment_method() {
-        return payment_method;
-    }
-
-    public void setPayment_method(String payment_method) {
-        this.payment_method = payment_method;
     }
 
     public Customer getCustomer() {
@@ -71,14 +48,101 @@ public class CustomerOrder{
         this.customer = customer;
     }
 
+    public Float getAmountPaid() {
+        return amountPaid;
+    }
+
+    public void setAmountPaid(Float amountPaid) {
+        this.amountPaid = amountPaid;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getCustomerAddressCity() {
+        return customerAddressCity;
+    }
+
+    public void setCustomerAddressCity(String customerAddressCity) {
+        this.customerAddressCity = customerAddressCity;
+    }
+
+    public String getCustomerAddressState() {
+        return customerAddressState;
+    }
+
+    public void setCustomerAddressState(String customerAddressState) {
+        this.customerAddressState = customerAddressState;
+    }
+
+    public String getCustomerAddressCountry() {
+        return customerAddressCountry;
+    }
+
+    public void setCustomerAddressCountry(String customerAddressCountry) {
+        this.customerAddressCountry = customerAddressCountry;
+    }
+
+    public String getCustomerAddressAddressLine() {
+        return customerAddressAddressLine;
+    }
+
+    public void setCustomerAddressAddressLine(String customerAddressAddressLine) {
+        this.customerAddressAddressLine = customerAddressAddressLine;
+    }
+
+    public Integer getCustomerZipCode() {
+        return customerZipCode;
+    }
+
+    public void setCustomerZipCode(Integer customerZipCode) {
+        this.customerZipCode = customerZipCode;
+    }
+
+    public String getCustomerAddressLabel() {
+        return customerAddressLabel;
+    }
+
+    public void setCustomerAddressLabel(String customerAddressLabel) {
+        this.customerAddressLabel = customerAddressLabel;
+    }
+
+    public List<OrderProduct> getOrderProducts() {
+        return orderProducts;
+    }
+
+    public void setOrderProducts(List<OrderProduct> orderProducts) {
+        this.orderProducts = orderProducts;
+    }
+
     @Override
     public String toString() {
-        return "Order{" +
+        return "CustomerOrder{" +
                 "id=" + id +
-                ", amount_paid=" + amount_paid +
-                ", date=" + date +
-                ", payment_method='" + payment_method + '\'' +
                 ", customer=" + customer +
+                ", amountPaid=" + amountPaid +
+                ", dateCreated=" + dateCreated +
+                ", paymentMethod='" + paymentMethod + '\'' +
+                ", customerAddressCity='" + customerAddressCity + '\'' +
+                ", customerAddressState='" + customerAddressState + '\'' +
+                ", customerAddressCountry='" + customerAddressCountry + '\'' +
+                ", customerAddressAddressLine='" + customerAddressAddressLine + '\'' +
+                ", customerZipCode=" + customerZipCode +
+                ", customerAddressLabel='" + customerAddressLabel + '\'' +
+                ", orderProducts=" + orderProducts +
                 '}';
     }
 }

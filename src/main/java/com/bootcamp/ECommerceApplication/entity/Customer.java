@@ -6,8 +6,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "user_id")
-@Inheritance(strategy = InheritanceType.JOINED)
+@PrimaryKeyJoinColumn(name = "user_id", referencedColumnName = "id")
 public class Customer extends User{
 
     @Pattern(regexp = "^(?:\\s+|)((0|(?:(\\+|)91))(?:\\s|-)*(?:(?:\\d(?:\\s|-)*\\d{9})|(?:\\d{2}(?:\\s|-)*\\d{8})|(?:\\d{3}(?:\\s|-)*\\d{7}))|\\d{10})(?:\\s+|)$"
@@ -15,8 +14,8 @@ public class Customer extends User{
     @NotEmpty(message = "Contact No is a mandatory field")
     private String contact;
 
-    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
-    private List<Cart> carts;
+    @OneToOne(mappedBy = "customer",cascade = CascadeType.ALL)
+    private Cart cart;
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
     private List<ProductReview> productReviews;
@@ -40,12 +39,12 @@ public class Customer extends User{
         this.contact = contact;
     }
 
-    public List<Cart> getCarts() {
-        return carts;
+    public Cart getCart() {
+        return cart;
     }
 
-    public void setCarts(List<Cart> carts) {
-        this.carts = carts;
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     public List<ProductReview> getProductReviews() {
@@ -56,4 +55,13 @@ public class Customer extends User{
         this.productReviews = productReviews;
     }
 
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "contact='" + contact + '\'' +
+                ", cart=" + cart +
+                ", productReviews=" + productReviews +
+                ", confirmationToken=" + confirmationToken +
+                '}';
+    }
 }

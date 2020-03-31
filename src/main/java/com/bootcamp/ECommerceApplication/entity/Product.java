@@ -7,22 +7,23 @@ import java.util.List;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name="sellerUserId")
+    private Seller seller;
 
     private String name;
     private String description;
-    private Boolean is_cancellable;
-    private Boolean is_returnable;
-    private String brand;
-    private Boolean is_active;
 
     @ManyToOne
-    @JoinColumn(name="seller_user_id")
-    private Seller seller;
-
-    @ManyToOne
-    @JoinColumn(name="category_id")
+    @JoinColumn(name="categoryId")
     private Category category;
+
+    private Boolean isCancellable;
+    private Boolean isReturnable;
+    private String brand;
+    private Boolean isActive;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     List<ProductVariation> product_variations;
@@ -30,7 +31,108 @@ public class Product {
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     List<ProductReview> product_reviews;
 
-//    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
-//    List<ProductReviewID> productReviewIDS;
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Seller getSeller() {
+        return seller;
+    }
+
+    public void setSeller(Seller seller) {
+        this.seller = seller;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Boolean getCancellable() {
+        return isCancellable;
+    }
+
+    public void setCancellable(Boolean cancellable) {
+        isCancellable = cancellable;
+    }
+
+    public Boolean getReturnable() {
+        return isReturnable;
+    }
+
+    public void setReturnable(Boolean returnable) {
+        isReturnable = returnable;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public List<ProductVariation> getProduct_variations() {
+        return product_variations;
+    }
+
+    public void setProduct_variations(List<ProductVariation> product_variations) {
+        this.product_variations = product_variations;
+    }
+
+    public List<ProductReview> getProduct_reviews() {
+        return product_reviews;
+    }
+
+    public void setProduct_reviews(List<ProductReview> product_reviews) {
+        this.product_reviews = product_reviews;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", seller=" + seller +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", category=" + category +
+                ", isCancellable=" + isCancellable +
+                ", isReturnable=" + isReturnable +
+                ", brand='" + brand + '\'' +
+                ", isActive=" + isActive +
+                ", product_variations=" + product_variations +
+                ", product_reviews=" + product_reviews +
+                '}';
+    }
 }

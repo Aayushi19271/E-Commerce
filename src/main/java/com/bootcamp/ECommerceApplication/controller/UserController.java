@@ -53,15 +53,26 @@ public class UserController {
     }
 
     //CREATE A SELLER
-    @PostMapping("/seller")
-    public String createSeller(@Valid @RequestBody Seller seller) {
-        userService.createSeller(seller);
-        return "The Seller Account is Successfully created with the inactive account ";
+    @PostMapping("/sellers")
+    public String createSeller(@Valid @RequestBody Seller seller) throws MessagingException {
+        Seller saveSeller = userService.createSeller(seller);
+
+        if (saveSeller != null)
+        {
+            smtpMailSender.send(seller.getEmail(), "Pending Approval",
+                    "The Account has been Registered but is Pending Approval! ");
+
+            return "The Seller Account is Successfully created with the inactive account ";
+        }
+
+        else
+            throw new UserAlreadyExists("The Seller's EmailID Already Exist: "+seller.getEmail());
+
     }
 
 
     //CREATE A CUSTOMER AND SEND AN ACTIVATION LINK
-    @PostMapping("/customer")
+    @PostMapping("/customers")
     public Object createCustomerToken(@Valid @RequestBody Customer customer) throws MessagingException {
 
         Customer saveCustomer = userService.createCustomer(customer);
@@ -84,7 +95,7 @@ public class UserController {
         }
         else
         {
-            throw new UserAlreadyExists("The User's EmailID Already Exist: "+customer.getEmail());
+            throw new UserAlreadyExists("The Customer's EmailID Already Exist: "+customer.getEmail());
         }
     }
 
@@ -113,20 +124,28 @@ public class UserController {
     }
 
     //POST METHOD TO RE-SEND ACTIVATION LINK
-    @PostMapping("/re-send-activation-link/{email}")
-    public String reSendActivationLink(@PathVariable String email) throws MessagingException {
+    @PostMapping("/customers/re-send-activation-link")
+    public String reSendActivationLink(@RequestBody User user) throws MessagingException {
+
+        String email = user.getEmail();
         Customer customer= userService.findCustomerByEmail(email);
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+email);
 
-        userService.deleteConfirmationToken(email);
+        if(customer.getActive())
+        {
+            return "The Account is already Activated";
+        }
+        else
+        {
+            userService.deleteConfirmationToken(email);
 
-        ConfirmationToken newConfirmationToken = userService.createCustomerToken(customer);
+            ConfirmationToken newConfirmationToken = userService.createCustomerToken(customer);
 
-        smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                "http://localhost:8080/users/confirm-account?token="+newConfirmationToken.getConfirmationToken());
+            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
+                    "http://localhost:8080/users/confirm-account?token="+newConfirmationToken.getConfirmationToken());
 
-        return "The Activation Link Is Send Again";
+            return "The Activation Link Is Send Again";
+        }
     }
-
 }
