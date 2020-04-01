@@ -20,6 +20,8 @@ public class AdminController {
     @Autowired
     private SmtpMailSender smtpMailSender;
 
+
+    //******************************* FETCH THE LIST OF CUSTOMERS AND SELLERS ******************************************
     //LIST ALL ACTIVATED CUSTOMERS
     @GetMapping("/customers")
     public List<Object[]> findAllActivatedCustomers()
@@ -34,56 +36,38 @@ public class AdminController {
         return adminService.findAllSellers();
     }
 
+
+    //****************************** ACTIVATE AND DE-ACTIVATE THE CUSTOMER *********************************************
     //ACTIVATE A CUSTOMER
     @PatchMapping(value = "/customers/activate/{id}")
     public String activateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields) throws MessagingException {
         adminService.findCustomer(id);
-        User user = adminService.getUser(id);
-        Boolean flag = adminService.activateAccount(user,fields);
+        return adminService.activateAccount(id,fields);
 
-        if (flag)
-            return "Account Successfully Activated";
-        else
-            return "The Customer's Account is Already Active!";
     }
 
     //DE-ACTIVE A CUSTOMER
     @PatchMapping(value = "/customers/deactivate/{id}")
     public String deactivateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields) throws MessagingException {
         adminService.findCustomer(id);
-        User user = adminService.getUser(id);
-        Boolean flag = adminService.deactivateAccount(user,fields);
-
-        if (flag)
-            return "Account Successfully De-activated";
-        else
-            return "The Customer's Account is Already De-active!";
+        return adminService.deactivateAccount(id,fields);
     }
+
+
+    //****************************** ACTIVATE AND DE-ACTIVATE THE SELLER *********************************************
 
     //ACTIVATE A SELLER
     @PatchMapping(value = "/sellers/activate/{id}")
     public String activateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields) throws MessagingException {
         adminService.findSeller(id);
-        User user = adminService.getUser(id);
-        Boolean flag = adminService.activateAccount(user,fields);
-
-        if (flag)
-            return "Account Successfully Activated";
-        else
-            return "The Seller's Account is Already Active!";
+        return adminService.activateAccount(id,fields);
     }
 
     //DE-ACTIVE A SELLER
     @PatchMapping(value = "/sellers/deactivate/{id}")
     public String deactivateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields) throws MessagingException {
         adminService.findSeller(id);
-        User user = adminService.getUser(id);
-        Boolean flag = adminService.deactivateAccount(user,fields);
-
-        if (flag)
-            return "Account Successfully De-activated";
-        else
-            return "The Seller's Account is Already De-active!";
+        return adminService.deactivateAccount(id,fields);
     }
 }
 

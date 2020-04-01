@@ -10,7 +10,6 @@ public class OrderProduct {
     private Long id;
     private Integer quantity;
     private Double price;
-    private String product_variation_metadata;
 
     @ManyToOne
     @JoinColumn(name = "orderId")
@@ -44,15 +43,6 @@ public class OrderProduct {
         this.price = price;
     }
 
-
-    public String getProduct_variation_metadata() {
-        return product_variation_metadata;
-    }
-
-    public void setProduct_variation_metadata(String product_variation_metadata) {
-        this.product_variation_metadata = product_variation_metadata;
-    }
-
     public CustomerOrder getCustomerOrder() {
         return customerOrder;
     }
@@ -75,7 +65,6 @@ public class OrderProduct {
                 "id=" + id +
                 ", quantity=" + quantity +
                 ", price=" + price +
-                ", product_variation_metadata='" + product_variation_metadata + '\'' +
                 ", customerOrder=" + customerOrder +
                 ", productVariation=" + productVariation +
                 '}';

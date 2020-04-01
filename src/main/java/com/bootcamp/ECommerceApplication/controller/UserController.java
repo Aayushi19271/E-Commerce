@@ -1,19 +1,14 @@
 package com.bootcamp.ECommerceApplication.controller;
 
-import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.entity.*;
-import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
-import com.bootcamp.ECommerceApplication.exception.UserAlreadyExists;
 import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,128 +19,64 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @Autowired
-    private SmtpMailSender smtpMailSender;
 
-    //FETCH THE LIST OF USERS
+    //GET THE LIST OF USERS
     @GetMapping
     public List<User> listOfUsers() {
-        List<User> users = userService.findAllUsers();
-        return users;
+        return userService.findAllUsers();
     }
+
 
     //CREATING THE CUSTOMER MANUALLY -- USING GETTER AND SETTERS
     @GetMapping("/create-customer-manually")
     public Customer createCustomerManually() {
-        Customer customer = userService.createCustomerManually();
-        return customer;
+        return userService.createCustomerManually();
     }
 
-    //REQUEST TO GET A CUSTOMER
+
+    //GET A SINGLE USER
     @GetMapping("/{id}")
     public Optional<User> retrieveCustomer(@PathVariable Long id)
     {
         Optional<User> user = userService.findOne(id);
         if (!user.isPresent())
             throw new UserNotFoundException("id-"+id);
-
         return user;
     }
 
-    //CREATE A SELLER
+
+    //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
     @PostMapping("/sellers")
-    public String createSeller(@Valid @RequestBody Seller seller) throws MessagingException {
-        Seller saveSeller = userService.createSeller(seller);
-
-        if (saveSeller != null)
-        {
-            smtpMailSender.send(seller.getEmail(), "Pending Approval",
-                    "The Account has been Registered but is Pending Approval! ");
-
-            return "The Seller Account is Successfully created with the inactive account ";
-        }
-
-        else
-            throw new UserAlreadyExists("The Seller's EmailID Already Exist: "+seller.getEmail());
-
+    public ResponseEntity<Object> createSeller(@Valid @RequestBody Seller seller) throws MessagingException {
+        return userService.createSeller(seller);
     }
 
 
-    //CREATE A CUSTOMER AND SEND AN ACTIVATION LINK
+    //REGISTER A INACTIVE CUSTOMER AND SEND AN ACTIVATION LINK
     @PostMapping("/customers")
     public Object createCustomerToken(@Valid @RequestBody Customer customer) throws MessagingException {
-
-        Customer saveCustomer = userService.createCustomer(customer);
-
-        if(saveCustomer!= null)
-        {
-            ConfirmationToken confirmationToken = userService.createCustomerToken(customer);
-
-            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/confirm-account?token="+confirmationToken.getConfirmationToken());
-
-            //HTTP RESPONSE CREATED STATUS - 201 CREATED
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(saveCustomer.getId()).toUri();
-
-            ResponseEntity.created(location).build();
-
-            return ResponseEntity.created(location).build();
-        }
-        else
-        {
-            throw new UserAlreadyExists("The Customer's EmailID Already Exist: "+customer.getEmail());
-        }
+        return userService.createCustomer(customer);
     }
 
-    //ACTIVATE THE CUSTOMER ACCOUNT GET METHOD
-    @GetMapping("/confirm-account")
+
+    //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
+    @GetMapping("/customers/confirm-account")
     public String confirmUserAccount(@RequestParam("token") String confirmationToken) throws MessagingException {
-
-        //IF THE TOKEN IS NOT FOUND/WRONG
-        ConfirmationToken token = userService.findToken(confirmationToken);
-        if (token == null)
-            throw new TokenNotFoundException("token-"+confirmationToken);
-
-        //IF THE TOKEN IS FOUND
-        Integer flag = userService.confirmUserAccount(confirmationToken);
-        if(flag==0)
-            return "The Previous Activation Link Is Expired, Please Verify The Account Using The New Activation Link";
-        else
-            return "The Account Has Been Successfully Activated";
+        return userService.confirmUserAccountToken(confirmationToken);
     }
 
-    //ACTIVATE THE CUSTOMER USING PUT METHOD
-    @PutMapping("/confirm-account/{token}")
+
+    //ACTIVATE THE CUSTOMER - SAME AS ABOVE USING PUT METHOD
+    @PutMapping("/customers/confirm-account/{token}")
     public String confirmUserAccountToken(@PathVariable String token) throws MessagingException {
-        userService.confirmUserAccount(token);
+        userService.confirmUserAccountToken(token);
         return "Account Successfully Active";
     }
 
-    //POST METHOD TO RE-SEND ACTIVATION LINK
+
+    //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @PostMapping("/customers/re-send-activation-link")
     public String reSendActivationLink(@RequestBody User user) throws MessagingException {
-
-        String email = user.getEmail();
-        Customer customer= userService.findCustomerByEmail(email);
-        if (customer == null)
-            throw new UserNotFoundException("EmailID:-"+email);
-
-        if(customer.getActive())
-        {
-            return "The Account is already Activated";
-        }
-        else
-        {
-            userService.deleteConfirmationToken(email);
-
-            ConfirmationToken newConfirmationToken = userService.createCustomerToken(customer);
-
-            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/confirm-account?token="+newConfirmationToken.getConfirmationToken());
-
-            return "The Activation Link Is Send Again";
-        }
+        return userService.reSendActivationLink(user);
     }
 }

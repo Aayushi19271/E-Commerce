@@ -4,12 +4,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import java.io.Serializable;
 
 @Entity
-public class OrderStatus implements Serializable {
+public class OrderStatus{
 
     @Id
+    private Long id;
     @OneToOne
     @JoinColumn(name = "orderProductId")
     private OrderProduct orderProductId;
@@ -17,6 +17,14 @@ public class OrderStatus implements Serializable {
     private String fromStatus;
     private String toStatus;
     private String transitionNotesComments;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public OrderProduct getOrderProductId() {
         return orderProductId;
@@ -53,7 +61,8 @@ public class OrderStatus implements Serializable {
     @Override
     public String toString() {
         return "OrderStatus{" +
-                "orderProductId=" + orderProductId +
+                "id=" + id +
+                ", orderProductId=" + orderProductId +
                 ", fromStatus='" + fromStatus + '\'' +
                 ", toStatus='" + toStatus + '\'' +
                 ", transitionNotesComments='" + transitionNotesComments + '\'' +

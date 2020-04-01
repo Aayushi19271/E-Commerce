@@ -49,16 +49,14 @@ public class AdminService {
     }
 
     //FIND A CUSTOMER
-    public void findCustomer(Long id)
-    {
+    public void findCustomer(Long id) {
         Optional<Customer> customer = customerRepository.findById(id);
         if(!customer.isPresent())
             throw new UserNotFoundException("Customer Not Found Id-"+id);
     }
 
     //FIND A SELLER
-    public void findSeller(Long id)
-    {
+    public void findSeller(Long id) {
         Optional<Seller> seller = sellerRepository.findById(id);
         if(!seller.isPresent())
             throw new UserNotFoundException("Seller Not Found Id-"+id);
@@ -74,7 +72,10 @@ public class AdminService {
         userRepository.save(user);
     }
 
-    public Boolean activateAccount(User user, Map<Object,Object> fields) throws MessagingException {
+
+    //ACTIVATE A ACCOUNT
+    public String activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
+        User user = getUser(id);
         Boolean flag = user.getActive();
 
         if (!flag) {
@@ -87,12 +88,14 @@ public class AdminService {
             updateUser(user);
 
             smtpMailSender.send(user.getEmail(), "Account Activated!", "Dear  " + user.getFirstName() + ", You're Account Has Been Activated!");
-            return true;
+            return "Account Successfully Activated";
         } else
-            return false;
+            return "The Customer's Account is Already Active!";
     }
 
-    public Boolean deactivateAccount(User user, Map<Object,Object> fields) throws MessagingException {
+    //DE-ACTIVATE THE ACCOUNT
+    public String deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
+        User user = getUser(id);
         Boolean flag = user.getActive();
 
         if (!flag) {
@@ -105,10 +108,8 @@ public class AdminService {
             updateUser(user);
 
             smtpMailSender.send(user.getEmail(), "Account De-activated!", "Dear  "+user.getFirstName()+", You're Account Has Been De-activated!");
-            return true;
+            return "Account Successfully De-activated";
         } else
-            return false;
+            return "The Customer's Account is Already De-active!";
     }
-
-
 }

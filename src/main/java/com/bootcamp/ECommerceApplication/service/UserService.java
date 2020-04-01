@@ -2,15 +2,21 @@ package com.bootcamp.ECommerceApplication.service;
 
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.entity.*;
+import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
+import com.bootcamp.ECommerceApplication.exception.UserAlreadyExists;
+import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.repository.ConfirmationTokenRepository;
 import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
 import com.bootcamp.ECommerceApplication.repository.RoleRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.net.URI;
 import java.util.*;
 
 @Service
@@ -31,15 +37,10 @@ public class UserService {
     @Autowired
     ConfirmationTokenRepository confirmationTokenRepository;
 
-    //List Of All Users
-    public List<User> findAllUsers()
-    {
-        List<User> users = (List<User>) userRepository.findAll();
-        return users;
-    }
+    //************************************USER'S METHOD - FINDERS AND CREATE CUSTOMER***********************************
 
-    public Customer createCustomerManually()
-    {
+    //CREATE THE CUSTOMER USING GETTER AND SETTERS - TEST METHOD
+    public Customer createCustomerManually() {
         Customer customer = new Customer();
         customer.setEmail("yeodbdvdj@yahoo.in");
         customer.setFirstName("abcd");
@@ -71,27 +72,92 @@ public class UserService {
         return customer;
     }
 
-    //FIND ONE CUSTOMER
-    public Optional<User> findOne(Long id)
-    {
+
+    //List Of All Users
+    public List<User> findAllUsers() {
+        return (List<User>) userRepository.findAll();
+    }
+
+
+    //GET A SINGLE USER
+    public Optional<User> findOne(Long id) {
         return userRepository.findById(id);
     }
 
+    //FIND CUSTOMER BY EMAIL ID
+    public Customer findCustomerByEmail(String email) {
+        return customerRepository.findByEmailIgnoreCase(email);
+    }
+
+
+//*******************************CONFIRMATION TOKEN METHOD'S************************************************************
     //FIND ONE TOKEN
-    public ConfirmationToken findToken(String token)
-    {
+    public ConfirmationToken findConfirmationToken(String token) {
         return confirmationTokenRepository.findByConfirmationToken(token);
     }
 
-    //FIND CUSTOMER BY EMAIL ID
-    public Customer findCustomerByEmail(String email)
-    {
-       return customerRepository.findByEmailIgnoreCase(email);
+
+    //DELETE THE EXISTING TOKEN
+    @Transactional
+    public void deleteConfirmationToken(String email) {
+        Customer customer = customerRepository.findByEmailIgnoreCase(email);
+        ConfirmationToken token = customer.getConfirmationToken();
+        confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
     }
 
-    //Create a New Customer
-    public Customer createCustomer(Customer customer)
-    {
+
+    //CREATE & RETURN CONFIRMATION TOKEN
+    public ConfirmationToken createConfirmationToken(Customer customer) {
+        ConfirmationToken confirmationToken = new ConfirmationToken(customer);
+        confirmationToken.setExpiryDate(new Date());
+
+        confirmationTokenRepository.save(confirmationToken);
+        return  confirmationToken;
+    }
+
+//*****************************************SELLER METHOD***************************************************************
+
+    //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
+    public ResponseEntity<Object> createSeller(Seller seller) throws MessagingException {
+        String customerEmail = seller.getEmail();
+        final User user = userRepository.findByEmailIgnoreCase(customerEmail);
+
+        if(user == null)
+        {
+            seller.setActive(false);
+            seller.setDeleted(false);
+
+            String companyName = seller.getCompany_name().toLowerCase();
+            seller.setCompany_name(companyName);
+
+            ArrayList<Role> tempRole = new ArrayList<>();
+            Role role = roleRepository.findById((long) 2).get();
+            tempRole.add(role);
+            seller.setRoles(tempRole);
+
+            Seller saveSeller = userRepository.save(seller);
+            smtpMailSender.send(seller.getEmail(), "Pending Approval",
+                    "The Account has been Registered but is Pending Approval! ");
+
+            //HTTP RESPONSE CREATED STATUS - 201 CREATED
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(saveSeller.getId()).toUri();
+
+            ResponseEntity.created(location).build();
+
+            return ResponseEntity.created(location).build();
+        }
+        else
+            throw new UserAlreadyExists("The Seller's EmailID Already Exist: "+seller.getEmail());
+    }
+
+
+
+//***********************************************CUSTOMER REGISTRATION METHOD*******************************************
+
+    //REGISTER A CUSTOMER AND SEND AN ACTIVATION LINK
+    public ResponseEntity<Object> createCustomer(Customer customer) throws MessagingException {
         String customerEmail = customer.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
         if(user == null)
@@ -105,60 +171,44 @@ public class UserService {
             customer.setRoles(tempRole);
 
             Customer saveCustomer = userRepository.save(customer);
-            return saveCustomer;
+            ConfirmationToken confirmationToken = createConfirmationToken(customer);
+
+            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
+                    "http://localhost:8080/users/customers/confirm-account?token="+confirmationToken.getConfirmationToken());
+
+            //HTTP RESPONSE CREATED STATUS - 201 CREATED
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(saveCustomer.getId()).toUri();
+
+            ResponseEntity.created(location).build();
+            return ResponseEntity.created(location).build();
         }
         else
-            return null;
+            throw new UserAlreadyExists("The Customer's EmailID Already Exist: "+customer.getEmail());
     }
 
-    //Create a New Seller
-    public Seller createSeller(Seller seller)
-    {
-        String customerEmail = seller.getEmail();
-        final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
-        if(user == null)
-        {
-            seller.setActive(false);
-            seller.setDeleted(false);
+    //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
+    @Transactional
+    public String confirmUserAccountToken(String confirmationToken) throws MessagingException {
+        //IF THE TOKEN IS NOT FOUND/WRONG
+        ConfirmationToken token = findConfirmationToken(confirmationToken);
+        if (token == null)
+            throw new TokenNotFoundException("token-"+confirmationToken);
 
-            String companyname = seller.getCompany_name().toLowerCase();
-            seller.setCompany_name(companyname);
-
-            ArrayList<Role> tempRole = new ArrayList<>();
-            Role role = roleRepository.findById((long) 2).get();
-            tempRole.add(role);
-            seller.setRoles(tempRole);
-
-            Seller saveseller = userRepository.save(seller);
-            return saveseller;
-        }
+        //IF THE TOKEN IS FOUND
+        Integer flag = confirmTokenExpiry(confirmationToken);
+        if(flag==0)
+            return "The Previous Activation Link Is Expired, Please Verify The Account Using The New Activation Link";
         else
-            return null;
+            return "The Account Has Been Successfully Activated";
     }
 
-    //CREATE CUSTOMER WHERE IS_ACTIVE = FALSE AND SAVE THE CONFIRMATION TOKEN IN ENTITY
-    public ConfirmationToken createCustomerToken(Customer customer)
-    {
-        ConfirmationToken confirmationToken = new ConfirmationToken(customer);
-        confirmationToken.setExpiryDate(new Date());
 
-        confirmationTokenRepository.save(confirmationToken);
-        return  confirmationToken;
-    }
-
-    //DELETE THE EXISTING TOKEN
+    //CHECK THE TOKEN EXPIRY (3 CONDITIONS-- token correct, token expires, token wrong)
     @Transactional
-    public void deleteConfirmationToken(String email)
-    {
-        Customer customer = customerRepository.findByEmailIgnoreCase(email);
-        ConfirmationToken token = customer.getConfirmationToken();
-        confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-    }
-
-    //ACTIVATE THE CUSTOMER ACCOUNT AND DELETE THE TOKEN -- token correct, token expires, token wrong
-    @Transactional
-    public Integer confirmUserAccount(String confirmationToken) throws MessagingException {
+    public Integer confirmTokenExpiry(String confirmationToken) throws MessagingException {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         Customer customer = token.getCustomer();
         Calendar calendar = Calendar.getInstance();
@@ -173,7 +223,7 @@ public class UserService {
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
 
             smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/confirm-account?token="+newConfirmationToken.getConfirmationToken());
+                    "http://localhost:8080/users/customers/confirm-account?token="+newConfirmationToken.getConfirmationToken());
 
             return 0;
         }
@@ -188,6 +238,31 @@ public class UserService {
             smtpMailSender.send(customer.getEmail(), "Account Activated",
                     "Dear "+customer.getFirstName()+", Your Account Has Been Activated!!");
             return 2;
+        }
+    }
+
+
+    //RE-SEND ACTIVATION LINK TO THE CUSTOMER
+    @Transactional
+    public String reSendActivationLink(User user) throws MessagingException {
+        String email = user.getEmail();
+        Customer customer= findCustomerByEmail(email);
+        if (customer == null)
+            throw new UserNotFoundException("EmailID:-"+email);
+
+        if(customer.getActive())
+        {
+            return "The Account is already Activated";
+        }
+        else
+        {
+            deleteConfirmationToken(email);
+            ConfirmationToken newConfirmationToken = createConfirmationToken(customer);
+
+            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
+                    "http://localhost:8080/users/customers/confirm-account?token="+newConfirmationToken.getConfirmationToken());
+
+            return "The Activation Link Is Send Again";
         }
     }
 }
