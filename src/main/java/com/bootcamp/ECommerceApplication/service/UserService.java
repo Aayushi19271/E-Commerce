@@ -11,6 +11,8 @@ import com.bootcamp.ECommerceApplication.repository.RoleRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -36,6 +38,9 @@ public class UserService {
 
     @Autowired
     ConfirmationTokenRepository confirmationTokenRepository;
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
     //************************************USER'S METHOD - FINDERS AND CREATE CUSTOMER***********************************
 
@@ -126,7 +131,7 @@ public class UserService {
         {
             seller.setActive(false);
             seller.setDeleted(false);
-
+            seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             String companyName = seller.getCompany_name().toLowerCase();
             seller.setCompany_name(companyName);
 
@@ -164,6 +169,7 @@ public class UserService {
         {
             customer.setDeleted(false);
             customer.setActive(false);
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
 
             ArrayList<Role> tempRole = new ArrayList<>();
             Role role = roleRepository.findById((long) 3).get();
@@ -250,7 +256,7 @@ public class UserService {
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+email);
 
-        if(customer.getActive())
+        if(customer.isActive())
         {
             return "The Account is already Activated";
         }

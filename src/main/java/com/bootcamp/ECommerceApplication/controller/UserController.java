@@ -19,20 +19,12 @@ public class UserController {
     @Autowired
     UserService userService;
 
-
+    //******************************* GET USERS *****************************************
     //GET THE LIST OF USERS
     @GetMapping
     public List<User> listOfUsers() {
         return userService.findAllUsers();
     }
-
-
-    //CREATING THE CUSTOMER MANUALLY -- USING GETTER AND SETTERS
-    @GetMapping("/create-customer-manually")
-    public Customer createCustomerManually() {
-        return userService.createCustomerManually();
-    }
-
 
     //GET A SINGLE USER
     @GetMapping("/{id}")
@@ -44,16 +36,25 @@ public class UserController {
         return user;
     }
 
+    //******************************* TEST METHOD ***************************************
+    //CREATING THE CUSTOMER MANUALLY -- USING GETTER AND SETTERS
+    @GetMapping("/create-customer-manually")
+    public Customer createCustomerManually() {
+        return userService.createCustomerManually();
+    }
 
+
+
+    //******************************* REGISTER CUSTOMER AND SELLER  *********************
     //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
-    @PostMapping("/sellers")
+    @PostMapping("/sellers-registration")
     public ResponseEntity<Object> createSeller(@Valid @RequestBody Seller seller) throws MessagingException {
         return userService.createSeller(seller);
     }
 
 
     //REGISTER A INACTIVE CUSTOMER AND SEND AN ACTIVATION LINK
-    @PostMapping("/customers")
+    @PostMapping("/customers-registration")
     public Object createCustomerToken(@Valid @RequestBody Customer customer) throws MessagingException {
         return userService.createCustomer(customer);
     }

@@ -76,7 +76,7 @@ public class AdminService {
     //ACTIVATE A ACCOUNT
     public String activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
-        Boolean flag = user.getActive();
+        Boolean flag = user.isActive();
 
         if (!flag) {
             fields.forEach((k, v) -> {
@@ -96,7 +96,7 @@ public class AdminService {
     //DE-ACTIVATE THE ACCOUNT
     public String deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
-        Boolean flag = user.getActive();
+        Boolean flag = user.isActive();
 
         if (!flag) {
             fields.forEach((k, v) -> {

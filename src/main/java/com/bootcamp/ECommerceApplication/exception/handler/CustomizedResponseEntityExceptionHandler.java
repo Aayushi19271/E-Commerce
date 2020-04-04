@@ -1,5 +1,9 @@
-package com.bootcamp.ECommerceApplication.exception;
+package com.bootcamp.ECommerceApplication.exception.handler;
 
+import com.bootcamp.ECommerceApplication.exception.ExceptionResponse;
+import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
+import com.bootcamp.ECommerceApplication.exception.UserAlreadyExists;
+import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

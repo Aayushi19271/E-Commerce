@@ -13,5 +13,7 @@ public interface RoleRepository extends CrudRepository<Role,Long> {
 
     @Query(value = "select * from Role where authority=:roleType ", nativeQuery = true)
     List<Object[]> findRoleId(@Param("roleType") String roleType);
+
+    Role findByAuthority(String Authority);
 }
 

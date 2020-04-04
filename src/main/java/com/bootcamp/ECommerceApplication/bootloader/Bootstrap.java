@@ -1,4 +1,4 @@
-package com.bootcamp.ECommerceApplication;
+package com.bootcamp.ECommerceApplication.bootloader;
 
 import com.bootcamp.ECommerceApplication.entity.Address;
 import com.bootcamp.ECommerceApplication.entity.Category;
@@ -10,7 +10,11 @@ import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class Bootstrap implements ApplicationRunner {
@@ -22,6 +26,9 @@ public class Bootstrap implements ApplicationRunner {
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -40,32 +47,34 @@ public class Bootstrap implements ApplicationRunner {
 
 
 //---------------------CREATE ADMIN ACCOUNT-----------------------------------------------------------------------------
-//        User user = new User();
-//        user.setEmail("aayushithani@yahoo.in");
-//        user.setFirstName("Aayushi");
-//        user.setLastName("Thani");
+        User user = new User();
+        user.setEmail("aayushithani@yahoo.in");
+        user.setFirstName("Aayushi");
+        user.setLastName("Thani");
 //        user.setPassword("Aayushi12#");
-//        user.setActive(true);
-//        user.setDeleted(false);
-//
-//        List<Address> list = new ArrayList<>();
-//        Address address = new Address();
-//        address.setCity("Delhi");
-//        address.setState("Delhi");
-//        address.setCountry("India");
-//        address.setAddress("B7- Pitmapura");
-//        address.setZipCode(110085);
-//        address.setLabel("Home");
-//        list.add(address);
-//        user.setAddresses(list);
-//
-//        ArrayList<Role> tempRole = new ArrayList<>();
-//        Role role1 = roleRepository.findById((long) 1).get();
-//        tempRole.add(role1);
-//        user.setRoles(tempRole);
-//
-//        userRepository.save(user);
+//        String pass = passwordEncoder.encode("Aayushi12#");
+        user.setPassword(passwordEncoder.encode("Aayushi12#"));
+        user.setActive(true);
+        user.setDeleted(true);
 
+        List<Address> list = new ArrayList<>();
+        Address address = new Address();
+        address.setCity("Delhi");
+        address.setState("Delhi");
+        address.setCountry("India");
+        address.setAddress("B7- Pitmapura");
+        address.setZipCode(110085);
+        address.setLabel("Home");
+        list.add(address);
+        user.setAddresses(list);
+
+        ArrayList<Role> tempRole = new ArrayList<>();
+        Role role1 = roleRepository.findByAuthority("ROLE_ADMIN");
+        tempRole.add(role1);
+        user.setRoles(tempRole);
+
+        userRepository.save(user);
+//
 
 
 //-----------INSERTING THE DATA INTO CATEGORY TABLE---------------------------------------------------------------------
