@@ -1,6 +1,7 @@
 package com.bootcamp.ECommerceApplication.service;
 
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
+import com.bootcamp.ECommerceApplication.entity.Address;
 import com.bootcamp.ECommerceApplication.entity.Customer;
 import com.bootcamp.ECommerceApplication.entity.Seller;
 import com.bootcamp.ECommerceApplication.entity.User;
@@ -15,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import javax.mail.MessagingException;
-import javax.transaction.Transactional;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,54 @@ public class AdminService {
 
     @Autowired
     private SmtpMailSender smtpMailSender;
+
+//---------------------------------------------------TEST METHODS-------------------------------------------------------
+
+    //CREATE THE CUSTOMER USING GETTER AND SETTERS - TEST METHOD
+    public Customer createCustomerManually() {
+        Customer customer = new Customer();
+        customer.setEmail("yeodbdvdj@yahoo.in");
+        customer.setFirstName("abcd");
+        customer.setMiddleName("Kumar");
+        customer.setLastName("Thani");
+        customer.setPassword("Aayushi12@");
+        customer.setActive(false);
+        customer.setDeleted(false);
+        customer.setContact("8130170780");
+
+        List<Address> list = new ArrayList<>();
+        Address address = new Address();
+        address.setCity("Delhi");
+        address.setState("Delhi");
+        address.setCountry("India");
+        address.setAddress("B7- Pitmapura");
+        address.setZipCode(110085);
+        address.setLabel("Home");
+        address.setUser(customer);
+        list.add(address);
+        customer.setAddresses(list);
+
+//        ArrayList<Role> tempRole = new ArrayList<>();
+//        Role role = roleRepository.findById((long) 3).get();
+//        tempRole.add(role);
+//        customer.setRoles(tempRole);
+
+        userRepository.save(customer);
+        return customer;
+    }
+
+
+    //List Of All Users
+    public List<User> findAllUsers() {
+        return (List<User>) userRepository.findAll();
+    }
+
+    //GET A SINGLE USER
+    public Optional<User> findOne(Long id) {
+        return userRepository.findById(id);
+    }
+
+//----------------------------------------------ADMIN SPECIFIED METHODS-------------------------------------------------
 
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
     public List<Object[]> findAllCustomers() {

@@ -51,11 +51,9 @@ public class Bootstrap implements ApplicationRunner {
         user.setEmail("aayushithani@yahoo.in");
         user.setFirstName("Aayushi");
         user.setLastName("Thani");
-//        user.setPassword("Aayushi12#");
-//        String pass = passwordEncoder.encode("Aayushi12#");
         user.setPassword(passwordEncoder.encode("Aayushi12#"));
         user.setActive(true);
-        user.setDeleted(true);
+        user.setDeleted(false);
 
         List<Address> list = new ArrayList<>();
         Address address = new Address();
@@ -74,159 +72,201 @@ public class Bootstrap implements ApplicationRunner {
         user.setRoles(tempRole);
 
         userRepository.save(user);
-//
-
 
 //-----------INSERTING THE DATA INTO CATEGORY TABLE---------------------------------------------------------------------
 
 //------------ROOT CATEGORY------------------
-            Category fashion = new Category();
-            fashion.setName("FASHION");
-            categoryRepository.save(fashion);
+        Category electronics = new Category();
+        electronics.setName("Electronics");
+        categoryRepository.save(electronics);
 
-            Category electronics = new Category();
-            electronics.setName("ELECTRONICS");
-            categoryRepository.save(electronics);
+        Category furniture = new Category();
+        furniture.setName("Home & Furniture");
+        categoryRepository.save(furniture);
 
-            Category books = new Category();
-            books.setName("BOOKS");
-            categoryRepository.save(books);
+        Category health = new Category();
+        health.setName("Health & fitness");
+        categoryRepository.save(health);
 
 //------------SUB CATEGORY LEVEL-1------------------
-//-------------SUBCATEGORY:FASHION------------------
-            Category men = new Category();
-            men.setName("MEN");
-            men.setParent(fashion);
-            categoryRepository.save(men);
+//-------------SUBCATEGORY:Home & Furniture------------------
+        Category bedRoom = new Category();
+        bedRoom.setName("Bed Room Furniture");
+        bedRoom.setParent(furniture);
+        categoryRepository.save(bedRoom);
 
-            Category women = new Category();
-            women.setName("WOMEN");
-            women.setParent(fashion);
-            categoryRepository.save(women);
+        Category livingRoom = new Category();
+        livingRoom.setName("Living Room Furniture");
+        livingRoom.setParent(furniture);
+        categoryRepository.save(livingRoom);
 
-            Category kids = new Category();
-            kids.setName("KIDS");
-            kids.setParent(fashion);
-            categoryRepository.save(kids);
+        Category officeAndStudy = new Category();
+        officeAndStudy.setName("Office And Study Furniture");
+        officeAndStudy.setParent(furniture);
+        categoryRepository.save(officeAndStudy);
 
-//-------------SUBCATEGORY:ELECTRONICS------------------
-            Category mobileAndAccessory = new Category();
-            mobileAndAccessory.setName("MOBILE AND ACCESSORY");
-            mobileAndAccessory.setParent(electronics);
-            categoryRepository.save(mobileAndAccessory);
+//-------------SUBCATEGORY:Electronics------------------
+        Category mobile = new Category();
+        mobile.setName("Mobile");
+        mobile.setParent(electronics);
+        categoryRepository.save(mobile);
 
-            Category cameraAndAccessory = new Category();
-            cameraAndAccessory.setName("CAMERA AND ACCESSORY");
-            cameraAndAccessory.setParent(electronics);
-            categoryRepository.save(cameraAndAccessory);
+        Category camera = new Category();
+        camera.setName("Camera");
+        camera.setParent(electronics);
+        categoryRepository.save(camera);
 
-//-------------SUBCATEGORY:BOOKS------------------
-            Category actionAndAdventure = new Category();
-            actionAndAdventure.setName("ACTION AND ADVENTURE");
-            actionAndAdventure.setParent(books);
-            categoryRepository.save(actionAndAdventure);
+        Category watch = new Category();
+        watch.setName("Watch");
+        watch.setParent(electronics);
+        categoryRepository.save(watch);
 
-            Category biography = new Category();
-            biography.setName("BIOGRAPHY");
-            biography.setParent(books);
-            biography.setLeafNode(true);
-            categoryRepository.save(biography);
+        Category laptop = new Category();
+        laptop.setName("Laptop");
+        laptop.setParent(electronics);
+        categoryRepository.save(laptop);
 
-//------------SUB CATEGORY LEVEL-2------------------
-//-------------SUBCATEGORY:MEN------------------
-            Category menCloth = new Category();
-            menCloth.setName("MEN CLOTH");
-            menCloth.setParent(men);
-            menCloth.setLeafNode(true);
-            categoryRepository.save(menCloth);
+//-------------SUBCATEGORY:Health & fitness------------------
+        Category healthCareDevices = new Category();
+        healthCareDevices.setName("Health Care Devices");
+        healthCareDevices.setParent(health);
+        categoryRepository.save(healthCareDevices);
 
-            Category menShoe = new Category();
-            menShoe.setName("MEN SHOE");
-            menShoe.setParent(men);
-            menShoe.setLeafNode(true);
-            categoryRepository.save(menShoe);
+        Category personalFitness = new Category();
+        personalFitness.setName("Personal Fitness Devices");
+        personalFitness.setParent(health);
+        categoryRepository.save(personalFitness);
 
-            Category menWatch = new Category();
-            menWatch.setName("MEN WATCH");
-            menWatch.setParent(men);
-            menWatch.setLeafNode(true);
-            categoryRepository.save(menWatch);
+//------------SUB CATEGORY LEVEL-2 Home & Furniture------------
+//-------------SUBCATEGORY:Bed Room Furniture------------------
+        Category beds = new Category();
+        beds.setName("Bed");
+        beds.setParent(bedRoom);
+        beds.setLeafNode(true);
+        categoryRepository.save(beds);
 
-//-------------SUBCATEGORY:WOMEN------------------
-            Category womenCloth = new Category();
-            womenCloth.setName("WOMEN CLOTH");
-            womenCloth.setParent(women);
-            womenCloth.setLeafNode(true);
-            categoryRepository.save(womenCloth);
+        Category wardrobe = new Category();
+        wardrobe.setName("Wardrobe");
+        wardrobe.setParent(bedRoom);
+        wardrobe.setLeafNode(true);
+        categoryRepository.save(wardrobe);
 
-            Category womenShoe = new Category();
-            womenShoe.setName("WOMEN SHOE");
-            womenShoe.setParent(women);
-            womenShoe.setLeafNode(true);
-            categoryRepository.save(womenShoe);
+//-------------SUBCATEGORY:Living Room Furniture------------------
+        Category sofa = new Category();
+        sofa.setName("Sofa");
+        sofa.setParent(livingRoom);
+        sofa.setLeafNode(true);
+        categoryRepository.save(sofa);
 
-            Category womenWatch = new Category();
-            womenWatch.setName("WOMEN WATCH");
-            womenWatch.setParent(women);
-            womenWatch.setLeafNode(true);
-            categoryRepository.save(womenWatch);
+        Category diningTable = new Category();
+        diningTable.setName("Dining Table");
+        diningTable.setParent(livingRoom);
+        diningTable.setLeafNode(true);
+        categoryRepository.save(diningTable);
 
-//-------------SUBCATEGORY:KIDS------------------
-            Category kidsCloth = new Category();
-            kidsCloth.setName("KIDS CLOTH");
-            kidsCloth.setParent(kids);
-            kidsCloth.setLeafNode(true);
-            categoryRepository.save(kidsCloth);
+        Category diningChair = new Category();
+        diningChair.setName("Dining Chair");
+        diningChair.setParent(livingRoom);
+        diningChair.setLeafNode(true);
+        categoryRepository.save(diningChair);
 
-            Category kidsShoe = new Category();
-            kidsShoe.setName("KIDS SHOE");
-            kidsShoe.setParent(kids);
-            kidsShoe.setLeafNode(true);
-            categoryRepository.save(kidsShoe);
+//-------------SUBCATEGORY:Office & Study Furniture------------------
+        Category studyTable = new Category();
+        studyTable.setName("Study Table");
+        studyTable.setParent(officeAndStudy);
+        studyTable.setLeafNode(true);
+        categoryRepository.save(studyTable);
 
-            Category kidsWatch = new Category();
-            kidsWatch.setName("KIDS WATCH");
-            kidsWatch.setParent(kids);
-            kidsWatch.setLeafNode(true);
-            categoryRepository.save(kidsWatch);
+        Category officeChair = new Category();
+        officeChair.setName("Office Chair");
+        officeChair.setParent(officeAndStudy);
+        officeChair.setLeafNode(true);
+        categoryRepository.save(officeChair);
 
-//-------------SUBCATEGORY:MOBILE AND ACCESSORY------------------
-            Category mobile = new Category();
-            mobile.setName("MOBILE");
-            mobile.setParent(mobileAndAccessory);
-            mobile.setLeafNode(true);
-            categoryRepository.save(mobile);
+        Category officeTable = new Category();
+        officeTable.setName("Office Table");
+        officeTable.setParent(officeAndStudy);
+        officeTable.setLeafNode(true);
+        categoryRepository.save(officeTable);
 
-            Category mobileAccessory = new Category();
-            mobile.setName("MOBILE ACCESSORY");
-            mobile.setParent(mobileAndAccessory);
-            mobile.setLeafNode(true);
-            categoryRepository.save(mobile);
+//------------SUB CATEGORY LEVEL-2 Electronics---------------------
+//-------------SUBCATEGORY:MOBILE----------------------------------
+        Category samsung = new Category();
+        samsung.setName("Samsung Mobile");
+        samsung.setParent(mobile);
+        samsung.setLeafNode(true);
+        categoryRepository.save(mobile);
 
-//-------------SUBCATEGORY:CAMERA AND ACCESSORY------------------
-            Category camera = new Category();
-            camera.setName("CAMERA");
-            camera.setParent(cameraAndAccessory);
-            camera.setLeafNode(true);
-            categoryRepository.save(camera);
+        Category apple = new Category();
+        apple.setName("Apple Mobile");
+        apple.setParent(mobile);
+        apple.setLeafNode(true);
+        categoryRepository.save(mobile);
 
-            Category cameraAccessory = new Category();
-            camera.setName("CAMERA ACCESSORY");
-            camera.setParent(mobileAndAccessory);
-            camera.setLeafNode(true);
-            categoryRepository.save(camera);
+//-------------SUBCATEGORY:CAMERA---------------------------------
+        Category dslrCamera = new Category();
+        dslrCamera.setName("DSLR Camera");
+        dslrCamera.setParent(camera);
+        dslrCamera.setLeafNode(true);
+        categoryRepository.save(dslrCamera);
 
-//-------------SUBCATEGORY:ACTION AND ADVENTURE------------------
-            Category actionBook = new Category();
-            actionBook.setName("ACTION BOOK");
-            actionBook.setParent(actionAndAdventure);
-            actionBook.setLeafNode(true);
-            categoryRepository.save(actionBook);
+        Category sportsCamera = new Category();
+        sportsCamera.setName("Sports Camera");
+        sportsCamera.setParent(camera);
+        sportsCamera.setLeafNode(true);
+        categoryRepository.save(sportsCamera);
 
-            Category adventureBook = new Category();
-            adventureBook.setName("ADVENTURE BOOK");
-            adventureBook.setParent(actionAndAdventure);
-            adventureBook.setLeafNode(true);
-            categoryRepository.save(adventureBook);
-        }
+//-------------SUBCATEGORY:WATCH---------------------------------
+        Category digitalWatch = new Category();
+        digitalWatch.setName("Digital Watches");
+        digitalWatch.setParent(watch);
+        digitalWatch.setLeafNode(true);
+        categoryRepository.save(digitalWatch);
+
+        Category smartWatch = new Category();
+        smartWatch.setName("Smart Watches");
+        smartWatch.setParent(watch);
+        smartWatch.setLeafNode(true);
+        categoryRepository.save(smartWatch);
+
+//-------------SUBCATEGORY:LAPTOP---------------------------------
+        Category macBookLaptop = new Category();
+        macBookLaptop.setName("MAC Book Laptops");
+        macBookLaptop.setParent(laptop);
+        macBookLaptop.setLeafNode(true);
+        categoryRepository.save(macBookLaptop);
+
+        Category gamingLaptop = new Category();
+        gamingLaptop.setName("Gaming Laptops");
+        gamingLaptop.setParent(laptop);
+        gamingLaptop.setLeafNode(true);
+        categoryRepository.save(gamingLaptop);
+
+//------------SUB CATEGORY LEVEL-2 Health & fitness--------------
+//-------------SUBCATEGORY:Health Care Devices------------------
+        Category bloodPressureMonitor = new Category();
+        bloodPressureMonitor.setName("Blood Pressure Monitor");
+        bloodPressureMonitor.setParent(healthCareDevices);
+        bloodPressureMonitor.setLeafNode(true);
+        categoryRepository.save(bloodPressureMonitor);
+
+        Category glucoseMonitor = new Category();
+        glucoseMonitor.setName("Glucose Monitor");
+        glucoseMonitor.setParent(healthCareDevices);
+        glucoseMonitor.setLeafNode(true);
+        categoryRepository.save(glucoseMonitor);
+
+//-------------SUBCATEGORY: Family Nutrition------------------
+        Category cardioEquipment = new Category();
+        cardioEquipment.setName("Cardio Equipments");
+        cardioEquipment.setParent(personalFitness);
+        cardioEquipment.setLeafNode(true);
+        categoryRepository.save(cardioEquipment);
+
+        Category strengthEquipment = new Category();
+        strengthEquipment.setName("Strength Equipments");
+        strengthEquipment.setParent(personalFitness);
+        strengthEquipment.setLeafNode(true);
+        categoryRepository.save(strengthEquipment);
+    }
 }
