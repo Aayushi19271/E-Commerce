@@ -24,16 +24,20 @@ public class ConfirmationToken {
 
     @Column(name="expiry_date")
     private Date expiryDate;
+//
+//    @OneToOne
+//    @JoinColumn(name = "customer_user_id")
+//    private Customer customer;
 
     @OneToOne
-    @JoinColumn(name = "customer_user_id")
-    private Customer customer;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public ConfirmationToken() {
     }
 
-    public ConfirmationToken(Customer customer) {
-        this.customer = customer;
+    public ConfirmationToken(User user) {
+        this.user = user;
         createdDate = new Date();
         confirmationToken = UUID.randomUUID().toString();
     }
@@ -43,8 +47,7 @@ public class ConfirmationToken {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE,getEXPIRATION());
-        Date expirydate = calendar.getTime();
-        return expirydate;
+        return calendar.getTime();
     }
 
     public static int getEXPIRATION() {
@@ -56,8 +59,7 @@ public class ConfirmationToken {
     }
 
     public void setExpiryDate(Date expiryDate) {
-        Date time = calculateExpiry(expiryDate);
-        this.expiryDate = time;
+        this.expiryDate = calculateExpiry(expiryDate);
     }
 
     public long getTokenid() {
@@ -84,12 +86,12 @@ public class ConfirmationToken {
         this.createdDate = createdDate;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -99,7 +101,7 @@ public class ConfirmationToken {
                 ", confirmationToken='" + confirmationToken + '\'' +
                 ", createdDate=" + createdDate +
                 ", expiryDate=" + expiryDate +
-                ", customer=" + customer +
+                ", user=" + user +
                 '}';
     }
 }

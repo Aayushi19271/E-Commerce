@@ -4,22 +4,23 @@ import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.dto.UserDto;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
-import com.bootcamp.ECommerceApplication.exception.UserAlreadyExists;
+import com.bootcamp.ECommerceApplication.exception.UserAlreadyExistsException;
 import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.repository.ConfirmationTokenRepository;
 import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
 import com.bootcamp.ECommerceApplication.repository.RoleRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.ReflectionUtils;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.net.URI;
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -43,14 +44,14 @@ public class UserService {
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-//--------------------------------------USER'S METHOD - FINDERS AND CREATE CUSTOMER-------------------------------------
+    //--------------------------------------USER'S METHOD - FINDERS AND CREATE CUSTOMER-------------------------------------
     //FIND CUSTOMER BY EMAIL ID
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmailIgnoreCase(email);
     }
 
 
-//-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
+    //-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
     //FIND ONE TOKEN
     public ConfirmationToken findConfirmationToken(String token) {
         return confirmationTokenRepository.findByConfirmationToken(token);
@@ -67,11 +68,11 @@ public class UserService {
 
 
     //CREATE & RETURN CONFIRMATION TOKEN
-    public ConfirmationToken createConfirmationToken(Customer customer) {
-        ConfirmationToken confirmationToken = new ConfirmationToken(customer);
+    public ConfirmationToken createConfirmationToken(User user) {
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
         confirmationToken.setExpiryDate(new Date());
         confirmationTokenRepository.save(confirmationToken);
-        return  confirmationToken;
+        return confirmationToken;
     }
 
 //------------------------------------------------SELLER REGISTRATION METHOD'S------------------------------------------
@@ -81,33 +82,28 @@ public class UserService {
         String customerEmail = seller.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
-        if(user == null) {
+        if (user == null) {
             seller.setActive(false);
             seller.setDeleted(false);
             seller.setPassword(passwordEncoder.encode(seller.getPassword()));
             String companyName = seller.getCompany_name().toLowerCase();
             seller.setCompany_name(companyName);
-
             ArrayList<Role> tempRole = new ArrayList<>();
-            Role role = roleRepository.findById((long) 2).get();
+            Role role = roleRepository.findByAuthority("ROLE_SELLER");
             tempRole.add(role);
             seller.setRoles(tempRole);
-
-            Seller saveSeller = userRepository.save(seller);
-            smtpMailSender.send(seller.getEmail(), "Pending Approval",
-                    "The Account has been Registered but is Pending Approval! ");
-
-            //HTTP RESPONSE CREATED STATUS - 201 CREATED
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(saveSeller.getId()).toUri();
-
-            ResponseEntity.created(location).build();
-
-            return ResponseEntity.created(location).build();
-        }
-        else
-            throw new UserAlreadyExists("The Seller's EmailID Already Exist: "+seller.getEmail());
+            userRepository.save(seller);
+            try {
+                smtpMailSender.send(seller.getEmail(), "Pending Approval",
+                        "The Account has been Registered but is Pending Approval! ");
+                return new ResponseEntity<Object>("Mail Send Successfully!", HttpStatus.CREATED);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.err.println("Failed to send email to: " + seller.getEmail() + " reason: " + ex.getMessage());
+                return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+            }
+        } else
+            throw new UserAlreadyExistsException("The Seller's EmailID Already Exist: " + seller.getEmail());
     }
 
 
@@ -122,99 +118,176 @@ public class UserService {
             customer.setDeleted(false);
             customer.setActive(false);
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-
             ArrayList<Role> tempRole = new ArrayList<>();
-            Role role = roleRepository.findById((long) 3).get();
+            Role role = roleRepository.findByAuthority("ROLE_CUSTOMER");
             tempRole.add(role);
             customer.setRoles(tempRole);
-
-            Customer saveCustomer = userRepository.save(customer);
+            userRepository.save(customer);
             ConfirmationToken confirmationToken = createConfirmationToken(customer);
-
-            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/customers/confirm-account?token="+confirmationToken.getConfirmationToken());
-
-            //HTTP RESPONSE CREATED STATUS - 201 CREATED
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(saveCustomer.getId()).toUri();
-
-            ResponseEntity.created(location).build();
-            return ResponseEntity.created(location).build();
+            try {
+                return sendMailCustomer(customer, confirmationToken);
+            } catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Failed to send email to: " + customer.getEmail() + " reason: " + ex.getMessage());
+            return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+            }
         }
         else
-            throw new UserAlreadyExists("The Customer's EmailID Already Exist: "+customer.getEmail());
+            throw new UserAlreadyExistsException("The Customer's EmailID Already Exist: "+customer.getEmail());
     }
 
 
     //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
     @Transactional
-    public String confirmUserAccountToken(String confirmationToken) throws MessagingException {
+    public ResponseEntity<Object> confirmUserAccountToken(String confirmationToken) throws MessagingException {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
             throw new TokenNotFoundException("token-"+confirmationToken);
-
-        //IF THE TOKEN IS FOUND
-        Integer flag = confirmTokenExpiry(confirmationToken);
-        if(flag==0)
-            return "The Previous Activation Link Is Expired, Please Verify The Account Using The New Activation Link";
-        else
-            return "The Account Has Been Successfully Activated";
+        return confirmTokenExpiry(confirmationToken);
     }
 
 
     //CHECK THE TOKEN EXPIRY (3 CONDITIONS-- token correct, token expires, token wrong)
     @Transactional
-    public Integer confirmTokenExpiry(String confirmationToken) throws MessagingException {
+    public ResponseEntity<Object> confirmTokenExpiry(String confirmationToken) throws MessagingException {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
-        Customer customer = token.getCustomer();
+        User user = token.getUser();
         Calendar calendar = Calendar.getInstance();
 
         //IF THE TOKEN EXPIRES
         if((token.getExpiryDate().getTime()-calendar.getTime().getTime())<=0) {
-            ConfirmationToken newConfirmationToken = new ConfirmationToken(token.getCustomer());
+            ConfirmationToken newConfirmationToken = new ConfirmationToken(token.getUser());
             newConfirmationToken.setExpiryDate(new Date());
             confirmationTokenRepository.save(newConfirmationToken);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-
-            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/customers/confirm-account?token="+newConfirmationToken.getConfirmationToken());
-
-            return 0;
+            return sendMailCustomer(user, newConfirmationToken);
         }
         //IF THE TOKEN IS CORRECT
         else {
-            User user = userRepository.findByEmailIgnoreCase(token.getCustomer().getEmail());
-            user.setActive(true);
-            userRepository.save(user);
+            User savedUser = userRepository.findByEmailIgnoreCase(token.getUser().getEmail());
+            savedUser.setActive(true);
+            userRepository.save(savedUser);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-
-            smtpMailSender.send(customer.getEmail(), "Account Activated",
-                    "Dear "+customer.getFirstName()+", Your Account Has Been Activated!!");
-            return 2;
+            smtpMailSender.send(savedUser.getEmail(), "Account Activated",
+                    "Dear "+savedUser.getFirstName()+", Your Account Has Been Activated!!");
+            return new ResponseEntity<Object>("Your Account Has Been Activated!!", HttpStatus.CREATED);
         }
     }
 
 
     //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @Transactional
-    public String reSendActivationLink(UserDto user) throws MessagingException {
+    public ResponseEntity<Object> reSendActivationLink(UserDto user) throws MessagingException {
         String email = user.getEmail();
         Customer customer= findCustomerByEmail(email);
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+email);
-
         if(customer.isActive()) {
-            return "The Account is already Activated";
+            return new ResponseEntity<Object>("User Already Active!", HttpStatus.CREATED);
         }
         else {
             deleteConfirmationToken(email);
             ConfirmationToken newConfirmationToken = createConfirmationToken(customer);
-            smtpMailSender.send(customer.getEmail(), "Complete Registration", "To activate your account, please click the link here : " +
-                    "http://localhost:8080/users/customers/confirm-account?token="+newConfirmationToken.getConfirmationToken());
+            return sendMailCustomer(customer, newConfirmationToken);
+        }
+    }
 
-            return "The Activation Link Is Send Again";
+    //SEND REGISTRATION MAIL TO CUSTOMER
+    public ResponseEntity<Object> sendMailCustomer(User user,ConfirmationToken newConfirmationToken )
+    {
+        try {
+            smtpMailSender.send(user.getEmail(), "Complete Registration",
+                    "Dear " + user.getFirstName() + ",To activate your account, please click the link here : " +
+                            "http://localhost:8080/users/customers/confirm-account?token=" + newConfirmationToken.getConfirmationToken());
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
+            return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+        }
+        return new ResponseEntity<Object>("Mail Send Successfully!", HttpStatus.CREATED);
+    }
+
+//--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
+
+    //FORGOT PASSWORD REQUEST
+    public ResponseEntity<Object> sendPasswordResetLink(UserDto userDto) {
+        String email = userDto.getEmail();
+        User user = userRepository.findByEmailIgnoreCase(email);
+        if(user==null)
+            throw new UserNotFoundException("The User's EmailID Does Not Exist: "+userDto.getEmail());
+        boolean active = user.isActive();
+        if(active) {
+            ConfirmationToken confirmationToken = createConfirmationToken(user);
+            return sendResetPasswordMailUsers(user, confirmationToken);
+        }
+        else {
+            return new ResponseEntity<Object>("The User is Not An Active User", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    //SEND RESET PASSWORD MAIL TO USERS
+    public ResponseEntity<Object> sendResetPasswordMailUsers(User user,ConfirmationToken newConfirmationToken ) {
+        try {
+            smtpMailSender.send(user.getEmail(), "PASSWORD RESET",
+                    "Dear " + user.getFirstName() + ",To reset your account's password, please click the link here : " +
+                            "http://localhost:8080/users/reset-password?token="
+                            + newConfirmationToken.getConfirmationToken());
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
+            return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+        }
+        return new ResponseEntity<Object>("Mail Send Successfully!", HttpStatus.CREATED);
+    }
+
+
+    //SEND RESET PASSWORD SUCCESS MAIL TO USER
+    public ResponseEntity<Object> sendResetPasswordSuccessMail(User user) {
+        try {
+            smtpMailSender.send(user.getEmail(), "SUCCESSFUL PASSWORD RESET",
+                    "Dear " + user.getFirstName() + ", You're Password has been successfully changed! ");
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
+            return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+        }
+        return new ResponseEntity<Object>("Password Changed Successfully!", HttpStatus.CREATED);
+    }
+
+
+    public ResponseEntity<Object> resetPassword(String confirmationToken, Map<Object, Object> fields) {
+        //IF THE TOKEN IS NOT FOUND/WRONG
+        ConfirmationToken token = findConfirmationToken(confirmationToken);
+        if (token == null)
+            throw new TokenNotFoundException("token-" + confirmationToken);
+        Calendar calendar = Calendar.getInstance();
+        User user = token.getUser();
+
+        //IF THE TOKEN EXPIRES
+        if((token.getExpiryDate().getTime()-calendar.getTime().getTime())<=0) {
+            confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
+            return new ResponseEntity<Object>("Token Expired!", HttpStatus.BAD_REQUEST);
+        }
+
+
+        //IF THE TOKEN IS NOT EXPIRED
+        else {
+            if (user != null) {
+                fields.forEach((k, v) -> {
+                    Field field = ReflectionUtils.findField(User.class, (String) k);
+                    assert field != null;
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, user, v);
+                });
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+                userRepository.save(user);
+                confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
+                return sendResetPasswordSuccessMail(user);
+            } else {
+                throw new UserNotFoundException("The User's EmailID Does Not Exist!");
+            }
         }
     }
 }

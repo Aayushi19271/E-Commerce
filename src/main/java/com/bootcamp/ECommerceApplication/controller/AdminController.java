@@ -6,6 +6,7 @@ import com.bootcamp.ECommerceApplication.entity.User;
 import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
@@ -79,7 +80,7 @@ public class AdminController {
     //-------------------------------------------ACTIVATE AND DE-ACTIVATE THE CUSTOMER----------------------------------
     //ACTIVATE A CUSTOMER
     @PatchMapping(value = "/admin/customers/activate/{id}")
-    public String activateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> activateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
             throws MessagingException {
         adminService.findCustomer(id);
         return adminService.activateAccount(id,fields);
@@ -88,7 +89,7 @@ public class AdminController {
 
     //DE-ACTIVE A CUSTOMER
     @PatchMapping(value = "/admin/customers/deactivate/{id}")
-    public String deactivateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> deactivateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
             throws MessagingException {
         adminService.findCustomer(id);
         return adminService.deactivateAccount(id,fields);
@@ -99,7 +100,7 @@ public class AdminController {
 
     //ACTIVATE A SELLER
     @PatchMapping(value = "/admin/sellers/activate/{id}")
-    public String activateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> activateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
             throws MessagingException {
         adminService.findSeller(id);
         return adminService.activateAccount(id,fields);
@@ -107,7 +108,7 @@ public class AdminController {
 
     //DE-ACTIVE A SELLER
     @PatchMapping(value = "/admin/sellers/deactivate/{id}")
-    public String deactivateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> deactivateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
             throws MessagingException {
         adminService.findSeller(id);
         return adminService.deactivateAccount(id,fields);

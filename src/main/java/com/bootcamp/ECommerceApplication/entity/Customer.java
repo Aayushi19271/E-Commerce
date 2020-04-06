@@ -15,16 +15,16 @@ public class Customer extends User{
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
     private List<ProductReview> productReviews;
 
-    @OneToOne(mappedBy = "customer")
-    private ConfirmationToken confirmationToken;
-
-    public ConfirmationToken getConfirmationToken() {
-        return confirmationToken;
-    }
-
-    public void setConfirmationToken(ConfirmationToken confirmationToken) {
-        this.confirmationToken = confirmationToken;
-    }
+//    @OneToOne(mappedBy = "customer")
+//    private ConfirmationToken confirmationToken;
+//
+//    public ConfirmationToken getConfirmationToken() {
+//        return confirmationToken;
+//    }
+//
+//    public void setConfirmationToken(ConfirmationToken confirmationToken) {
+//        this.confirmationToken = confirmationToken;
+//    }
 
     public String getContact() {
         return contact;
@@ -56,7 +56,6 @@ public class Customer extends User{
                 "contact='" + contact + '\'' +
                 ", cart=" + cart +
                 ", productReviews=" + productReviews +
-                ", confirmationToken=" + confirmationToken +
                 '}';
     }
 }

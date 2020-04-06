@@ -12,6 +12,8 @@ import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -72,6 +74,7 @@ public class AdminService {
         return customer;
     }
 
+//----------------------------------------------ADMIN SPECIFIED METHODS-------------------------------------------------
 
     //List Of All Users
     public List<User> findAllUsers() {
@@ -82,8 +85,6 @@ public class AdminService {
     public Optional<User> findOne(Long id) {
         return userRepository.findById(id);
     }
-
-//----------------------------------------------ADMIN SPECIFIED METHODS-------------------------------------------------
 
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
     public List<Object[]> findAllCustomers() {
@@ -123,10 +124,9 @@ public class AdminService {
 
 
     //ACTIVATE A ACCOUNT
-    public String activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
+    public ResponseEntity<Object> activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
-        Boolean flag = user.isActive();
-
+        boolean flag = user.isActive();
         if (!flag) {
             fields.forEach((k, v) -> {
                 Field field = ReflectionUtils.findField(User.class, (String) k);
@@ -135,17 +135,25 @@ public class AdminService {
                 ReflectionUtils.setField(field, user, v);
             });
             updateUser(user);
-
-            smtpMailSender.send(user.getEmail(), "Account Activated!", "Dear  " + user.getFirstName() + ", You're Account Has Been Activated!");
-            return "Account Successfully Activated";
-        } else
-            return "The Customer's Account is Already Active!";
+            try {
+                smtpMailSender.send(user.getEmail(), "Account Activated!", "Dear  " + user.getFirstName() + ", You're Account Has Been Activated!");
+                return new ResponseEntity<Object>("Account Activated Successfully!", HttpStatus.CREATED);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+                System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
+                return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+            }
+        }
+        else
+            return new ResponseEntity<Object>("Account Already Active!", HttpStatus.CREATED);
     }
 
+
     //DE-ACTIVATE THE ACCOUNT
-    public String deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
+    public ResponseEntity<Object> deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
-        Boolean flag = user.isActive();
+        boolean flag = user.isActive();
 
         if (!flag) {
             fields.forEach((k, v) -> {
@@ -155,10 +163,16 @@ public class AdminService {
                 ReflectionUtils.setField(field, user, v);
             });
             updateUser(user);
-
-            smtpMailSender.send(user.getEmail(), "Account De-activated!", "Dear  "+user.getFirstName()+", You're Account Has Been De-activated!");
-            return "Account Successfully De-activated";
-        } else
-            return "The Customer's Account is Already De-active!";
+            try {
+                smtpMailSender.send(user.getEmail(), "Account De-activated!", "Dear  "+user.getFirstName()+", You're Account Has Been De-activated!");
+                return new ResponseEntity<Object>("Account Successfully De-activated!", HttpStatus.CREATED);
+            }catch (Exception ex) {
+                ex.printStackTrace();
+                System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
+                return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+            }
+        }
+        else
+        return new ResponseEntity<Object>("Account Already De-active!", HttpStatus.CREATED);
     }
 }

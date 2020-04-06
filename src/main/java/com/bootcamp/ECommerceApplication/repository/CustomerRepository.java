@@ -13,9 +13,15 @@ import java.util.List;
 public interface CustomerRepository extends CrudRepository<Customer,Long> {
     Customer findByEmailIgnoreCase(String emailId);
 
+//    @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active " +
+//            "from user u inner join customer c " +
+//            "on u.id=c.user_id " +
+//            "where u.is_active=true",nativeQuery = true)
+//    List<Object[]> findAllCustomers(PageRequest pageable);
+
+
     @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active " +
             "from user u inner join customer c " +
-            "on u.id=c.user_id " +
-            "where u.is_active=true",nativeQuery = true)
+            "on u.id=c.user_id ",nativeQuery = true)
     List<Object[]> findAllCustomers(PageRequest pageable);
 }

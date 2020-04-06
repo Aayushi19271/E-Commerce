@@ -34,6 +34,17 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Address> addresses;
 
+    @OneToOne(mappedBy = "user")
+    private ConfirmationToken confirmationToken;
+
+    public ConfirmationToken getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(ConfirmationToken confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -169,6 +180,7 @@ public class User implements UserDetails {
                 ", isLocked=" + isLocked +
                 ", roles=" + roles +
                 ", addresses=" + addresses +
+                ", confirmationToken=" + confirmationToken +
                 '}';
     }
 }

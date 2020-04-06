@@ -3,10 +3,10 @@ package com.bootcamp.ECommerceApplication.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.FOUND)
-public class UserAlreadyExists extends RuntimeException{
+@ResponseStatus(HttpStatus.FORBIDDEN)
+public class UnauthorizedException extends RuntimeException{
 
-    public UserAlreadyExists(String message) {
+    public UnauthorizedException(String message) {
         super(message);
     }
 }

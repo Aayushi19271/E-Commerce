@@ -1,9 +1,6 @@
 package com.bootcamp.ECommerceApplication.exception.handler;
 
-import com.bootcamp.ECommerceApplication.exception.ExceptionResponse;
-import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
-import com.bootcamp.ECommerceApplication.exception.UserAlreadyExists;
-import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
+import com.bootcamp.ECommerceApplication.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +24,7 @@ public class CustomizedResponseEntityExceptionHandler
 
     //HTTP STATUS 500 INTERNAL SERVER ERROR
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<Object> handleAllExceptions
+    public final ResponseEntity handleAllExceptions
             (Exception ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
                 new ExceptionResponse(new Date(), ex.getMessage(),
@@ -40,7 +37,7 @@ public class CustomizedResponseEntityExceptionHandler
     public final ResponseEntity<Object> handleUserNotFoundExceptions
             (UserNotFoundException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), ex.getMessage(),
+                new ExceptionResponse(new Date(),"User Not Found.",
                         request.getDescription(false));
         return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
     }
@@ -50,7 +47,7 @@ public class CustomizedResponseEntityExceptionHandler
     public final ResponseEntity<Object> handleTokenNotFoundException
     (TokenNotFoundException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), "Enter the Valid Token",
+                new ExceptionResponse(new Date(), "Token Not Found.",
                         request.getDescription(false));
         return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
     }
@@ -68,7 +65,7 @@ public class CustomizedResponseEntityExceptionHandler
             errors.put(fieldName, errorMessage);
         });
         ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
-                "Validation Failed", errors.toString());
+                "Validation Failed.", errors.toString());
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -79,18 +76,28 @@ public class CustomizedResponseEntityExceptionHandler
             WebRequest request) {
 
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), "The request method does not support",
+                new ExceptionResponse(new Date(), "The Request Method Does Not Support.",
                         request.getDescription(false));
         return new ResponseEntity(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     //HTTP STATUS 302 FOUND - When the user's emailID already Exists
-    @ExceptionHandler(UserAlreadyExists.class)
+    @ExceptionHandler(UserAlreadyExistsException.class)
     public final ResponseEntity<Object> handleUserAlreadyExistsExceptions
-            (UserAlreadyExists ex, WebRequest request) {
+            (UserAlreadyExistsException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), ex.getMessage(),
+                new ExceptionResponse(new Date(), "User Already Exists.",
                         request.getDescription(false));
         return new ResponseEntity(exceptionResponse, HttpStatus.FOUND);
+    }
+
+    //HTTP STATUS 403 FOUND - If the logged-in user does not have the required authorization to access the APIs
+    @ExceptionHandler(UnauthorizedException.class)
+    public final ResponseEntity<Object> handleAllUnauthorizedExceptions
+    (UserAlreadyExistsException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse(new Date(),"Full authentication is required to access this resource.",
+                        request.getDescription(false));
+        return new ResponseEntity(exceptionResponse, HttpStatus.FORBIDDEN);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.Map;
 
 
 @RestController
@@ -24,7 +25,7 @@ public class UserController {
     @Autowired
     ConverterService converterService;
 
-    //---------------------------------------REGISTER CUSTOMER AND SELLER-----------------------------------------------
+//---------------------------------------REGISTER CUSTOMER AND SELLER---------------------------------------------------
 
     //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
     @PostMapping("/sellers-registration")
@@ -44,7 +45,7 @@ public class UserController {
 
     //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
     @GetMapping("/customers/confirm-account")
-    public String confirmUserAccount(@RequestParam("token") String confirmationToken) throws MessagingException {
+    public ResponseEntity<Object> confirmUserAccount(@RequestParam("token") String confirmationToken) throws MessagingException {
         return userService.confirmUserAccountToken(confirmationToken);
     }
 
@@ -59,8 +60,21 @@ public class UserController {
 
     //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @PostMapping("/customers/re-send-activation-link")
-    public String reSendActivationLink(@RequestBody UserDto userDto) throws MessagingException {
+    public ResponseEntity<Object> reSendActivationLink(@RequestBody UserDto userDto) throws MessagingException {
 //        User user = converterService.convertToUser(userDto);   //not working
         return userService.reSendActivationLink(userDto);
+    }
+
+
+//--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Object> sendPasswordResetLink(@RequestBody UserDto userDto) {
+        return userService.sendPasswordResetLink(userDto);
+    }
+
+    @PatchMapping("/reset-password")
+    public ResponseEntity<Object> resetPassword(@RequestParam String token,@RequestBody Map<Object,Object> fields) {
+        return userService.resetPassword(token,fields);
     }
 }
