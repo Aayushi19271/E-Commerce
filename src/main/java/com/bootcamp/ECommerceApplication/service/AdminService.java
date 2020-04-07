@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -64,26 +65,16 @@ public class AdminService {
         address.setUser(customer);
         list.add(address);
         customer.setAddresses(list);
-
-//        ArrayList<Role> tempRole = new ArrayList<>();
-//        Role role = roleRepository.findById((long) 3).get();
-//        tempRole.add(role);
-//        customer.setRoles(tempRole);
-
         userRepository.save(customer);
         return customer;
     }
 
 //----------------------------------------------ADMIN SPECIFIED METHODS-------------------------------------------------
+//------------------------------------------LIST OF USERS,SELLERS,CUSTOMERS---------------------------------------------
 
     //List Of All Users
     public List<User> findAllUsers() {
         return (List<User>) userRepository.findAll();
-    }
-
-    //GET A SINGLE USER
-    public Optional<User> findOne(Long id) {
-        return userRepository.findById(id);
     }
 
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
@@ -98,6 +89,7 @@ public class AdminService {
         return sellerRepository.findAllSellers(pageable);
     }
 
+//------------------------------------------FIND/SAVE A USERS,SELLERS,CUSTOMERS-----------------------------------------
     //FIND A CUSTOMER
     public void findCustomer(Long id) {
         Optional<Customer> customer = customerRepository.findById(id);
@@ -112,7 +104,7 @@ public class AdminService {
             throw new UserNotFoundException("Seller Not Found Id-"+id);
     }
 
-    //GET A USER
+    //FIND A USER
     public User getUser(Long id) {
         return userRepository.findById(id).get();
     }
@@ -122,8 +114,8 @@ public class AdminService {
         userRepository.save(user);
     }
 
-
-    //ACTIVATE A ACCOUNT
+//----------------------------------------ACTIVATE AND DE-ACTIVATE THE ACCOUNT------------------------------------------
+    //ACTIVATE AN ACCOUNT
     public ResponseEntity<Object> activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
         boolean flag = user.isActive();
@@ -142,7 +134,7 @@ public class AdminService {
             catch (Exception ex) {
                 ex.printStackTrace();
                 System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
-                return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+                return new ResponseEntity<Object>("Failed To Send Email!", HttpStatus.BAD_GATEWAY);
             }
         }
         else
@@ -169,7 +161,7 @@ public class AdminService {
             }catch (Exception ex) {
                 ex.printStackTrace();
                 System.err.println("Failed to send email to: " + user.getEmail() + " reason: " + ex.getMessage());
-                return new ResponseEntity<Object>("Failed To Send Email", HttpStatus.BAD_GATEWAY);
+                return new ResponseEntity<Object>("Failed To Send Email!", HttpStatus.BAD_GATEWAY);
             }
         }
         else

@@ -7,15 +7,11 @@ import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 public class AdminController {
@@ -26,17 +22,13 @@ public class AdminController {
     @Autowired
     private SmtpMailSender smtpMailSender;
 
-    @Autowired
-    private TokenStore tokenStore;
-
-
-    //----------------------------------------------ADMIN HOME----------------------------------------------------------
+//-----------------------------------------------ADMIN HOME-------------------------------------------------------------
     @GetMapping("/admin/home")
     public String adminHome() {
         return "Welcome Admin!";
     }
 
-    //-----------------------------------------------GET USERS----------------------------------------------------------
+//-----------------------------------------------GET USERS--------------------------------------------------------------
     //GET THE LIST OF USERS
     @GetMapping
     public List<User> listOfUsers() {
@@ -45,15 +37,15 @@ public class AdminController {
 
     //GET A SINGLE USER
     @GetMapping("admin/{id}")
-    public Optional<User> retrieveCustomer(@PathVariable Long id)
+    public User retrieveCustomer(@PathVariable Long id)
     {
-        Optional<User> user = adminService.findOne(id);
-        if (!user.isPresent())
+        User user = adminService.getUser(id);
+        if (user==null)
             throw new UserNotFoundException("id-"+id);
         return user;
     }
 
-    //---------------------------------------------------TEST METHOD----------------------------------------------------
+//---------------------------------------------------TEST METHOD--------------------------------------------------------
     //CREATING THE CUSTOMER MANUALLY -- USING GETTER AND SETTERS
     @GetMapping("/admin/create-customer-manually")
     public Customer createCustomerManually() {
@@ -61,15 +53,15 @@ public class AdminController {
     }
 
 
-    //-----------------------------------------FETCH THE LIST OF CUSTOMERS AND SELLERS----------------------------------
-    //LIST ALL ACTIVATED CUSTOMERS
+//-----------------------------------------FETCH THE LIST OF CUSTOMERS AND SELLERS--------------------------------------
+    //LIST ALL REGISTERED CUSTOMERS
     @GetMapping("/admin/customers")
     public List<Object[]> findAllActivatedCustomers()
     {
         return adminService.findAllCustomers();
     }
 
-    //LIST ALL ACTIVATED SELLERS
+    //LIST ALL REGISTERED SELLERS
     @GetMapping("/admin/sellers")
     public List<Object[]> findAllActivatedSellers()
     {
@@ -77,7 +69,7 @@ public class AdminController {
     }
 
 
-    //-------------------------------------------ACTIVATE AND DE-ACTIVATE THE CUSTOMER----------------------------------
+//-------------------------------------------ACTIVATE AND DE-ACTIVATE THE CUSTOMER-------------------------------------
     //ACTIVATE A CUSTOMER
     @PatchMapping(value = "/admin/customers/activate/{id}")
     public ResponseEntity<Object> activateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
@@ -96,7 +88,7 @@ public class AdminController {
     }
 
 
-    //----------------------------------------ACTIVATE AND DE-ACTIVATE THE SELLER---------------------------------------
+//----------------------------------------ACTIVATE AND DE-ACTIVATE THE SELLER-------------------------------------------
 
     //ACTIVATE A SELLER
     @PatchMapping(value = "/admin/sellers/activate/{id}")
@@ -113,24 +105,6 @@ public class AdminController {
         adminService.findSeller(id);
         return adminService.deactivateAccount(id,fields);
     }
-
-    //----------------------------------------------------LOGOUT--------------------------------------------------------
-    @GetMapping("/")
-    public String test() {
-        return "Welcome to the E-Commerce Application!!!";
-    }
-
-    @GetMapping({"/customers/doLogout","/admin/doLogout","/sellers/doLogout","/doLogout"})
-    public String logout(HttpServletRequest request){
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null) {
-            String tokenValue = authHeader.replace("Bearer", "").trim();
-            OAuth2AccessToken accessToken = tokenStore.readAccessToken(tokenValue);
-            tokenStore.removeAccessToken(accessToken);
-        }
-        return "Logged out successfully";
-    }
-
 }
 
 

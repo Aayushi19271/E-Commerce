@@ -75,7 +75,7 @@ public class Bootstrap implements ApplicationRunner {
 
 //-----------INSERTING THE DATA INTO CATEGORY TABLE---------------------------------------------------------------------
 
-//------------ROOT CATEGORY------------------
+//------------ROOT CATEGORY----------------------------
         Category electronics = new Category();
         electronics.setName("Electronics");
         categoryRepository.save(electronics);
@@ -88,8 +88,8 @@ public class Bootstrap implements ApplicationRunner {
         health.setName("Health & fitness");
         categoryRepository.save(health);
 
-//------------SUB CATEGORY LEVEL-1------------------
-//-------------SUBCATEGORY:Home & Furniture------------------
+//------------SUB CATEGORY LEVEL-1----------------------
+//-------------SUBCATEGORY:Home & Furniture-------------
         Category bedRoom = new Category();
         bedRoom.setName("Bed Room Furniture");
         bedRoom.setParent(furniture);
@@ -126,7 +126,7 @@ public class Bootstrap implements ApplicationRunner {
         laptop.setParent(electronics);
         categoryRepository.save(laptop);
 
-//-------------SUBCATEGORY:Health & fitness------------------
+//-------------SUBCATEGORY:Health & fitness-------------
         Category healthCareDevices = new Category();
         healthCareDevices.setName("Health Care Devices");
         healthCareDevices.setParent(health);
@@ -137,8 +137,8 @@ public class Bootstrap implements ApplicationRunner {
         personalFitness.setParent(health);
         categoryRepository.save(personalFitness);
 
-//------------SUB CATEGORY LEVEL-2 Home & Furniture------------
-//-------------SUBCATEGORY:Bed Room Furniture------------------
+//------------SUB CATEGORY LEVEL-2 Home & Furniture-----
+//-------------SUBCATEGORY:Bed Room Furniture-----------
         Category beds = new Category();
         beds.setName("Bed");
         beds.setParent(bedRoom);
@@ -151,7 +151,7 @@ public class Bootstrap implements ApplicationRunner {
         wardrobe.setLeafNode(true);
         categoryRepository.save(wardrobe);
 
-//-------------SUBCATEGORY:Living Room Furniture------------------
+//-------------SUBCATEGORY:Living Room Furniture--------
         Category sofa = new Category();
         sofa.setName("Sofa");
         sofa.setParent(livingRoom);
@@ -170,7 +170,7 @@ public class Bootstrap implements ApplicationRunner {
         diningChair.setLeafNode(true);
         categoryRepository.save(diningChair);
 
-//-------------SUBCATEGORY:Office & Study Furniture------------------
+//-------------SUBCATEGORY:Office & Study Furniture-----
         Category studyTable = new Category();
         studyTable.setName("Study Table");
         studyTable.setParent(officeAndStudy);
@@ -189,8 +189,8 @@ public class Bootstrap implements ApplicationRunner {
         officeTable.setLeafNode(true);
         categoryRepository.save(officeTable);
 
-//------------SUB CATEGORY LEVEL-2 Electronics---------------------
-//-------------SUBCATEGORY:MOBILE----------------------------------
+//------------SUB CATEGORY LEVEL-2 Electronics----------
+//-------------SUBCATEGORY:MOBILE-----------------------
         Category samsung = new Category();
         samsung.setName("Samsung Mobile");
         samsung.setParent(mobile);
@@ -203,7 +203,7 @@ public class Bootstrap implements ApplicationRunner {
         apple.setLeafNode(true);
         categoryRepository.save(mobile);
 
-//-------------SUBCATEGORY:CAMERA---------------------------------
+//-------------SUBCATEGORY:CAMERA-----------------------
         Category dslrCamera = new Category();
         dslrCamera.setName("DSLR Camera");
         dslrCamera.setParent(camera);
@@ -216,7 +216,7 @@ public class Bootstrap implements ApplicationRunner {
         sportsCamera.setLeafNode(true);
         categoryRepository.save(sportsCamera);
 
-//-------------SUBCATEGORY:WATCH---------------------------------
+//-------------SUBCATEGORY:WATCH------------------------
         Category digitalWatch = new Category();
         digitalWatch.setName("Digital Watches");
         digitalWatch.setParent(watch);
@@ -229,7 +229,7 @@ public class Bootstrap implements ApplicationRunner {
         smartWatch.setLeafNode(true);
         categoryRepository.save(smartWatch);
 
-//-------------SUBCATEGORY:LAPTOP---------------------------------
+//-------------SUBCATEGORY:LAPTOP-----------------------
         Category macBookLaptop = new Category();
         macBookLaptop.setName("MAC Book Laptops");
         macBookLaptop.setParent(laptop);
@@ -242,8 +242,8 @@ public class Bootstrap implements ApplicationRunner {
         gamingLaptop.setLeafNode(true);
         categoryRepository.save(gamingLaptop);
 
-//------------SUB CATEGORY LEVEL-2 Health & fitness--------------
-//-------------SUBCATEGORY:Health Care Devices------------------
+//------------SUB CATEGORY LEVEL-2 Health & fitness-----
+//-------------SUBCATEGORY:Health Care Devices----------
         Category bloodPressureMonitor = new Category();
         bloodPressureMonitor.setName("Blood Pressure Monitor");
         bloodPressureMonitor.setParent(healthCareDevices);
@@ -256,7 +256,7 @@ public class Bootstrap implements ApplicationRunner {
         glucoseMonitor.setLeafNode(true);
         categoryRepository.save(glucoseMonitor);
 
-//-------------SUBCATEGORY: Family Nutrition------------------
+//-------------SUBCATEGORY: Family Nutrition------------
         Category cardioEquipment = new Category();
         cardioEquipment.setName("Cardio Equipments");
         cardioEquipment.setParent(personalFitness);

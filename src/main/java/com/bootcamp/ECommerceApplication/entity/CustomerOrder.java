@@ -14,7 +14,6 @@ public class CustomerOrder{
     @JoinColumn(name="customerUserId")
     @NotNull
     private Customer customer;
-
     private Float amountPaid;
 
     @Temporal(TemporalType.TIMESTAMP)

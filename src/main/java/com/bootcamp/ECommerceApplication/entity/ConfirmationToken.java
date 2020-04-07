@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Entity
 public class ConfirmationToken {
-
     //THE TOKEN EXPIRES IN 30 MINUTES
     private static final int EXPIRATION = 30;
 
@@ -24,10 +23,6 @@ public class ConfirmationToken {
 
     @Column(name="expiry_date")
     private Date expiryDate;
-//
-//    @OneToOne
-//    @JoinColumn(name = "customer_user_id")
-//    private Customer customer;
 
     @OneToOne
     @JoinColumn(name = "user_id")

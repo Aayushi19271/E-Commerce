@@ -8,7 +8,4 @@ public interface ConfirmationTokenRepository extends CrudRepository<Confirmation
     ConfirmationToken findByConfirmationToken(String confirmationToken);
 
     void deleteByConfirmationToken(String confirmationToken);
-
-//    ConfirmationToken findByCustomerUserId(Long id);
-
 }

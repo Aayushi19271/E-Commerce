@@ -17,12 +17,15 @@ public class ConverterService {
 
     @Autowired
     private ModelMapper modelMapper;
-    //-------------------------------------------USER ENTITY AND USER DTO-----------------------------------------------
+//-------------------------------------------USER ENTITY AND USER DTO---------------------------------------------------
     public UserDto convertToUserDto(User user){
         return modelMapper.map(user,UserDto.class);
     }
 
     public User convertToUser(UserDto userDto){ return modelMapper.map(userDto,User.class); }
+
+
+//-------------------------------------------ADDRESS ENTITY AND ADDRESS DTO---------------------------------------------
 
     public AddressDto convertToAddressDto(Address address){
         return modelMapper.map(address,AddressDto.class);
@@ -34,7 +37,7 @@ public class ConverterService {
 
 
 
-    //-------------------------------------------SELLER ENTITY AND SELLER DTO------------------------------------------
+//-------------------------------------------SELLER ENTITY AND SELLER DTO-----------------------------------------------
     public SellerDto convertToSellerDto(Seller seller){
         return modelMapper.map(seller,SellerDto.class);
     }
@@ -45,7 +48,7 @@ public class ConverterService {
 
 
 
-    //-------------------------------------------CUSTOMER ENTITY AND CUSTOMER DTO---------------------------------------
+//-------------------------------------------CUSTOMER ENTITY AND CUSTOMER DTO-------------------------------------------
     public CustomerDto convertToCustomerDto(Customer customer){
         return modelMapper.map(customer,CustomerDto.class);
     }

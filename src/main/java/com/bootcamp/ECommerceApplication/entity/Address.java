@@ -74,7 +74,6 @@ public class Address{
         this.label = label;
     }
 
-
     public User getUser() {
         return user;
     }

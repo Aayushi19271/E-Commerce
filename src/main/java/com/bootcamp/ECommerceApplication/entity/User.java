@@ -37,14 +37,6 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user")
     private ConfirmationToken confirmationToken;
 
-    public ConfirmationToken getConfirmationToken() {
-        return confirmationToken;
-    }
-
-    public void setConfirmationToken(ConfirmationToken confirmationToken) {
-        this.confirmationToken = confirmationToken;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -164,6 +156,14 @@ public class User implements UserDetails {
     public void setAddresses(List<Address> addresses) {
         addresses.forEach(e -> e.setUser(this));
         this.addresses = addresses;
+    }
+
+    public ConfirmationToken getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(ConfirmationToken confirmationToken) {
+        this.confirmationToken = confirmationToken;
     }
 
     @Override

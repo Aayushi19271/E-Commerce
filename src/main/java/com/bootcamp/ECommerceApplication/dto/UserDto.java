@@ -11,9 +11,6 @@ import java.util.List;
 
 @Inheritance(strategy = InheritanceType.JOINED)
 public class UserDto {
-    @JsonIgnore
-    private Long id;
-
     @Email(message = "The Email ID is not valid or already exist")
     @NotNull(message = "Email Id is a mandatory field")
     private String email;

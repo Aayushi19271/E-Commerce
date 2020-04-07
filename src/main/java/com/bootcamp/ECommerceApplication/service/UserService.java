@@ -1,6 +1,7 @@
 package com.bootcamp.ECommerceApplication.service;
 
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
+import com.bootcamp.ECommerceApplication.dto.PasswordDto;
 import com.bootcamp.ECommerceApplication.dto.UserDto;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
@@ -15,12 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -41,17 +43,20 @@ public class UserService {
     @Autowired
     ConfirmationTokenRepository confirmationTokenRepository;
 
+    @Autowired
+    private TokenStore tokenStore;
+
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-    //--------------------------------------USER'S METHOD - FINDERS AND CREATE CUSTOMER-------------------------------------
+//------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
     //FIND CUSTOMER BY EMAIL ID
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmailIgnoreCase(email);
     }
 
 
-    //-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
+//-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
     //FIND ONE TOKEN
     public ConfirmationToken findConfirmationToken(String token) {
         return confirmationTokenRepository.findByConfirmationToken(token);
@@ -256,8 +261,9 @@ public class UserService {
         return new ResponseEntity<Object>("Password Changed Successfully!", HttpStatus.CREATED);
     }
 
-
-    public ResponseEntity<Object> resetPassword(String confirmationToken, Map<Object, Object> fields) {
+    //PASSWORD RESET METHOD
+    @Transactional
+    public ResponseEntity<Object> resetPassword(String confirmationToken, PasswordDto passwordDto) {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
@@ -270,24 +276,36 @@ public class UserService {
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
             return new ResponseEntity<Object>("Token Expired!", HttpStatus.BAD_REQUEST);
         }
-
-
         //IF THE TOKEN IS NOT EXPIRED
         else {
-            if (user != null) {
-                fields.forEach((k, v) -> {
-                    Field field = ReflectionUtils.findField(User.class, (String) k);
-                    assert field != null;
-                    field.setAccessible(true);
-                    ReflectionUtils.setField(field, user, v);
-                });
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-                userRepository.save(user);
-                confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-                return sendResetPasswordSuccessMail(user);
-            } else {
-                throw new UserNotFoundException("The User's EmailID Does Not Exist!");
+            if (user.isActive()) {
+                if(passwordDto.getPassword().equals(passwordDto.getConfirmPassword()))
+                {
+                    user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
+                    userRepository.save(user);
+                    confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
+                    return sendResetPasswordSuccessMail(user);
+                }
+                else {
+                    return new ResponseEntity<Object>("Password does not match!", HttpStatus.BAD_REQUEST);
+                }
+            }
+            else {
+                return new ResponseEntity<Object>("User is not Active!", HttpStatus.BAD_REQUEST);
             }
         }
+    }
+
+
+//-------------------------------------------------LOGOUT THE ACCOUNT---------------------------------------------------
+    //LOGOUT METHOD
+    public ResponseEntity<Object> logout(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null) {
+            String tokenValue = authHeader.replace("Bearer", "").trim();
+            OAuth2AccessToken accessToken = tokenStore.readAccessToken(tokenValue);
+            tokenStore.removeAccessToken(accessToken);
+        }
+        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
     }
 }
