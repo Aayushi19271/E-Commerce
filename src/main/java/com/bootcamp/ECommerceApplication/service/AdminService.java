@@ -20,10 +20,7 @@ import org.springframework.util.ReflectionUtils;
 
 import javax.mail.MessagingException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AdminService {
@@ -126,6 +123,10 @@ public class AdminService {
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, user, v);
             });
+//            User adminName = userRepository.findUserByAdminAuthority();
+            String updatedBy = "admin@aayushi";
+            user.setUpdatedBy(updatedBy);
+            user.setLastUpdated(new Date());
             updateUser(user);
             try {
                 smtpMailSender.send(user.getEmail(), "Account Activated!", "Dear  " + user.getFirstName() + ", You're Account Has Been Activated!");
@@ -147,13 +148,17 @@ public class AdminService {
         User user = getUser(id);
         boolean flag = user.isActive();
 
-        if (!flag) {
+        if (flag) {
             fields.forEach((k, v) -> {
                 Field field = ReflectionUtils.findField(User.class, (String) k);
                 assert field != null;
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, user, v);
             });
+//            User adminName = userRepository.findUserByAdminAuthority();
+            String updatedBy = "admin@aayushi";
+            user.setUpdatedBy(updatedBy);
+            user.setLastUpdated(new Date());
             updateUser(user);
             try {
                 smtpMailSender.send(user.getEmail(), "Account De-activated!", "Dear  "+user.getFirstName()+", You're Account Has Been De-activated!");

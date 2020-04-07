@@ -97,6 +97,8 @@ public class UserService {
             Role role = roleRepository.findByAuthority("ROLE_SELLER");
             tempRole.add(role);
             seller.setRoles(tempRole);
+            seller.setCreatedBy("user@"+seller.getFirstName());
+            seller.setDateCreated(new Date());
             userRepository.save(seller);
             try {
                 smtpMailSender.send(seller.getEmail(), "Pending Approval",
@@ -127,6 +129,8 @@ public class UserService {
             Role role = roleRepository.findByAuthority("ROLE_CUSTOMER");
             tempRole.add(role);
             customer.setRoles(tempRole);
+            customer.setCreatedBy("user@"+customer.getFirstName());
+            customer.setDateCreated(new Date());
             userRepository.save(customer);
             ConfirmationToken confirmationToken = createConfirmationToken(customer);
             try {
@@ -172,6 +176,8 @@ public class UserService {
         else {
             User savedUser = userRepository.findByEmailIgnoreCase(token.getUser().getEmail());
             savedUser.setActive(true);
+            savedUser.setUpdatedBy("user@"+savedUser.getFirstName());
+            savedUser.setLastUpdated(new Date());
             userRepository.save(savedUser);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
             smtpMailSender.send(savedUser.getEmail(), "Account Activated",
@@ -282,6 +288,8 @@ public class UserService {
                 if(passwordDto.getPassword().equals(passwordDto.getConfirmPassword()))
                 {
                     user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
+                    user.setUpdatedBy("user@"+user.getFirstName());
+                    user.setLastUpdated(new Date());
                     userRepository.save(user);
                     confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
                     return sendResetPasswordSuccessMail(user);

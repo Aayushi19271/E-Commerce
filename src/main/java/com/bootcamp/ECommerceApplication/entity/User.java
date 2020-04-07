@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,12 @@ public class User implements UserDetails {
     private boolean isDeleted = true;
     private boolean isActive = false;
     private boolean isLocked = false;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateCreated;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdated;
+    private String createdBy;
+    private String updatedBy;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
@@ -166,6 +173,22 @@ public class User implements UserDetails {
         this.confirmationToken = confirmationToken;
     }
 
+    public Date getDateCreated() { return dateCreated; }
+
+    public void setDateCreated(Date dateCreated) { this.dateCreated = dateCreated; }
+
+    public Date getLastUpdated() { return lastUpdated; }
+
+    public void setLastUpdated(Date lastUpdated) { this.lastUpdated = lastUpdated; }
+
+    public String getCreatedBy() { return createdBy; }
+
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+    public String getUpdatedBy() { return updatedBy; }
+
+    public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
+
     @Override
     public String toString() {
         return "User{" +
@@ -178,6 +201,10 @@ public class User implements UserDetails {
                 ", isDeleted=" + isDeleted +
                 ", isActive=" + isActive +
                 ", isLocked=" + isLocked +
+                ", dateCreated=" + dateCreated +
+                ", lastUpdated=" + lastUpdated +
+                ", createdBy='" + createdBy + '\'' +
+                ", updatedBy='" + updatedBy + '\'' +
                 ", roles=" + roles +
                 ", addresses=" + addresses +
                 ", confirmationToken=" + confirmationToken +

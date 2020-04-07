@@ -36,7 +36,7 @@ public class AdminController {
     }
 
     //GET A SINGLE USER
-    @GetMapping("admin/{id}")
+    @GetMapping("/admin/{id}")
     public User retrieveCustomer(@PathVariable Long id)
     {
         User user = adminService.getUser(id);
