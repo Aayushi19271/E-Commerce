@@ -1,30 +1,17 @@
-package com.bootcamp.ECommerceApplication.entity;
+package com.bootcamp.ECommerceApplication.co;
 
 import javax.persistence.*;
 
-@Entity
-public class Address{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class AddressCO {
     private String city;
     private String state;
     private String country;
-    private String addressLine;
+    private String address;
     private Integer zipCode;
     private String label;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId")
-    private User user;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private UserCO userCO;
 
     public String getCity() {
         return city;
@@ -51,11 +38,11 @@ public class Address{
     }
 
     public String getAddress() {
-        return addressLine;
+        return address;
     }
 
     public void setAddress(String address) {
-        this.addressLine = address;
+        this.address = address;
     }
 
     public Integer getZipCode() {
@@ -74,25 +61,11 @@ public class Address{
         this.label = label;
     }
 
-    public User getUser() {
-        return user;
+    public UserCO getUserCO() {
+        return userCO;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    @Override
-    public String toString() {
-        return "Address{" +
-                "id=" + id +
-                ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", country='" + country + '\'' +
-                ", address='" + addressLine + '\'' +
-                ", zipCode=" + zipCode +
-                ", label='" + label + '\'' +
-                ", user=" + user +
-                '}';
+    public void setUserCO(UserCO userCO) {
+        this.userCO = userCO;
     }
 }

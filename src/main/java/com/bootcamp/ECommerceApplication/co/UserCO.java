@@ -1,6 +1,5 @@
-package com.bootcamp.ECommerceApplication.dto;
+package com.bootcamp.ECommerceApplication.co;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -10,7 +9,7 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Inheritance(strategy = InheritanceType.JOINED)
-public class UserDto {
+public class UserCO {
     @Email(message = "The Email ID is not valid or already exist")
     @NotNull(message = "Email Id is a mandatory field")
     private String email;
@@ -28,8 +27,8 @@ public class UserDto {
             message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
 
-    @OneToMany(mappedBy = "userDto",cascade = CascadeType.ALL)
-    private List<AddressDto> addresses;
+    @OneToMany(mappedBy = "userCO",cascade = CascadeType.ALL)
+    private List<AddressCO> addresses;
 
     public String getEmail() {
         return email;
@@ -71,24 +70,12 @@ public class UserDto {
         this.password = password;
     }
 
-    public List<AddressDto> getAddresses() {
+    public List<AddressCO> getAddresses() {
         return addresses;
     }
 
-    public void setAddresses(List<AddressDto> addresses) {
-        addresses.forEach(e -> e.setUserDto(this));
+    public void setAddresses(List<AddressCO> addresses) {
+        addresses.forEach(e -> e.setUserCO(this));
         this.addresses = addresses;
-    }
-
-    @Override
-    public String toString() {
-        return "UserDto{" +
-                "email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
-                ", addresses=" + addresses +
-                '}';
     }
 }

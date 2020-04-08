@@ -1,11 +1,11 @@
-package com.bootcamp.ECommerceApplication.dto;
+package com.bootcamp.ECommerceApplication.co;
 
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
-public class PasswordDto {
+public class PasswordCO {
     @NotEmpty(message = "Password is a mandatory field")
     @Length(min = 8, max = 15, message = "The Length of the password should be between 8 to 15 characters.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d.*)(?=.*\\W.*)[a-zA-Z0-9\\S]{8,15}$",
@@ -36,7 +36,7 @@ public class PasswordDto {
 
     @Override
     public String toString() {
-        return "PasswordDto{" +
+        return "PasswordCO{" +
                 "password='" + password + '\'' +
                 ", confirmPassword='" + confirmPassword + '\'' +
                 '}';

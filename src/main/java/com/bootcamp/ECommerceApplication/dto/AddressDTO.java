@@ -1,17 +1,12 @@
 package com.bootcamp.ECommerceApplication.dto;
 
-import javax.persistence.*;
-
-public class AddressDto {
+public class AddressDTO {
     private String city;
     private String state;
     private String country;
-    private String address;
+    private String addressLine;
     private Integer zipCode;
     private String label;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    private UserDto userDto;
 
     public String getCity() {
         return city;
@@ -38,11 +33,11 @@ public class AddressDto {
     }
 
     public String getAddress() {
-        return address;
+        return addressLine;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.addressLine = address;
     }
 
     public Integer getZipCode() {
@@ -61,24 +56,4 @@ public class AddressDto {
         this.label = label;
     }
 
-    public UserDto getUserDto() {
-        return userDto;
-    }
-
-    public void setUserDto(UserDto userDto) {
-        this.userDto = userDto;
-    }
-
-    @Override
-    public String toString() {
-        return "AddressDto{" +
-                "city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", country='" + country + '\'' +
-                ", address='" + address + '\'' +
-                ", zipCode=" + zipCode +
-                ", label='" + label + '\'' +
-                ", userDto=" + userDto +
-                '}';
-    }
 }

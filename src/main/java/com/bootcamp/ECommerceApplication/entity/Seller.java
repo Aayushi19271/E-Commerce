@@ -9,11 +9,11 @@ public class Seller extends User{
 
     @Column(unique = true)
     private String  gst;
-    private String company_contact;
+    private String companyContact;
     @Column(unique = true)
-    private String company_name;
+    private String companyName;
 
-
+    @Transient
     @OneToMany(mappedBy = "seller",cascade = CascadeType.ALL)
     private List<Product> products;
 
@@ -25,20 +25,20 @@ public class Seller extends User{
         this.gst = gst;
     }
 
-    public String getCompany_contact() {
-        return company_contact;
+    public String getCompanyContact() {
+        return companyContact;
     }
 
-    public void setCompany_contact(String company_contact) {
-        this.company_contact = company_contact;
+    public void setCompanyContact(String companyContact) {
+        this.companyContact = companyContact;
     }
 
-    public String getCompany_name() {
-        return company_name;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setCompany_name(String company_name) {
-        this.company_name = company_name;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public List<Product> getProducts() {
@@ -47,15 +47,5 @@ public class Seller extends User{
 
     public void setProducts(List<Product> products) {
         this.products = products;
-    }
-
-    @Override
-    public String toString() {
-        return "Seller{" +
-                "gst='" + gst + '\'' +
-                ", company_contact='" + company_contact + '\'' +
-                ", company_name='" + company_name + '\'' +
-                ", products=" + products +
-                '}';
     }
 }
