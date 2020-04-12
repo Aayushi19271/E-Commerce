@@ -16,6 +16,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
+
 @Service
 public class ConverterService {
 
@@ -40,10 +42,12 @@ public class ConverterService {
         return modelMapper.map(seller, SellerDTO.class);
     }
 
-    public Seller convertToSeller(SellerCO sellerCO){ return modelMapper.map(sellerCO,Seller.class);   }
+    public Seller convertToSeller(@Valid SellerCO sellerCO){ return modelMapper.map(sellerCO,Seller.class);   }
+
+    public SellerCO convertToSellerCO(Seller seller){ return modelMapper.map(seller,SellerCO.class);   }
 
 
-//-------------------------------------------CUSTOMER ENTITY AND CUSTOMER CO/DTO----------------------------------------
+    //-------------------------------------------CUSTOMER ENTITY AND CUSTOMER CO/DTO----------------------------------------
     public CustomerDTO convertToCustomerDto(Customer customer){
         return modelMapper.map(customer, CustomerDTO.class);
     }

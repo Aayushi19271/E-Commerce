@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class AdminController {
@@ -72,19 +71,19 @@ public class AdminController {
 //-------------------------------------------ACTIVATE AND DE-ACTIVATE THE CUSTOMER-------------------------------------
     //ACTIVATE A CUSTOMER
     @PatchMapping(value = "/admin/customers/activate/{id}")
-    public ResponseEntity<Object> activateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> activateCustomer(@PathVariable Long id)
             throws MessagingException {
         adminService.findCustomer(id);
-        return adminService.activateAccount(id,fields);
+        return adminService.activateAccount(id);
 
     }
 
     //DE-ACTIVE A CUSTOMER
     @PatchMapping(value = "/admin/customers/deactivate/{id}")
-    public ResponseEntity<Object> deactivateCustomer(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> deactivateCustomer(@PathVariable Long id)
             throws MessagingException {
         adminService.findCustomer(id);
-        return adminService.deactivateAccount(id,fields);
+        return adminService.deactivateAccount(id);
     }
 
 
@@ -92,18 +91,18 @@ public class AdminController {
 
     //ACTIVATE A SELLER
     @PatchMapping(value = "/admin/sellers/activate/{id}")
-    public ResponseEntity<Object> activateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> activateSeller(@PathVariable Long id)
             throws MessagingException {
         adminService.findSeller(id);
-        return adminService.activateAccount(id,fields);
+        return adminService.activateAccount(id);
     }
 
     //DE-ACTIVE A SELLER
     @PatchMapping(value = "/admin/sellers/deactivate/{id}")
-    public ResponseEntity<Object> deactivateSeller(@PathVariable Long id, @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> deactivateSeller(@PathVariable Long id)
             throws MessagingException {
         adminService.findSeller(id);
-        return adminService.deactivateAccount(id,fields);
+        return adminService.deactivateAccount(id);
     }
 }
 

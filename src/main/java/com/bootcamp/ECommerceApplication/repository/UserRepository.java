@@ -5,11 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public interface UserRepository extends CrudRepository<User,Long> {
 
     User findByEmailIgnoreCase(String emailId);
 
-//    @Query(value = "select first_name from user u inner join user_role r on u.id=r.user_id where r.role_id=1",nativeQuery = true)
-//    User findUserByAdminAuthority();
+    @Query(value = "select * from address where user_id=:id",nativeQuery = true)
+    List<Map<Object,Object>> findAllAddress(Long id);
 }

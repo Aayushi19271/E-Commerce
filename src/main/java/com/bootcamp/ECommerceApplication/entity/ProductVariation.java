@@ -29,10 +29,7 @@ public class ProductVariation {
     @OneToMany(mappedBy = "productVariation")
     private List<OrderProduct> orderProducts;
 
-//    @OneToOne(mappedBy = "productVariation")
-//    private Cart cart;
-
-
+    
     public Long getId() {
         return id;
     }

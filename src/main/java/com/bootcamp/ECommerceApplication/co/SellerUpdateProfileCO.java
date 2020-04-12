@@ -4,22 +4,55 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class SellerCO extends UserCO {
-    //VALID GST NUMBER - 37adapm1724a2Z6
+public class SellerUpdateProfileCO {
+    @NotNull(message = "Please provide first name")
+    @NotBlank(message = "Please provide valid first name")
+    private String firstName;
+    private String middleName;
+
+    @NotNull(message = "Please provide last name")
+    @NotBlank(message = "Please provide valid last name")
+    private String lastName;
+
     @NotNull(message = "Please provide GST number")
     @Pattern(regexp = "^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$",
-            message = "Please provide valid GST number as per Govt. norms")
+            message = "GST should be valid as per Govt. norms")
     private String gst;
 
     //This Pattern is to Validate Mobile Number with 10 digit Number and Countrycode as Optional, And check for Landline Numbers as well.
     @Pattern(regexp = "^(?:\\s+|)((0|(?:(\\+|)91))(?:\\s|-)*(?:(?:\\d(?:\\s|-)*\\d{9})|(?:\\d{2}(?:\\s|-)*\\d{8})|(?:\\d{3}(?:\\s|-)*\\d{7}))|\\d{10})(?:\\s+|)$"
-            , message = "Please provide valid Contact No.")
+            , message = "The Contact No. is not valid")
     @NotNull(message = "Please provide Company Contact")
     private String companyContact;
+
 
     @NotNull(message = "Please provide Company Name")
     @NotBlank(message = "Please provide valid Company Name")
     private String companyName;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public String getGst() {
         return gst;

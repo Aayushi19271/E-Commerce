@@ -22,51 +22,61 @@ import java.util.Map;
 public class CustomizedResponseEntityExceptionHandler
         extends ResponseEntityExceptionHandler {
 
-    //HTTP STATUS 500 INTERNAL SERVER ERROR
+    //HTTP STATUS 500 - INTERNAL SERVER ERROR
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity handleAllExceptions
+    public final ResponseEntity<Object> handleAllExceptions
             (Exception ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), ex.getMessage(),
+                new ExceptionResponse(HttpStatus.INTERNAL_SERVER_ERROR,new Date(), ex.getMessage(),
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    //HTTP STATUS 404 USER NOT FOUND
+    //HTTP STATUS 404 - USER NOT FOUND
     @ExceptionHandler(UserNotFoundException.class)
     public final ResponseEntity<Object> handleUserNotFoundExceptions
             (UserNotFoundException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(),"User Not Found.",
+                new ExceptionResponse(HttpStatus.NOT_FOUND,new Date(),"User Not Found.",
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
-    //HTTP STATUS 404 TOKEN NOT FOUND
+    //HTTP STATUS 404 - TOKEN NOT FOUND
     @ExceptionHandler(TokenNotFoundException.class)
     public final ResponseEntity<Object> handleTokenNotFoundException
     (TokenNotFoundException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), "Token Not Found.",
+                new ExceptionResponse(HttpStatus.NOT_FOUND,new Date(), "Token Not Found.",
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
+    }
+
+    //HTTP STATUS 404 - Address Not Found Exception
+    @ExceptionHandler(AddressNotFoundException.class)
+    public final ResponseEntity<Object> handleAddressNotFoundException
+    (AddressNotFoundException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse(HttpStatus.NOT_FOUND,new Date(), "Address Not Found.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
 
-    //HTTP STATUS 400 BAD REQUEST
+    //HTTP STATUS 400 BAD REQUEST - VALIDATION FAILED
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status,
             WebRequest request) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+        ExceptionResponse exceptionResponse = new ExceptionResponse(HttpStatus.BAD_REQUEST,new Date(),
                 "Validation Failed.", errors.toString());
-        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 
     //HTTP STATUS 405 METHOD_NOT_ALLOWED
@@ -74,11 +84,11 @@ public class CustomizedResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
             HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status,
             WebRequest request) {
-
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), "The Request Method Does Not Support.",
+                new ExceptionResponse(HttpStatus.METHOD_NOT_ALLOWED,new Date(),
+                        "The Request Method Does Not Support.",
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     //HTTP STATUS 302 FOUND - When the user's emailID already Exists
@@ -86,18 +96,64 @@ public class CustomizedResponseEntityExceptionHandler
     public final ResponseEntity<Object> handleUserAlreadyExistsExceptions
             (UserAlreadyExistsException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(), "User Already Exists.",
+                new ExceptionResponse( HttpStatus.FOUND,new Date(), "User Already Exists.",
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.FOUND);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
     }
 
-    //HTTP STATUS 403 FOUND - If the logged-in user does not have the required authorization to access the APIs
-    @ExceptionHandler(UnauthorizedException.class)
-    public final ResponseEntity<Object> handleAllUnauthorizedExceptions
-    (UserAlreadyExistsException ex, WebRequest request) {
+    //HTTP STATUS 502 BAD_GATEWAY - Failed to send Mail
+    @ExceptionHandler(MailSendFailedException.class)
+    public final ResponseEntity<Object> handleMailSendFailedException
+    (MailSendFailedException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse(new Date(),"Full authentication is required to access this resource.",
+                new ExceptionResponse( HttpStatus.BAD_GATEWAY,new Date(), "Failed To Send Mail.",
                         request.getDescription(false));
-        return new ResponseEntity(exceptionResponse, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_GATEWAY);
     }
+
+    //HTTP STATUS 400 BAD REQUEST - Password Does Not Match Exception
+    @ExceptionHandler(PasswordDoesNotMatchException.class)
+    public final ResponseEntity<Object> handlePasswordDoesNotMatchException
+    (PasswordDoesNotMatchException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.BAD_REQUEST,new Date(), "Password And Confirm Password Should Match.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    //HTTP STATUS 400 BAD REQUEST - User Active Exception
+    @ExceptionHandler(UserActiveException.class)
+    public final ResponseEntity<Object> handleUserActiveException
+    (UserActiveException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.BAD_REQUEST,new Date(),
+                        "User Active Exception.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    //HTTP STATUS 400 BAD REQUEST - User Deactive Exception
+    @ExceptionHandler(UserDeactiveException.class)
+    public final ResponseEntity<Object> handleUserDeactiveException
+    (UserDeactiveException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.BAD_REQUEST,new Date(),
+                        "User De-active Exception.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+
+    //HTTP STATUS 400 BAD REQUEST - Token Expired Exception
+    @ExceptionHandler(TokenExpiredException.class)
+    public final ResponseEntity<Object> handleTokenExpiredException
+    (TokenExpiredException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.BAD_REQUEST,new Date(),
+                        "Token Expired Exception.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+
 }

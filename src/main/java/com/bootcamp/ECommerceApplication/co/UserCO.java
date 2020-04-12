@@ -2,32 +2,33 @@ package com.bootcamp.ECommerceApplication.co;
 
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.*;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
-@Inheritance(strategy = InheritanceType.JOINED)
 public class UserCO {
-    @Email(message = "The Email ID is not valid or already exist")
-    @NotNull(message = "Email Id is a mandatory field")
+    @Email(message = "Please provide valid Email ID")
+    @NotNull(message = "Please provide Email ID")
+    @NotBlank(message = "Please provide valid Email ID")
     private String email;
 
-    @NotNull(message = "First Name is a mandatory field")
+    @NotNull(message = "Please provide first name")
+    @NotBlank(message = "Please provide valid first name")
     private String firstName;
     private String middleName;
 
-    @NotNull(message = "Last Name is a mandatory field")
+    @NotNull(message = "Please provide last name")
+    @NotBlank(message = "Please provide valid last name")
     private String lastName;
 
-    @NotNull(message = "Password is a mandatory field")
+    @NotNull(message = "Please provide password")
     @Length(min = 8,max = 15,message = "The Length of the password should be between 8 to 15 characters.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d.*)(?=.*\\W.*)[a-zA-Z0-9\\S]{8,15}$",
             message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
 
-    @OneToMany(mappedBy = "userCO",cascade = CascadeType.ALL)
     private List<AddressCO> addresses;
 
     public String getEmail() {

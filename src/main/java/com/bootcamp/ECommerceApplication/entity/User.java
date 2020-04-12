@@ -21,6 +21,8 @@ public class User implements UserDetails {
     private String middleName;
     private String lastName;
     private String password;
+    @Transient
+    private String confirmPassword;
     private boolean isDeleted = true;
     private boolean isActive = false;
     private boolean isLocked = false;
@@ -38,8 +40,8 @@ public class User implements UserDetails {
                     "id"))
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    private List<Address> addresses;
+//    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+//    private List<Address> addresses;
 
     @OneToOne(mappedBy = "user")
     private ConfirmationToken confirmationToken;
@@ -156,14 +158,14 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        addresses.forEach(e -> e.setUser(this));
-        this.addresses = addresses;
-    }
+//    public List<Address> getAddresses() {
+//        return addresses;
+//    }
+//
+//    public void setAddresses(List<Address> addresses) {
+//        addresses.forEach(e -> e.setUser(this));
+//        this.addresses = addresses;
+//    }
 
     public ConfirmationToken getConfirmationToken() {
         return confirmationToken;
@@ -189,25 +191,33 @@ public class User implements UserDetails {
 
     public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
-                ", isDeleted=" + isDeleted +
-                ", isActive=" + isActive +
-                ", isLocked=" + isLocked +
-                ", dateCreated=" + dateCreated +
-                ", lastUpdated=" + lastUpdated +
-                ", createdBy='" + createdBy + '\'' +
-                ", updatedBy='" + updatedBy + '\'' +
-                ", roles=" + roles +
-                ", addresses=" + addresses +
-                ", confirmationToken=" + confirmationToken +
-                '}';
+    public String getConfirmPassword() {
+        return confirmPassword;
     }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "id=" + id +
+//                ", email='" + email + '\'' +
+//                ", firstName='" + firstName + '\'' +
+//                ", middleName='" + middleName + '\'' +
+//                ", lastName='" + lastName + '\'' +
+//                ", password='" + password + '\'' +
+//                ", isDeleted=" + isDeleted +
+//                ", isActive=" + isActive +
+//                ", isLocked=" + isLocked +
+//                ", dateCreated=" + dateCreated +
+//                ", lastUpdated=" + lastUpdated +
+//                ", createdBy='" + createdBy + '\'' +
+//                ", updatedBy='" + updatedBy + '\'' +
+//                ", roles=" + roles +
+//                ", addresses=" + addresses +
+//                ", confirmationToken=" + confirmationToken +
+//                '}';
+//    }
 }

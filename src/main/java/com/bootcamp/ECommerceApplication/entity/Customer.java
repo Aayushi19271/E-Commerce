@@ -1,5 +1,6 @@
 package com.bootcamp.ECommerceApplication.entity;
 
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -8,9 +9,6 @@ import java.util.List;
 public class Customer extends User{
 
     private String contact;
-
-    @OneToOne(mappedBy = "customer",cascade = CascadeType.ALL)
-    private Cart cart;
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
     private List<ProductReview> productReviews;
@@ -21,14 +19,6 @@ public class Customer extends User{
 
     public void setContact(String contact) {
         this.contact = contact;
-    }
-
-    public Cart getCart() {
-        return cart;
-    }
-
-    public void setCart(Cart cart) {
-        this.cart = cart;
     }
 
     public List<ProductReview> getProductReviews() {
@@ -43,7 +33,6 @@ public class Customer extends User{
     public String toString() {
         return "Customer{" +
                 "contact='" + contact + '\'' +
-                ", cart=" + cart +
                 ", productReviews=" + productReviews +
                 '}';
     }

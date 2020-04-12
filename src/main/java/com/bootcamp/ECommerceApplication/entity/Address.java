@@ -14,7 +14,7 @@ public class Address{
     private Integer zipCode;
     private String label;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
 

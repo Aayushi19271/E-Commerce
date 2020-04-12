@@ -3,37 +3,28 @@ package com.bootcamp.ECommerceApplication.entity;
 import javax.persistence.*;
 
 @Entity
-public class Cart{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "customerUserId")
-    private Customer customer;
+public class Cart {
+    @EmbeddedId
+    private CartID cartID;
 
     private Integer quantity;
     private Boolean isWishlistItem;
 
-    @OneToOne
-    @JoinColumn(name = "productVariationId")
-    private ProductVariation productVariation;
 
-    public Long getId() {
-        return id;
-    }
+    public CartID getCartID() { return cartID; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setCartID(CartID cartID) { this.cartID = cartID; }
 
     public Customer getCustomer() {
-        return customer;
+        return cartID.getCustomer();
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+//    public List<ProductVariation> getProductVariation() {
+//        return cartID.getProductVariation();
+//    }
+
+    public ProductVariation getProductVariation() {
+        return cartID.getProductVariation();
     }
 
     public Integer getQuantity() {
@@ -52,22 +43,4 @@ public class Cart{
         isWishlistItem = wishlistItem;
     }
 
-    public ProductVariation getProductVariation() {
-        return productVariation;
-    }
-
-    public void setProductVariation(ProductVariation productVariation) {
-        this.productVariation = productVariation;
-    }
-
-    @Override
-    public String toString() {
-        return "Cart{" +
-                "id=" + id +
-                ", customer=" + customer +
-                ", quantity=" + quantity +
-                ", isWishlistItem=" + isWishlistItem +
-                ", productVariation=" + productVariation +
-                '}';
-    }
 }

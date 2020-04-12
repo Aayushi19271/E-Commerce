@@ -9,15 +9,9 @@ import java.util.List;
 
 public interface SellerRepository extends CrudRepository<Seller,Long> {
 
-//    @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active,s.company_name,s.company_contact " +
-//            "from user u inner join seller s " +
-//            "on u.id=s.user_id " +
-//            "where u.is_active=true",nativeQuery = true)
-//    List<Object[]> findAllSellers(PageRequest pageable);
-
-
     @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active,s.company_name,s.company_contact " +
             "from user u inner join seller s " +
             "on u.id=s.user_id ",nativeQuery = true)
     List<Object[]> findAllSellers(PageRequest pageable);
+
 }

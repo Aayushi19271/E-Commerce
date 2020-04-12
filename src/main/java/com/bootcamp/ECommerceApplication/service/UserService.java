@@ -7,9 +7,7 @@ import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.dto.UserDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
-import com.bootcamp.ECommerceApplication.exception.TokenNotFoundException;
-import com.bootcamp.ECommerceApplication.exception.UserAlreadyExistsException;
-import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
+import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.ConfirmationTokenRepository;
 import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
 import com.bootcamp.ECommerceApplication.repository.RoleRepository;
@@ -27,7 +25,6 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.logging.Logger;
 
 @Service
 public class UserService {
@@ -49,14 +46,14 @@ public class UserService {
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-//------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
+    //------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
     //FIND CUSTOMER BY EMAIL ID
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmailIgnoreCase(email);
     }
 
 
-//-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
+    //-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
     //FIND ONE TOKEN
     public ConfirmationToken findConfirmationToken(String token) {
         return confirmationTokenRepository.findByConfirmationToken(token);
@@ -83,7 +80,7 @@ public class UserService {
 //------------------------------------------------SELLER REGISTRATION METHOD'S------------------------------------------
 
     //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
-    public MessageResponseEntity<Object> createSeller(Seller seller) throws MessagingException {
+    public ResponseEntity<Object> createSeller(Seller seller) throws MessagingException {
         String customerEmail = seller.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
         SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
@@ -98,15 +95,15 @@ public class UserService {
             Role role = roleRepository.findByAuthority("ROLE_SELLER");
             tempRole.add(role);
             seller.setRoles(tempRole);
-            seller.setCreatedBy("user@"+seller.getFirstName());
+            seller.setCreatedBy("user@" + seller.getFirstName());
             seller.setDateCreated(new Date());
             userRepository.save(seller);
             try {
                 smtpMailSender.send(seller.getEmail(), "Pending Approval",
                         "The Account has been Registered but is Pending Approval! ");
-                return new MessageResponseEntity<>(sellerDTO, HttpStatus.CREATED);
+                return new ResponseEntity<>(new MessageResponseEntity<>(sellerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
             } catch (Exception ex) {
-                return new MessageResponseEntity<>("Failed to send email!",HttpStatus.BAD_GATEWAY,null);
+                throw new MailSendFailedException("Failed to Send Mail: "+seller.getEmail());
             }
         } else
             throw new UserAlreadyExistsException("The Seller's EmailID Already Exist: " + seller.getEmail());
@@ -114,12 +111,11 @@ public class UserService {
 
 
 
+
 //--------------------------------------------------CUSTOMER REGISTRATION METHOD'S--------------------------------------
 
-    Logger logger;
-
     //REGISTER A CUSTOMER AND SEND AN ACTIVATION LINK
-    public MessageResponseEntity<Object> createCustomer(Customer customer) {
+    public ResponseEntity<Object> createCustomer(Customer customer) {
         String customerEmail = customer.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
@@ -138,7 +134,7 @@ public class UserService {
             try {
                 return sendMailCustomer(customer, confirmationToken);
             } catch (Exception ex) {
-                return new MessageResponseEntity<>("Failed to send email!",HttpStatus.BAD_GATEWAY,null);
+                throw new MailSendFailedException("Failed to Send Mail: "+customer.getEmail());
             }
         }
         else
@@ -148,7 +144,7 @@ public class UserService {
 
     //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
     @Transactional
-    public MessageResponseEntity<Object> confirmUserAccountToken(String confirmationToken) throws MessagingException {
+    public ResponseEntity<Object> confirmUserAccountToken(String confirmationToken) throws MessagingException {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
@@ -159,11 +155,10 @@ public class UserService {
 
     //CHECK THE TOKEN EXPIRY (3 CONDITIONS-- token correct, token expires, token wrong)
     @Transactional
-    public MessageResponseEntity<Object> confirmTokenExpiry(String confirmationToken) throws MessagingException {
+    public ResponseEntity<Object> confirmTokenExpiry(String confirmationToken) throws MessagingException {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         User user = token.getUser();
         Calendar calendar = Calendar.getInstance();
-        UserDTO userDTO = converterService.convertToUserDto(user);
 
         //IF THE TOKEN EXPIRES
         if((token.getExpiryDate().getTime()-calendar.getTime().getTime())<=0) {
@@ -171,7 +166,8 @@ public class UserService {
             newConfirmationToken.setExpiryDate(new Date());
             confirmationTokenRepository.save(newConfirmationToken);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-            return sendMailCustomer(user, newConfirmationToken);
+            sendMailCustomer(user, newConfirmationToken);
+            throw new TokenNotFoundException("token-"+confirmationToken);
         }
         //IF THE TOKEN IS CORRECT
         else {
@@ -183,19 +179,19 @@ public class UserService {
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
             smtpMailSender.send(savedUser.getEmail(), "Account Activated",
                     "Dear "+savedUser.getFirstName()+", Your Account Has Been Activated!!");
-            return new MessageResponseEntity<>(userDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(new MessageResponseEntity<>("Account Successfully Activated!", HttpStatus.CREATED), HttpStatus.CREATED);
         }
     }
 
 
     //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @Transactional
-    public MessageResponseEntity<Object> reSendActivationLink(UserCO userCO){
+    public ResponseEntity<Object> reSendActivationLink(UserCO userCO){
         Customer customer= findCustomerByEmail(userCO.getEmail());
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+userCO.getEmail());
         if(customer.isActive()) {
-            return new MessageResponseEntity<>("No Data", HttpStatus.CREATED,"User Already Active!");
+            return new ResponseEntity<>( new MessageResponseEntity<>(HttpStatus.OK,"User Already Active!"),HttpStatus.OK);
         }
         else {
             deleteConfirmationToken(customer.getEmail());
@@ -205,23 +201,24 @@ public class UserService {
     }
 
     //SEND REGISTRATION MAIL TO CUSTOMER
-    public MessageResponseEntity<Object> sendMailCustomer(User user,ConfirmationToken newConfirmationToken )
+    public ResponseEntity<Object> sendMailCustomer(User user, ConfirmationToken newConfirmationToken )
     {
-        UserDTO userDTO = converterService.convertToUserDto(user);
         try {
             smtpMailSender.send(user.getEmail(), "Complete Registration",
                     "Dear " + user.getFirstName() + ",To activate your account, please click the link here : " +
                             "http://localhost:8080/users/customers/confirm-account?token=" + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
-            return new MessageResponseEntity<>("Failed to send email!",HttpStatus.BAD_GATEWAY,null);
+            throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
-        return new MessageResponseEntity<>(userDTO, HttpStatus.CREATED);
+        UserDTO userDTO = converterService.convertToUserDto(user);
+        return new ResponseEntity<>(new MessageResponseEntity<>(userDTO,
+                HttpStatus.CREATED),HttpStatus.CREATED);
     }
 
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
 
     //FORGOT PASSWORD REQUEST
-    public MessageResponseEntity<Object> sendPasswordResetLink(UserCO userDto) {
+    public ResponseEntity<Object> sendPasswordResetLink(UserCO userDto) {
         String email = userDto.getEmail();
         User user = userRepository.findByEmailIgnoreCase(email);
         if(user==null)
@@ -232,39 +229,39 @@ public class UserService {
             return sendResetPasswordMailUsers(user, confirmationToken);
         }
         else {
-            return new MessageResponseEntity<>("The User is Not An Active User", HttpStatus.BAD_REQUEST,null);
+            throw new UserDeactiveException("The User is Not An Active User:"+user.getEmail());
         }
     }
 
 
     //SEND RESET PASSWORD MAIL TO USERS
-    public MessageResponseEntity<Object> sendResetPasswordMailUsers(User user,ConfirmationToken newConfirmationToken ) {
+    public ResponseEntity<Object> sendResetPasswordMailUsers(User user, ConfirmationToken newConfirmationToken ) {
         try {
             smtpMailSender.send(user.getEmail(), "PASSWORD RESET",
                     "Dear " + user.getFirstName() + ",To reset your account's password, please click the link here : " +
                             "http://localhost:8080/users/reset-password?token="
                             + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
-            return new MessageResponseEntity<>("Failed to send email!",HttpStatus.BAD_GATEWAY,null);
+            throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
-        return new MessageResponseEntity<>("No Data", HttpStatus.CREATED,"Mail Send Successfully!");
+        return new ResponseEntity<>(new MessageResponseEntity<>("Mail Send Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
 
 
     //SEND RESET PASSWORD SUCCESS MAIL TO USER
-    public MessageResponseEntity<Object> sendResetPasswordSuccessMail(User user) {
+    public ResponseEntity<Object> sendResetPasswordSuccessMail(User user) {
         try {
             smtpMailSender.send(user.getEmail(), "SUCCESSFUL PASSWORD RESET",
                     "Dear " + user.getFirstName() + ", You're Password has been successfully changed! ");
         }catch (Exception ex) {
-            return new MessageResponseEntity<>("Failed to send email!",HttpStatus.BAD_GATEWAY,null);
+            throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
-        return new MessageResponseEntity<>("No Data", HttpStatus.CREATED,"Password Changed Successfully!");
+        return new ResponseEntity<>(new MessageResponseEntity<>("Password Changed Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
 
     //PASSWORD RESET METHOD
     @Transactional
-    public MessageResponseEntity<Object> resetPassword(String confirmationToken, PasswordCO passwordDto) {
+    public ResponseEntity<Object> resetPassword(String confirmationToken, PasswordCO passwordCo) {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
@@ -275,27 +272,25 @@ public class UserService {
         //IF THE TOKEN EXPIRES
         if((token.getExpiryDate().getTime()-calendar.getTime().getTime())<=0) {
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-            return new MessageResponseEntity<>("Token Expired!", HttpStatus.BAD_REQUEST,null);
+            throw new TokenExpiredException("The Token is Expired! Please Provide a Valid Token.");
         }
         //IF THE TOKEN IS NOT EXPIRED
         else {
             if (user.isActive()) {
-                if(passwordDto.getPassword().equals(passwordDto.getConfirmPassword()))
+                if(passwordCo.getPassword().equals(passwordCo.getConfirmPassword()))
                 {
-                    user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
+                    user.setPassword(passwordEncoder.encode(passwordCo.getPassword()));
                     user.setUpdatedBy("user@"+user.getFirstName());
                     user.setLastUpdated(new Date());
                     userRepository.save(user);
                     confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
                     return sendResetPasswordSuccessMail(user);
                 }
-                else {
-                    return new MessageResponseEntity<>("Password does not match!", HttpStatus.BAD_REQUEST,null);
-                }
+                else
+                    throw new PasswordDoesNotMatchException("Password and Confirm Password does not match!");
             }
-            else {
-                return new MessageResponseEntity<>("User is not Active!", HttpStatus.BAD_REQUEST,null);
-            }
+            else
+                throw new UserDeactiveException("The User is Not An Active User:"+user.getEmail());
         }
     }
 
@@ -309,6 +304,6 @@ public class UserService {
             OAuth2AccessToken accessToken = tokenStore.readAccessToken(tokenValue);
             tokenStore.removeAccessToken(accessToken);
         }
-        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
+        return new ResponseEntity<>(new MessageResponseEntity<>("Logout Successful!", HttpStatus.OK), HttpStatus.OK);
     }
 }

@@ -4,6 +4,7 @@ import com.bootcamp.ECommerceApplication.entity.Address;
 import com.bootcamp.ECommerceApplication.entity.Category;
 import com.bootcamp.ECommerceApplication.entity.Role;
 import com.bootcamp.ECommerceApplication.entity.User;
+import com.bootcamp.ECommerceApplication.repository.AddressRepository;
 import com.bootcamp.ECommerceApplication.repository.CategoryRepository;
 import com.bootcamp.ECommerceApplication.repository.RoleRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -29,6 +31,9 @@ public class Bootstrap implements ApplicationRunner {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AddressRepository addressRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -46,7 +51,7 @@ public class Bootstrap implements ApplicationRunner {
         roleRepository.save(role3);
 
 
-//---------------------CREATE ADMIN ACCOUNT-----------------------------------------------------------------------------
+////---------------------CREATE ADMIN ACCOUNT-----------------------------------------------------------------------------
         User user = new User();
         user.setEmail("aayushithani@yahoo.in");
         user.setFirstName("Aayushi");
@@ -55,7 +60,14 @@ public class Bootstrap implements ApplicationRunner {
         user.setActive(true);
         user.setDeleted(false);
 
-        List<Address> list = new ArrayList<>();
+        ArrayList<Role> tempRole = new ArrayList<>();
+        Role role1 = roleRepository.findByAuthority("ROLE_ADMIN");
+        tempRole.add(role1);
+        user.setRoles(tempRole);
+        user.setCreatedBy("admin@"+user.getFirstName());
+        user.setDateCreated(new Date());
+        userRepository.save(user);
+
         Address address = new Address();
         address.setCity("Delhi");
         address.setState("Delhi");
@@ -63,15 +75,8 @@ public class Bootstrap implements ApplicationRunner {
         address.setAddress("B7- Pitmapura");
         address.setZipCode(110085);
         address.setLabel("Home");
-        list.add(address);
-        user.setAddresses(list);
-
-        ArrayList<Role> tempRole = new ArrayList<>();
-        Role role1 = roleRepository.findByAuthority("ROLE_ADMIN");
-        tempRole.add(role1);
-        user.setRoles(tempRole);
-
-        userRepository.save(user);
+        address.setUser(user);
+        addressRepository.save(address);
 
 //-----------INSERTING THE DATA INTO CATEGORY TABLE---------------------------------------------------------------------
 
