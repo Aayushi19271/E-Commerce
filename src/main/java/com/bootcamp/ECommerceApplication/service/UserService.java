@@ -4,7 +4,6 @@ import com.bootcamp.ECommerceApplication.co.PasswordCO;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.co.UserCO;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
-import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.dto.UserDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
@@ -83,7 +82,7 @@ public class UserService {
     public ResponseEntity<Object> createSeller(Seller seller) throws MessagingException {
         String customerEmail = seller.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
-        SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
+        UserDTO userDTO = converterService.convertToSellerDto(seller);
 
         if (user == null) {
             seller.setActive(false);
@@ -101,12 +100,12 @@ public class UserService {
             try {
                 smtpMailSender.send(seller.getEmail(), "Pending Approval",
                         "The Account has been Registered but is Pending Approval! ");
-                return new ResponseEntity<>(new MessageResponseEntity<>(sellerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+                return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
             } catch (Exception ex) {
                 throw new MailSendFailedException("Failed to Send Mail: "+seller.getEmail());
             }
         } else
-            throw new UserAlreadyExistsException("The Seller's EmailID Already Exist: " + seller.getEmail());
+            throw new UserExistsException("The Seller's EmailID Already Exist: " + seller.getEmail());
     }
 
 
@@ -138,7 +137,7 @@ public class UserService {
             }
         }
         else
-            throw new UserAlreadyExistsException("The Customer's EmailID Already Exist: "+customer.getEmail());
+            throw new UserExistsException("The Customer's EmailID Already Exist: "+customer.getEmail());
     }
 
 

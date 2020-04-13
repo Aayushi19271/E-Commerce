@@ -3,28 +3,36 @@ package com.bootcamp.ECommerceApplication.entity;
 import javax.persistence.*;
 
 @Entity
+@IdClass(CartID.class)
 public class Cart {
-    @EmbeddedId
-    private CartID cartID;
+
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "CustomerUserId")
+    private Customer customer;
+
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "ProductVariationId")
+    private ProductVariation productVariation;
 
     private Integer quantity;
     private Boolean isWishlistItem;
 
-
-    public CartID getCartID() { return cartID; }
-
-    public void setCartID(CartID cartID) { this.cartID = cartID; }
-
     public Customer getCustomer() {
-        return cartID.getCustomer();
+        return customer;
     }
 
-//    public List<ProductVariation> getProductVariation() {
-//        return cartID.getProductVariation();
-//    }
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
 
     public ProductVariation getProductVariation() {
-        return cartID.getProductVariation();
+        return productVariation;
+    }
+
+    public void setProductVariation(ProductVariation productVariation) {
+        this.productVariation = productVariation;
     }
 
     public Integer getQuantity() {
@@ -43,4 +51,13 @@ public class Cart {
         isWishlistItem = wishlistItem;
     }
 
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "customer=" + customer +
+                ", productVariation=" + productVariation +
+                ", quantity=" + quantity +
+                ", isWishlistItem=" + isWishlistItem +
+                '}';
+    }
 }

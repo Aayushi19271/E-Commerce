@@ -13,6 +13,7 @@ import com.bootcamp.ECommerceApplication.entity.User;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
 import com.bootcamp.ECommerceApplication.repository.AddressRepository;
+import com.bootcamp.ECommerceApplication.repository.CategoryRepository;
 import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -42,6 +43,8 @@ public class CustomerService {
     private SmtpMailSender smtpMailSender;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+     private CategoryRepository categoryRepository;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -147,4 +150,14 @@ public class CustomerService {
         CustomerDTO customerDTO = converterService.convertToCustomerDto(customer);
         return new ResponseEntity<>(new MessageResponseEntity<>(customerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
     }
+
+    //List All Category
+    public List<Map<Object, Object>> listAllCustomerCategories(Long id) {
+        if(id!=null)
+            return categoryRepository.findByRootCategory(id);
+        else
+            return categoryRepository.findByCategoryIsNull();
+    }
+
+
 }

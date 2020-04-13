@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -72,5 +74,11 @@ public class CustomerController {
     public ResponseEntity<Object> customerUpdateProfile(Principal principal, @Valid @RequestBody CustomerUpdateProfileCO customerUpdateProfileCO){
         String email = principal.getName();
         return customerService.customerUpdateProfile(email,customerUpdateProfileCO);
+    }
+
+    //list all Categories
+    @GetMapping({"/list-all-categories-customer/{id}","/list-all-categories-customer"})
+    public List<Map<Object, Object>> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
+        return customerService.listAllCustomerCategories(id);
     }
 }

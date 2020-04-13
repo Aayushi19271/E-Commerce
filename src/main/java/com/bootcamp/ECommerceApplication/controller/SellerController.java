@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -52,6 +53,12 @@ public class SellerController {
     public ResponseEntity<Object> sellerUpdateAddress(Principal principal, @Valid @RequestBody AddressCO addressCO){
         String email = principal.getName();
         return sellerService.sellerUpdateAddress(email,addressCO);
+    }
+
+    //List All Category
+    @GetMapping("/all-categories")
+    public List<Map<Object, Object>> listAllCategories(){
+        return sellerService.listAllCategories();
     }
 }
 

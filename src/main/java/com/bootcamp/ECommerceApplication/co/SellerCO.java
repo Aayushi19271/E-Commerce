@@ -3,6 +3,7 @@ package com.bootcamp.ECommerceApplication.co;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 public class SellerCO extends UserCO {
     //VALID GST NUMBER - 37adapm1724a2Z6
@@ -20,6 +21,9 @@ public class SellerCO extends UserCO {
     @NotNull(message = "Please provide Company Name")
     @NotBlank(message = "Please provide valid Company Name")
     private String companyName;
+
+    private List<AddressCO> addresses;
+
 
     public String getGst() {
         return gst;
@@ -43,5 +47,14 @@ public class SellerCO extends UserCO {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public List<AddressCO> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressCO> addresses) {
+        addresses.forEach(e -> e.setUserCO(this));
+        this.addresses = addresses;
     }
 }

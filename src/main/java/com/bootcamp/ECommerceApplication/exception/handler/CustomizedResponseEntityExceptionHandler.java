@@ -92,11 +92,31 @@ public class CustomizedResponseEntityExceptionHandler
     }
 
     //HTTP STATUS 302 FOUND - When the user's emailID already Exists
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public final ResponseEntity<Object> handleUserAlreadyExistsExceptions
-            (UserAlreadyExistsException ex, WebRequest request) {
+    @ExceptionHandler(UserExistsException.class)
+    public final ResponseEntity<Object> handleUserAlreadyExistsException
+            (UserExistsException ex, WebRequest request) {
         ExceptionResponse exceptionResponse =
-                new ExceptionResponse( HttpStatus.FOUND,new Date(), "User Already Exists.",
+                new ExceptionResponse( HttpStatus.FOUND,new Date(), "User Already Exists Exception.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
+    }
+
+    //HTTP STATUS 302 FOUND - When the user's emailID already Exists
+    @ExceptionHandler(MetadataFieldExistsException.class)
+    public final ResponseEntity<Object> handleMetadataFieldExistsException
+    (MetadataFieldExistsException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.FOUND,new Date(), "Metadata Field Already Exists Exception.",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
+    }
+
+    //HTTP STATUS 302 FOUND - When the Category Exists Exception
+    @ExceptionHandler(CategoryExistsException.class)
+    public final ResponseEntity<Object> handleMetadataFieldExistsException
+    (CategoryExistsException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.FOUND,new Date(), "Category Already Exists Exception.",
                         request.getDescription(false));
         return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
     }

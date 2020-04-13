@@ -26,10 +26,10 @@ public class Product {
     private Boolean isActive;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
-    List<ProductVariation> product_variations;
+    List<ProductVariation> productVariations;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
-    List<ProductReview> product_reviews;
+    List<ProductReview> productReviews;
 
     public Long getId() {
         return id;
@@ -103,20 +103,20 @@ public class Product {
         isActive = active;
     }
 
-    public List<ProductVariation> getProduct_variations() {
-        return product_variations;
+    public List<ProductVariation> getProductVariations() {
+        return productVariations;
     }
 
-    public void setProduct_variations(List<ProductVariation> product_variations) {
-        this.product_variations = product_variations;
+    public void setProductVariations(List<ProductVariation> productVariations) {
+        this.productVariations = productVariations;
     }
 
-    public List<ProductReview> getProduct_reviews() {
-        return product_reviews;
+    public List<ProductReview> getProductReviews() {
+        return productReviews;
     }
 
-    public void setProduct_reviews(List<ProductReview> product_reviews) {
-        this.product_reviews = product_reviews;
+    public void setProductReviews(List<ProductReview> productReviews) {
+        this.productReviews = productReviews;
     }
 
     @Override
@@ -131,8 +131,8 @@ public class Product {
                 ", isReturnable=" + isReturnable +
                 ", brand='" + brand + '\'' +
                 ", isActive=" + isActive +
-                ", product_variations=" + product_variations +
-                ", product_reviews=" + product_reviews +
+                ", productVariations=" + productVariations +
+                ", productReviews=" + productReviews +
                 '}';
     }
 }

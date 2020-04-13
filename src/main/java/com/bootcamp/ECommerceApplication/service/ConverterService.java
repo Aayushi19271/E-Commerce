@@ -1,17 +1,8 @@
 package com.bootcamp.ECommerceApplication.service;
 
-import com.bootcamp.ECommerceApplication.co.AddressCO;
-import com.bootcamp.ECommerceApplication.co.CustomerCO;
-import com.bootcamp.ECommerceApplication.co.SellerCO;
-import com.bootcamp.ECommerceApplication.co.UserCO;
-import com.bootcamp.ECommerceApplication.dto.AddressDTO;
-import com.bootcamp.ECommerceApplication.dto.CustomerDTO;
-import com.bootcamp.ECommerceApplication.dto.SellerDTO;
-import com.bootcamp.ECommerceApplication.dto.UserDTO;
-import com.bootcamp.ECommerceApplication.entity.Address;
-import com.bootcamp.ECommerceApplication.entity.Customer;
-import com.bootcamp.ECommerceApplication.entity.Seller;
-import com.bootcamp.ECommerceApplication.entity.User;
+import com.bootcamp.ECommerceApplication.co.*;
+import com.bootcamp.ECommerceApplication.dto.*;
+import com.bootcamp.ECommerceApplication.entity.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,10 +38,25 @@ public class ConverterService {
     public SellerCO convertToSellerCO(Seller seller){ return modelMapper.map(seller,SellerCO.class);   }
 
 
-    //-------------------------------------------CUSTOMER ENTITY AND CUSTOMER CO/DTO----------------------------------------
+//-------------------------------------------CUSTOMER ENTITY AND CUSTOMER CO/DTO----------------------------------------
     public CustomerDTO convertToCustomerDto(Customer customer){
         return modelMapper.map(customer, CustomerDTO.class);
     }
 
     public Customer convertToCustomer(CustomerCO customerCO){ return modelMapper.map(customerCO,Customer.class); }
+
+//-------------------------------------------Category Metadata Field CO/DTO---------------------------------------------
+
+    public CategoryMetadataFieldDTO convertToCategoryMetadataFieldDTO(CategoryMetadataField categoryMetadataField){
+        return modelMapper.map(categoryMetadataField, CategoryMetadataFieldDTO.class);
+    }
+
+    public CategoryMetadataField convertToCategoryMetadataField(CategoryMetadataFieldCO categoryMetadataFieldCO){
+        return modelMapper.map(categoryMetadataFieldCO,CategoryMetadataField.class);
+    }
+
+//------------------------------------------------Category CO/DTO-------------------------------------------------------
+    public CategoryDTO convertToCategoryDTO(Category category){ return modelMapper.map(category, CategoryDTO.class); }
+
+    public Category convertToCategory(CategoryCO categoryCO){ return modelMapper.map(categoryCO,Category.class); }
 }

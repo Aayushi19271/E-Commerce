@@ -21,6 +21,7 @@ public class ProductVariation {
     private Integer quantityAvailable;
     private Float price;
     private String metadata;
+    private boolean isActive;
     @Transient
     private HashMap metadataHashmap;
 
@@ -102,6 +103,14 @@ public class ProductVariation {
     public void jsonMetadataStringDeserialize() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         metadataHashmap= objectMapper.readValue(this.metadata, HashMap.class);
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override

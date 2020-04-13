@@ -1,13 +1,7 @@
 package com.bootcamp.ECommerceApplication.bootloader;
 
-import com.bootcamp.ECommerceApplication.entity.Address;
-import com.bootcamp.ECommerceApplication.entity.Category;
-import com.bootcamp.ECommerceApplication.entity.Role;
-import com.bootcamp.ECommerceApplication.entity.User;
-import com.bootcamp.ECommerceApplication.repository.AddressRepository;
-import com.bootcamp.ECommerceApplication.repository.CategoryRepository;
-import com.bootcamp.ECommerceApplication.repository.RoleRepository;
-import com.bootcamp.ECommerceApplication.repository.UserRepository;
+import com.bootcamp.ECommerceApplication.entity.*;
+import com.bootcamp.ECommerceApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -34,6 +28,12 @@ public class Bootstrap implements ApplicationRunner {
 
     @Autowired
     AddressRepository addressRepository;
+
+    @Autowired
+    CategoryMetadataFieldRepository categoryMetadataFieldRepository;
+
+    @Autowired
+    CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -64,7 +64,7 @@ public class Bootstrap implements ApplicationRunner {
         Role role1 = roleRepository.findByAuthority("ROLE_ADMIN");
         tempRole.add(role1);
         user.setRoles(tempRole);
-        user.setCreatedBy("admin@"+user.getFirstName());
+        user.setCreatedBy("admin@" + user.getFirstName());
         user.setDateCreated(new Date());
         userRepository.save(user);
 
@@ -273,5 +273,41 @@ public class Bootstrap implements ApplicationRunner {
         strengthEquipment.setParent(personalFitness);
         strengthEquipment.setLeafNode(true);
         categoryRepository.save(strengthEquipment);
+
+
+//---------------ADD DATA TO CATEGORY METADATA FIELD TABLE------------------------
+
+        CategoryMetadataField size = new CategoryMetadataField();
+        size.setName("size");
+        categoryMetadataFieldRepository.save(size);
+
+        CategoryMetadataField color = new CategoryMetadataField();
+        color.setName("color");
+        categoryMetadataFieldRepository.save(color);
+
+        CategoryMetadataField brand = new CategoryMetadataField();
+        brand.setName("brand");
+        categoryMetadataFieldRepository.save(brand);
+
+//---------------ADD DATA TO CATEGORY METADATA FIELD VALUES TABLE------------------
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues.setCategory(studyTable);
+        categoryMetadataFieldValues.setCategoryMetadataField(color);
+        categoryMetadataFieldValues.setValue("Red,yellow,green");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
+
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues2 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues2.setCategory(officeChair);
+        categoryMetadataFieldValues2.setCategoryMetadataField(size);
+        categoryMetadataFieldValues2.setValue("large,small");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues2);
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues3 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues3.setCategory(officeTable);
+        categoryMetadataFieldValues3.setCategoryMetadataField(brand);
+        categoryMetadataFieldValues3.setValue("brand1,brand2");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues3);
     }
 }

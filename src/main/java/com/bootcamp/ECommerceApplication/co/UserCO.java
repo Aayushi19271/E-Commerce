@@ -1,12 +1,10 @@
 package com.bootcamp.ECommerceApplication.co;
 
 import org.hibernate.validator.constraints.Length;
-
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.List;
 
 public class UserCO {
     @Email(message = "Please provide valid Email ID")
@@ -28,8 +26,7 @@ public class UserCO {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d.*)(?=.*\\W.*)[a-zA-Z0-9\\S]{8,15}$",
             message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
-
-    private List<AddressCO> addresses;
+    private String confirmPassword;
 
     public String getEmail() {
         return email;
@@ -71,12 +68,11 @@ public class UserCO {
         this.password = password;
     }
 
-    public List<AddressCO> getAddresses() {
-        return addresses;
+    public String getConfirmPassword() {
+        return confirmPassword;
     }
 
-    public void setAddresses(List<AddressCO> addresses) {
-        addresses.forEach(e -> e.setUserCO(this));
-        this.addresses = addresses;
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 }

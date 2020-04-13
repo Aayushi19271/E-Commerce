@@ -12,6 +12,7 @@ import com.bootcamp.ECommerceApplication.entity.User;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
 import com.bootcamp.ECommerceApplication.repository.AddressRepository;
+import com.bootcamp.ECommerceApplication.repository.CategoryMetadataFieldValuesRepository;
 import com.bootcamp.ECommerceApplication.repository.SellerRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,6 +45,8 @@ public class SellerService {
     private SmtpMailSender smtpMailSender;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -111,4 +115,10 @@ public class SellerService {
         else
             throw new AddressNotFoundException("Address not found: "+addressCO.getId());
     }
+
+    //List All Category
+    public List<Map<Object, Object>> listAllCategories() {
+        return categoryMetadataFieldValuesRepository.findAllCategories();
+    }
+
 }
