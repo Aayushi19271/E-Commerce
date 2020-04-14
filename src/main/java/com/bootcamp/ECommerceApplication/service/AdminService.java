@@ -10,7 +10,6 @@ import com.bootcamp.ECommerceApplication.dto.CategoryMetadataFieldDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.*;
-import jdk.jfr.TransitionTo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,31 +19,30 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import javax.mail.MessagingException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
 
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
     @Autowired
-    SellerRepository sellerRepository;
+    private SellerRepository sellerRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
     private SmtpMailSender smtpMailSender;
     @Autowired
-    ConverterService converterService;
+    private ConverterService converterService;
     @Autowired
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
     @Autowired
-    CategoryMetadataFieldRepository categoryMetadataFieldRepository;
+    private CategoryMetadataFieldRepository categoryMetadataFieldRepository;
     @Autowired
-    CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
+    private ProductRepository productRepository;
+    @Autowired
+    private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
 
 //---------------------------------------------------TEST METHODS-------------------------------------------------------
 
@@ -262,24 +260,32 @@ public class AdminService {
         return new ResponseEntity<>(new MessageResponseEntity<>("Category Metadata Field Values Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
 
+
+
     //Admin Function to Update Metadata Field Values
     public ResponseEntity<Object> updateMetadataFieldValues(CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO) {
         Long categoryId = categoryMetadataFieldValuesCO.getCategoryId();
         Long categoryMetadataFieldId = categoryMetadataFieldValuesCO.getCategoryMetadataFieldId();
+
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
         Optional<CategoryMetadataField> optionalCategoryMetadataField= categoryMetadataFieldRepository.findById(categoryMetadataFieldId);
+
         if(!optionalCategory.isPresent())
             return new ResponseEntity<>("Message: Category Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
         if (!optionalCategoryMetadataField.isPresent())
             return new ResponseEntity<>("Message: Category Metadata Field Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+
         Category category = optionalCategory.get();
         CategoryMetadataField categoryMetadataField = optionalCategoryMetadataField.get();
+
         CategoryMetadataFieldValues categoryMetadataFieldValues = categoryMetadataFieldValuesRepository.findCategoryMetadataFieldValues(category.getId(),categoryMetadataField.getId());
+
         if (categoryMetadataFieldValues!=null){
             CategoryMetadataFieldValues newCategoryMetadataFieldValues = new CategoryMetadataFieldValues();  //create
             newCategoryMetadataFieldValues.setCategory(category);
             newCategoryMetadataFieldValues.setCategoryMetadataField(categoryMetadataField);
             newCategoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
+
             ModelMapper mapper = new ModelMapper();
             mapper.map(newCategoryMetadataFieldValues,categoryMetadataFieldValues);
             categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
@@ -289,4 +295,69 @@ public class AdminService {
             return new ResponseEntity<>("Message: Category Metadata Field ID Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
     }
 
+
+//-------------------------------------------ADMIN PRODUCT API'S--------------------------------------------------------
+
+    //Admin Function to view a product
+    public  ResponseEntity<Object>  listOneProduct(Long id) {
+         List<Map<Object, Object>> product = productRepository.listOneProductAdmin(id);
+        return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    //Admin Function to list All products
+    public List<Product> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        Page<Product> pagedResult = productRepository.listAllProductAdmin(paging);
+        return pagedResult.getContent();
+    }
+
+    //Admin Function to Activate A Product
+    public ResponseEntity<Object> activateProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (!optionalProduct.isPresent())
+            return new ResponseEntity<>("Message:Product Id Not Found!", HttpStatus.NOT_FOUND);
+
+        Product product = optionalProduct.get();
+        Seller seller = product.getSeller();
+        boolean flag = product.getActive();
+        if (!flag) {
+            product.setActive(true);
+            productRepository.save(product);
+            try {
+                smtpMailSender.send(seller.getEmail(), "Product Activated!", "Dear  " + seller.getFirstName() + ", You're Product Has Been Activated!");
+                return new ResponseEntity<>(new MessageResponseEntity<>("Product Activated Successfully!", HttpStatus.OK), HttpStatus.OK);
+            }
+            catch (Exception ex) {
+                throw new MailSendFailedException("Failed to Send Mail: "+seller.getEmail());
+            }
+        }
+        else
+            return new ResponseEntity<>("Message: Product Already Activated", HttpStatus.BAD_REQUEST);  //replace with exception class
+    }
+
+
+    //Admin Function to De-activate A Product
+    public ResponseEntity<Object> deactivateProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (!optionalProduct.isPresent())
+            return new ResponseEntity<>("Message:Product Id Not Found!", HttpStatus.NOT_FOUND);
+
+        Product product = optionalProduct.get();
+        Seller seller = product.getSeller();
+        boolean flag = product.getActive();
+        if (!flag) {
+            product.setActive(true);
+            productRepository.save(product);
+            try {
+                smtpMailSender.send(seller.getEmail(), "Product De-activated!", "Dear  " + seller.getFirstName() + ", You're Product Has Been De-activated!");
+                return new ResponseEntity<>(new MessageResponseEntity<>("Product Deactivated Successfully!", HttpStatus.OK), HttpStatus.OK);
+            }
+            catch (Exception ex) {
+                throw new MailSendFailedException("Failed to Send Mail: "+seller.getEmail());
+            }
+        }
+        else
+            return new ResponseEntity<>("Message: Product De-activated Activated", HttpStatus.BAD_REQUEST);  //replace with exception class
+
+    }
 }

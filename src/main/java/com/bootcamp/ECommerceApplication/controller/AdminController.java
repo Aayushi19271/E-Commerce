@@ -134,9 +134,9 @@ public class AdminController {
         return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
     }
 
-    //Admin Function to Add New Category  --- NOT WORKING
+    //Admin Function to Add New Category
     @PostMapping("/admin/add-category")
-    public ResponseEntity<Object> addCategory( @RequestBody CategoryCO categoryCO){
+    public ResponseEntity<Object> addCategory(@Valid @RequestBody CategoryCO categoryCO){
         return adminService.addCategory(categoryCO);
     }
 
@@ -175,6 +175,37 @@ public class AdminController {
         return adminService.updateMetadataFieldValues(categoryMetadataFieldValuesCO);
     }
 
+//-------------------------------------------ADMIN PRODUCT API'S-------------------------------------------------------
+
+    //Admin Function to view a product
+    @GetMapping("/admin/view-product/{id}")
+    public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
+        return adminService.listOneProduct(id);
+    }
+
+    //Admin Function to list All Category
+    @GetMapping("/admin/category")
+    public ResponseEntity<Object> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                  @RequestParam(defaultValue = "10") Integer pageSize,
+                                                  @RequestParam(defaultValue = "id") String sortBy){
+
+        List<Product> list = adminService.listAllProducts(pageNo,pageSize,sortBy);
+        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    //Admin Function to Activate A Product
+    @PutMapping("/admin/sellers/activate/{id}")
+    public ResponseEntity<Object> activateProduct(@PathVariable Long id)
+            throws MessagingException {
+        return adminService.activateProduct(id);
+    }
+
+    //Admin Function to De-activate A Product
+    @PutMapping("/admin/sellers/deactivate/{id}")
+    public ResponseEntity<Object> deactivateProduct(@PathVariable Long id)
+            throws MessagingException {
+        return adminService.deactivateProduct(id);
+    }
 
 }
 

@@ -1,6 +1,7 @@
 package com.bootcamp.ECommerceApplication.repository;
 
 import com.bootcamp.ECommerceApplication.entity.Seller;
+import com.bootcamp.ECommerceApplication.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,5 @@ public interface SellerRepository extends PagingAndSortingRepository<Seller,Long
             "on u.id=s.user_id ",nativeQuery = true)
     Page<Seller> findAll(Pageable paging);
 
+    Seller findByEmailIgnoreCase(String emailId);
 }

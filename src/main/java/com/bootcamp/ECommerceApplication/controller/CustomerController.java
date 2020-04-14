@@ -3,8 +3,11 @@ package com.bootcamp.ECommerceApplication.controller;
 import com.bootcamp.ECommerceApplication.co.AddressCO;
 import com.bootcamp.ECommerceApplication.co.CustomerUpdateProfileCO;
 import com.bootcamp.ECommerceApplication.co.PasswordCO;
+import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
+import com.bootcamp.ECommerceApplication.entity.Product;
 import com.bootcamp.ECommerceApplication.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
@@ -81,4 +84,26 @@ public class CustomerController {
     public List<Map<Object, Object>> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
         return customerService.listAllCustomerCategories(id);
     }
+
+//-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
+
+    //Customer Function to view a product
+    @GetMapping("/view-product/{id}")
+    public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
+        return customerService.listOneProduct(id);
+    }
+
+    //Customer Function to view all products
+    @GetMapping("/view-all-products/{id}")
+    public ResponseEntity<Object> listAllProduct(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                 @RequestParam(defaultValue = "10") Integer pageSize,
+                                                 @RequestParam(defaultValue = "id") String sortBy,
+                                                 @PathVariable Long id){
+
+        List<Product> list = customerService.listAllProducts(pageNo,pageSize,sortBy,id);
+        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
+
 }

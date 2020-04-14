@@ -9,15 +9,17 @@ import com.bootcamp.ECommerceApplication.dto.AddressDTO;
 import com.bootcamp.ECommerceApplication.dto.CustomerDTO;
 import com.bootcamp.ECommerceApplication.entity.Address;
 import com.bootcamp.ECommerceApplication.entity.Customer;
+import com.bootcamp.ECommerceApplication.entity.Product;
 import com.bootcamp.ECommerceApplication.entity.User;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
-import com.bootcamp.ECommerceApplication.repository.AddressRepository;
-import com.bootcamp.ECommerceApplication.repository.CategoryRepository;
-import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
-import com.bootcamp.ECommerceApplication.repository.UserRepository;
+import com.bootcamp.ECommerceApplication.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,7 +46,9 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
-     private CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -160,4 +164,19 @@ public class CustomerService {
     }
 
 
+
+
+//-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
+
+    //Customer Function to view a product
+    public  ResponseEntity<Object>  listOneProduct(Long id) {
+        List<Map<Object, Object>> product = productRepository.listOneProductCustomer(id);
+        return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    public List<Product> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        Page<Product> pagedResult = productRepository.listAllProductCustomer(paging,id);
+        return pagedResult.getContent();
+    }
 }

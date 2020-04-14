@@ -3,27 +3,27 @@ package com.bootcamp.ECommerceApplication.entity;
 import java.io.Serializable;
 
 public class ProductReviewID implements Serializable {
-    private Product product;
-    private Customer customer;
+    private Long product;
+    private Long customer;
 
-    public ProductReviewID(Product product, Customer customer) {
+    public ProductReviewID(Long product, Long customer) {
         this.product = product;
         this.customer = customer;
     }
 
-    public Product getProduct() {
+    public Long getProduct() {
         return product;
     }
 
-    public void setProduct(Product product) {
+    public void setProduct(Long product) {
         this.product = product;
     }
 
-    public Customer getCustomer() {
+    public Long getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(Long customer) {
         this.customer = customer;
     }
 }

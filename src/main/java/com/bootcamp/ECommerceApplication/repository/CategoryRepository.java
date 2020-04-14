@@ -1,6 +1,7 @@
 package com.bootcamp.ECommerceApplication.repository;
 
 import com.bootcamp.ECommerceApplication.entity.Category;
+import com.bootcamp.ECommerceApplication.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -29,5 +30,11 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
             "from category " +
             "where parent_id is null",nativeQuery = true)
     List<Map<Object,Object>> findByCategoryIsNull();
+
+    @Query(value = "select leaf_node from category where id=:id",nativeQuery = true)
+    Boolean findByCategoryLeafNode(Long id);
+
+
+
 
 }

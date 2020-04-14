@@ -5,30 +5,28 @@ import java.io.Serializable;
 
 public class CartID implements Serializable {
 
-    private Customer customer;
+    private Long customer;
 
-    private ProductVariation productVariation;
+    private Long productVariation;
 
-
-    public CartID(Customer customer, ProductVariation productVariation) {
+    public CartID(Long customer, Long productVariation) {
         this.customer = customer;
         this.productVariation = productVariation;
     }
 
-    public Customer getCustomer() {
+    public Long getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(Long customer) {
         this.customer = customer;
     }
 
-
-    public ProductVariation getProductVariation() {
+    public Long getProductVariation() {
         return productVariation;
     }
 
-    public void setProductVariation(ProductVariation productVariation) {
+    public void setProductVariation(Long productVariation) {
         this.productVariation = productVariation;
     }
 }

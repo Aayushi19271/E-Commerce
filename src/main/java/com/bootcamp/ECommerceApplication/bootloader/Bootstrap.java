@@ -10,30 +10,25 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Component
 public class Bootstrap implements ApplicationRunner {
     @Autowired
-    RoleRepository roleRepository;
-
+    private RoleRepository roleRepository;
     @Autowired
-    UserRepository userRepository;
-
+    private UserRepository userRepository;
     @Autowired
-    CategoryRepository categoryRepository;
-
+    private CategoryRepository categoryRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
-    AddressRepository addressRepository;
-
+    private AddressRepository addressRepository;
     @Autowired
-    CategoryMetadataFieldRepository categoryMetadataFieldRepository;
-
+    private CategoryMetadataFieldRepository categoryMetadataFieldRepository;
     @Autowired
-    CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
+    private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -89,9 +84,9 @@ public class Bootstrap implements ApplicationRunner {
         furniture.setName("Home & Furniture");
         categoryRepository.save(furniture);
 
-        Category health = new Category();
-        health.setName("Health & fitness");
-        categoryRepository.save(health);
+        Category fashion = new Category();
+        fashion.setName("Fashion");
+        categoryRepository.save(fashion);
 
 //------------SUB CATEGORY LEVEL-1----------------------
 //-------------SUBCATEGORY:Home & Furniture-------------
@@ -132,15 +127,20 @@ public class Bootstrap implements ApplicationRunner {
         categoryRepository.save(laptop);
 
 //-------------SUBCATEGORY:Health & fitness-------------
-        Category healthCareDevices = new Category();
-        healthCareDevices.setName("Health Care Devices");
-        healthCareDevices.setParent(health);
-        categoryRepository.save(healthCareDevices);
+        Category men = new Category();
+        men.setName("Men");
+        men.setParent(fashion);
+        categoryRepository.save(men);
 
-        Category personalFitness = new Category();
-        personalFitness.setName("Personal Fitness Devices");
-        personalFitness.setParent(health);
-        categoryRepository.save(personalFitness);
+        Category women = new Category();
+        women.setName("Women");
+        women.setParent(fashion);
+        categoryRepository.save(women);
+
+        Category kids = new Category();
+        kids.setName("Kids");
+        kids.setParent(fashion);
+        categoryRepository.save(kids);
 
 //------------SUB CATEGORY LEVEL-2 Home & Furniture-----
 //-------------SUBCATEGORY:Bed Room Furniture-----------
@@ -247,32 +247,32 @@ public class Bootstrap implements ApplicationRunner {
         gamingLaptop.setLeafNode(true);
         categoryRepository.save(gamingLaptop);
 
-//------------SUB CATEGORY LEVEL-2 Health & fitness-----
-//-------------SUBCATEGORY:Health Care Devices----------
-        Category bloodPressureMonitor = new Category();
-        bloodPressureMonitor.setName("Blood Pressure Monitor");
-        bloodPressureMonitor.setParent(healthCareDevices);
-        bloodPressureMonitor.setLeafNode(true);
-        categoryRepository.save(bloodPressureMonitor);
+//------------SUB CATEGORY LEVEL-2 FASHION-----
+//-------------SUBCATEGORY:MEN SUBCATEGORY----------
+        Category menShoes = new Category();
+        menShoes.setName("Men Shoes");
+        menShoes.setParent(men);
+        menShoes.setLeafNode(true);
+        categoryRepository.save(menShoes);
 
-        Category glucoseMonitor = new Category();
-        glucoseMonitor.setName("Glucose Monitor");
-        glucoseMonitor.setParent(healthCareDevices);
-        glucoseMonitor.setLeafNode(true);
-        categoryRepository.save(glucoseMonitor);
+        Category menShirts = new Category();
+        menShirts.setName("Men Shirts");
+        menShirts.setParent(men);
+        menShirts.setLeafNode(true);
+        categoryRepository.save(menShirts);
 
-//-------------SUBCATEGORY: Family Nutrition------------
-        Category cardioEquipment = new Category();
-        cardioEquipment.setName("Cardio Equipments");
-        cardioEquipment.setParent(personalFitness);
-        cardioEquipment.setLeafNode(true);
-        categoryRepository.save(cardioEquipment);
+//-------------SUBCATEGORY: WOMEN SUBCATEGORY------------
+        Category womenShoes = new Category();
+        womenShoes.setName("Women Shoes");
+        womenShoes.setParent(women);
+        womenShoes.setLeafNode(true);
+        categoryRepository.save(womenShoes);
 
-        Category strengthEquipment = new Category();
-        strengthEquipment.setName("Strength Equipments");
-        strengthEquipment.setParent(personalFitness);
-        strengthEquipment.setLeafNode(true);
-        categoryRepository.save(strengthEquipment);
+        Category womenShirts = new Category();
+        womenShirts.setName("Women Shirts");
+        womenShirts.setParent(women);
+        womenShirts.setLeafNode(true);
+        categoryRepository.save(womenShirts);
 
 
 //---------------ADD DATA TO CATEGORY METADATA FIELD TABLE------------------------
@@ -309,5 +309,59 @@ public class Bootstrap implements ApplicationRunner {
         categoryMetadataFieldValues3.setCategoryMetadataField(brand);
         categoryMetadataFieldValues3.setValue("brand1,brand2");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues3);
+
+
+//---------------ADD DATA TO CATEGORY METADATA FIELD VALUES TABLE--------------------
+
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues4 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues4.setCategory(menShoes);
+        categoryMetadataFieldValues4.setCategoryMetadataField(color);
+        categoryMetadataFieldValues4.setValue("Red,yellow,green");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues4);
+
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues5 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues5.setCategory(menShirts);
+        categoryMetadataFieldValues5.setCategoryMetadataField(size);
+        categoryMetadataFieldValues5.setValue("large,small");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues5);
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues6 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues6.setCategory(womenShoes);
+        categoryMetadataFieldValues6.setCategoryMetadataField(brand);
+        categoryMetadataFieldValues6.setValue("brand1,brand2");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues6);
+
+
     }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -20,8 +20,8 @@ public class Product {
     @JoinColumn(name="categoryId")
     private Category category;
 
-    private Boolean isCancellable;
-    private Boolean isReturnable;
+    private Boolean isCancellable=false;
+    private Boolean isReturnable=false;
     private String brand;
     private Boolean isActive;
 

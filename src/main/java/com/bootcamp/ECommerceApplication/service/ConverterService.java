@@ -59,4 +59,9 @@ public class ConverterService {
     public CategoryDTO convertToCategoryDTO(Category category){ return modelMapper.map(category, CategoryDTO.class); }
 
     public Category convertToCategory(CategoryCO categoryCO){ return modelMapper.map(categoryCO,Category.class); }
+
+//------------------------------------------------Product CO/DTO-------------------------------------------------------
+    public ProductDTO convertToProductDTO(Product product){ return modelMapper.map(product, ProductDTO.class); }
+
+    public Product convertToProduct(ProductCO productCO){ return modelMapper.map(productCO,Product.class); }
 }
