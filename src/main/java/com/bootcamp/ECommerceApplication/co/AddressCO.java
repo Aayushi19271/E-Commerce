@@ -4,7 +4,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class AddressCO {
-    private Long id;
     @NotNull(message = "Please provide City")
     @NotBlank(message = "Please provide valid City")
     private String city;
@@ -29,10 +28,6 @@ public class AddressCO {
     private String label;
     private UserCO userCO;
 
-
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
 
     public String getCity() {
         return city;

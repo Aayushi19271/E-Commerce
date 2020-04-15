@@ -8,6 +8,14 @@ public class CategoryMetadataFieldValuesID implements Serializable {
 
     private Long category;
 
+    public CategoryMetadataFieldValuesID() {
+    }
+
+    public CategoryMetadataFieldValuesID(Long categoryMetadataField, Long category) {
+        this.categoryMetadataField = categoryMetadataField;
+        this.category = category;
+    }
+
     public Long getCategoryMetadataField() {
         return categoryMetadataField;
     }

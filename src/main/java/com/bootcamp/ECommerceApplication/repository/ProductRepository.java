@@ -42,7 +42,7 @@ public interface ProductRepository extends CrudRepository<Product,Long> {
             "ON b.product_id=a.id " +
             "INNER JOIN category c " +
             "ON a.category_id=c.id " +
-            "where a.id=:id",nativeQuery = true)
+            "where a.id=:productId",nativeQuery = true)
     List<Map<Object,Object>> listOneProductAdmin(Long productId);
 
 
@@ -63,7 +63,7 @@ public interface ProductRepository extends CrudRepository<Product,Long> {
             "ON b.product_id=a.id " +
             "INNER JOIN category c " +
             "ON a.category_id=c.id " +
-            "where a.id=:id AND a.is_active=true",nativeQuery = true)
+            "where a.id=:productId AND a.is_active=true",nativeQuery = true)
     List<Map<Object,Object>> listOneProductCustomer(Long productId);
 
 

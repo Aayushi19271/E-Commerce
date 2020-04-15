@@ -1,11 +1,7 @@
 package com.bootcamp.ECommerceApplication.controller;
 
-import com.bootcamp.ECommerceApplication.co.AddressCO;
-import com.bootcamp.ECommerceApplication.co.PasswordCO;
-import com.bootcamp.ECommerceApplication.co.ProductCO;
-import com.bootcamp.ECommerceApplication.co.ProductUpdateCO;
+import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
-import com.bootcamp.ECommerceApplication.entity.Category;
 import com.bootcamp.ECommerceApplication.entity.ProductVariation;
 import com.bootcamp.ECommerceApplication.service.SellerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +12,6 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/sellers")
@@ -43,10 +38,10 @@ public class SellerController {
 
     //Update the Profile of LoggedIn Seller
     @PatchMapping("/update-profile")
-    public ResponseEntity<Object> sellerUpdateProfile(Principal principal, @Valid @RequestBody Map<Object,Object> fields)
+    public ResponseEntity<Object> sellerUpdateProfile(Principal principal, @Valid @RequestBody SellerProfileUpdateCO sellerProfileUpdateCO)
     {
         String email = principal.getName();
-        return sellerService.sellerUpdateProfile(email,fields);
+        return sellerService.sellerUpdateProfile(email,sellerProfileUpdateCO);
     }
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
@@ -66,8 +61,12 @@ public class SellerController {
 
     //List All Category
     @GetMapping("/all-categories")
-    public List<Map<Object, Object>> listAllCategories(){
-        return sellerService.listAllCategories();
+    public ResponseEntity<Object> listAllCategory(
+            @RequestParam(defaultValue = "0") Integer pageNo,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(defaultValue = "id") String sortBy) {
+
+        return sellerService.listAllCategory(pageNo, pageSize, sortBy);
     }
 
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------

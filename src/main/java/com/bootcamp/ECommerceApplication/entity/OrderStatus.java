@@ -13,17 +13,8 @@ public class OrderStatus{
     @OneToOne
     @JoinColumn(name = "orderProductId")
     private OrderProduct orderProductId;
-
-    private enum fromStatus{
-        ORDER_PLACED, CANCELLED, ORDER_REJECTED, ORDER_CONFIRMED, ORDER_SHIPPED,
-        DELIVERED, RETURN_REQUESTED, RETURN_REJECTED, RETURN_APPROVED, PICK_UP_INITIATED,
-        PICK_UP_COMPLETED, REFUND_INITIATED, REFUND_COMPLETED;
-    }
-    private enum ToStatus {
-        CANCELLED, ORDER_CONFIRMED, ORDER_REJECTED, REFUND_INITIATED,
-        CLOSED, ORDER_SHIPPED, DELIVERED, RETURN_REQUESTED, RETURN_REJECTED,
-        RETURN_APPROVED, PICK_UP_INITIATED, PICK_UP_COMPLETED, REFUND_COMPLETED;
-    }
+    private String fromStatus;
+    private String toStatus;
 
     private String transitionNotesComments;
 
@@ -51,11 +42,29 @@ public class OrderStatus{
         this.transitionNotesComments = transitionNotesComments;
     }
 
+    public String getFromStatus() {
+        return fromStatus;
+    }
+
+    public void setFromStatus(String fromStatus) {
+        this.fromStatus = fromStatus;
+    }
+
+    public String getToStatus() {
+        return toStatus;
+    }
+
+    public void setToStatus(String toStatus) {
+        this.toStatus = toStatus;
+    }
+
     @Override
     public String toString() {
         return "OrderStatus{" +
                 "id=" + id +
                 ", orderProductId=" + orderProductId +
+                ", fromStatus='" + fromStatus + '\'' +
+                ", toStatus='" + toStatus + '\'' +
                 ", transitionNotesComments='" + transitionNotesComments + '\'' +
                 '}';
     }

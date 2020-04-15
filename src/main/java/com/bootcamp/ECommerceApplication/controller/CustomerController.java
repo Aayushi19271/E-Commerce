@@ -14,7 +14,6 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -66,10 +65,12 @@ public class CustomerController {
     }
 
     //Update the already existing Address of LoggedIn Customer
-    @PatchMapping("/update-address")
-    public ResponseEntity<Object> customerUpdateAddress(Principal principal, @Valid @RequestBody AddressCO addressCO){
+    @PatchMapping("/update-address/{id}")
+    public ResponseEntity<Object> customerUpdateAddress(Principal principal,
+                                                        @Valid @RequestBody AddressCO addressCO,
+                                                        @PathVariable Long id){
         String email = principal.getName();
-        return customerService.customerUpdateAddress(email,addressCO);
+        return customerService.customerUpdateAddress(email,addressCO,id);
     }
 
     //Update the Profile of LoggedIn Customer
@@ -81,7 +82,7 @@ public class CustomerController {
 
     //list all Categories
     @GetMapping({"/list-all-categories-customer/{id}","/list-all-categories-customer"})
-    public List<Map<Object, Object>> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
+    public ResponseEntity<Object> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
         return customerService.listAllCustomerCategories(id);
     }
 

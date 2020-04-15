@@ -85,27 +85,31 @@ public class UserService {
         UserDTO userDTO = converterService.convertToSellerDto(seller);
 
         if (user == null) {
-            seller.setActive(false);
-            seller.setDeleted(false);
-            seller.setPassword(passwordEncoder.encode(seller.getPassword()));
-            String companyName = seller.getCompanyName().toLowerCase();
-            seller.setCompanyName(companyName);
-            ArrayList<Role> tempRole = new ArrayList<>();
-            Role role = roleRepository.findByAuthority("ROLE_SELLER");
-            tempRole.add(role);
-            seller.setRoles(tempRole);
-            seller.setCreatedBy("user@" + seller.getFirstName());
-            seller.setDateCreated(new Date());
-            userRepository.save(seller);
-            try {
-                smtpMailSender.send(seller.getEmail(), "Pending Approval",
-                        "The Account has been Registered but is Pending Approval! ");
-                return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
-            } catch (Exception ex) {
-                throw new MailSendFailedException("Failed to Send Mail: "+seller.getEmail());
-            }
-        } else
-            throw new UserExistsException("The Seller's EmailID Already Exist: " + seller.getEmail());
+            if (seller.getConfirmPassword().equals(seller.getPassword())) {
+                seller.setActive(false);
+                seller.setDeleted(false);
+                seller.setPassword(passwordEncoder.encode(seller.getPassword()));
+                String companyName = seller.getCompanyName().toLowerCase();
+                seller.setCompanyName(companyName);
+                ArrayList<Role> tempRole = new ArrayList<>();
+                Role role = roleRepository.findByAuthority("ROLE_SELLER");
+                tempRole.add(role);
+                seller.setRoles(tempRole);
+                seller.setCreatedBy("user@" + seller.getFirstName());
+                seller.setDateCreated(new Date());
+                userRepository.save(seller);
+                try {
+                    smtpMailSender.send(seller.getEmail(), "Pending Approval",
+                            "The Account has been Registered but is Pending Approval! ");
+                    return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+                } catch (Exception ex) {
+                    throw new MailSendFailedException("Failed to Send Mail: " + seller.getEmail());
+                }
+            } else
+                throw new PasswordDoesNotMatchException("Password And Confirm Password Does Not Match!");
+        }
+            else
+                throw new UserFoundException("The Seller's EmailID Already Exist: " + seller.getEmail());
     }
 
 
@@ -118,26 +122,29 @@ public class UserService {
         String customerEmail = customer.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
-        if(user == null) {
-            customer.setDeleted(false);
-            customer.setActive(false);
-            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-            ArrayList<Role> tempRole = new ArrayList<>();
-            Role role = roleRepository.findByAuthority("ROLE_CUSTOMER");
-            tempRole.add(role);
-            customer.setRoles(tempRole);
-            customer.setCreatedBy("user@"+customer.getFirstName());
-            customer.setDateCreated(new Date());
-            userRepository.save(customer);
-            ConfirmationToken confirmationToken = createConfirmationToken(customer);
-            try {
-                return sendMailCustomer(customer, confirmationToken);
-            } catch (Exception ex) {
-                throw new MailSendFailedException("Failed to Send Mail: "+customer.getEmail());
-            }
-        }
-        else
-            throw new UserExistsException("The Customer's EmailID Already Exist: "+customer.getEmail());
+        if (user == null) {
+            if (customer.getConfirmPassword().equals(customer.getPassword())) {
+                customer.setDeleted(false);
+                customer.setActive(false);
+                customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+                ArrayList<Role> tempRole = new ArrayList<>();
+                Role role = roleRepository.findByAuthority("ROLE_CUSTOMER");
+                tempRole.add(role);
+                customer.setRoles(tempRole);
+                customer.setCreatedBy("user@" + customer.getFirstName());
+                customer.setDateCreated(new Date());
+                userRepository.save(customer);
+                ConfirmationToken confirmationToken = createConfirmationToken(customer);
+
+                try {
+                    return sendMailCustomer(customer, confirmationToken);
+                } catch (Exception ex) {
+                    throw new MailSendFailedException("Failed to Send Mail: " + customer.getEmail());
+                }
+            } else
+                throw new PasswordDoesNotMatchException("Password And Confirm Password Does Not Match!");
+        } else
+            throw new UserFoundException("The Customer's EmailID Already Exist: " + customer.getEmail());
     }
 
 
@@ -190,7 +197,7 @@ public class UserService {
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+userCO.getEmail());
         if(customer.isActive()) {
-            return new ResponseEntity<>( new MessageResponseEntity<>(HttpStatus.OK,"User Already Active!"),HttpStatus.OK);
+            throw new UserActiveException("User Already Active Exception: "+userCO.getFirstName());
         }
         else {
             deleteConfirmationToken(customer.getEmail());
@@ -210,8 +217,7 @@ public class UserService {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
         UserDTO userDTO = converterService.convertToUserDto(user);
-        return new ResponseEntity<>(new MessageResponseEntity<>(userDTO,
-                HttpStatus.CREATED),HttpStatus.CREATED);
+        return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED),HttpStatus.CREATED);
     }
 
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------

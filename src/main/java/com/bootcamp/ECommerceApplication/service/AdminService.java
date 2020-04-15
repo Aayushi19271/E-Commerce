@@ -3,6 +3,7 @@ package com.bootcamp.ECommerceApplication.service;
 import com.bootcamp.ECommerceApplication.co.CategoryCO;
 import com.bootcamp.ECommerceApplication.co.CategoryMetadataFieldCO;
 import com.bootcamp.ECommerceApplication.co.CategoryMetadataFieldValuesCO;
+import com.bootcamp.ECommerceApplication.co.CategoryUpdateCO;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.CategoryDTO;
@@ -61,7 +62,7 @@ public class AdminService {
         return customer;
     }
 
-//----------------------------------------------ADMIN SPECIFIED METHODS-------------------------------------------------
+//----------------------------------------------ADMIN CUSTOMER/SELLERS METHODS-------------------------------------------------
 //------------------------------------------LIST OF USERS,SELLERS,CUSTOMERS---------------------------------------------
 
     //List Of All Users
@@ -70,17 +71,18 @@ public class AdminService {
     }
 
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
-    public List<Customer> findAllCustomers(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<Object> findAllCustomers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Customer> pagedResult = customerRepository.findAll(paging);
-        return pagedResult.getContent();
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
     //LIST OF SELLERS - PAGING (0,10) AND SORTING ASC "ID"
-    public List<Seller> findAllSellers(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<Object> findAllSellers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Seller> pagedResult = sellerRepository.findAll(paging);
-        return pagedResult.getContent();
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+
     }
 
 //------------------------------------------FIND/SAVE A USERS,SELLERS,CUSTOMERS-----------------------------------------
@@ -168,21 +170,26 @@ public class AdminService {
             return new ResponseEntity<>(new MessageResponseEntity<>(categoryMetadataFieldDTO, HttpStatus.CREATED), HttpStatus.CREATED);
         }
         else {
-            throw new MetadataFieldExistsException("The Metadata Field Already Exists: "+categoryMetadataField.getName());
+            throw new MetadataFieldFoundException("The Metadata Field Already Exists: "+categoryMetadataField.getName());
         }
     }
 
 
     //Admin Function to List All Category Metadata Field
-    public List<CategoryMetadataField> listAllMetadata(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<Object> listAllMetadata(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<CategoryMetadataField> pagedResult = categoryMetadataFieldRepository.findAll(paging);
-        return pagedResult.getContent();
+        Page<CategoryMetadataField> metadataFieldsList = categoryMetadataFieldRepository.findAll(paging);
+        return new ResponseEntity<>(new MessageResponseEntity<>(metadataFieldsList.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
 
     //Admin Function to Add New Category
     public ResponseEntity<Object> addCategory(CategoryCO categoryCO) {
+        Category savedCategory = categoryRepository.findByNameAndParent(categoryCO.getName(), categoryCO.getParentId());
+        if (savedCategory != null) {
+            throw new CategoryFoundException("Category Already Exists: "+categoryCO.getName());
+        }
+
         if(categoryCO.getParentId()==null){
             Category category = new Category();
             category.setLeafNode(false);
@@ -195,47 +202,68 @@ public class AdminService {
             Optional<Category> optionalParentCategory = categoryRepository.findById(categoryCO.getParentId());
             if (optionalParentCategory.isPresent()) {
                 Category parentCategory = optionalParentCategory.get();
+                parentCategory.setLeafNode(false);
                 Category category = new Category();
                 category.setLeafNode(true);
                 category.setName(categoryCO.getName());
                 category.setParent(parentCategory);
                 categoryRepository.save(category);
+                categoryRepository.save(parentCategory);
                 CategoryDTO categoryDTO = converterService.convertToCategoryDTO(category);
                 return new ResponseEntity<>(new MessageResponseEntity<>(categoryDTO, HttpStatus.CREATED), HttpStatus.CREATED);
             }
             else
-                return new ResponseEntity<>("Parent Category Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+                throw new ParentCategoryNotFoundException("Parent Category Not Found: " +categoryCO.getParentId());
         }
     }
 
     //Admin Function to list All Category
-    public List<Category> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<Object> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Category> pagedResult = categoryRepository.findAll(paging);
-        return pagedResult.getContent();
+        List<Category> categoryList = categoryRepository.findAllCategory(paging);
+        return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
     }
 
+
    //Admin Function to List One Category
-    public ResponseEntity<Category> listOneCategory(Long id) {
-        return categoryRepository.findById(id).map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Object> listOneCategory(Long id) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+
+        if (optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();
+            List<Object> subCategory = categoryRepository.findAllChildrenAdmin(id);
+
+            response.put("Sub-categories".toUpperCase(), subCategory);
+            response.put("Category Datail".toUpperCase(), category);
+
+            return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
+        }
+        throw new CategoryNotFoundException("Category Not Found:"+id);
     }
 
     //Admin Function to Update One Category
-    public ResponseEntity<Object> updateCategory(CategoryCO categoryCO, Long id) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
-        if (optionalCategory.isPresent()){
+    public ResponseEntity<Object> updateCategory(CategoryUpdateCO categoryUpdateCO) {
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryUpdateCO.getId());
+        if (optionalCategory.isPresent()) {
             Category savedCategory = optionalCategory.get();
-            ModelMapper mapper = new ModelMapper();
-            mapper.map(categoryCO,savedCategory);
-            categoryRepository.save(savedCategory);
-            CategoryDTO categoryDTO = converterService.convertToCategoryDTO(savedCategory);
-            return new ResponseEntity<>(new MessageResponseEntity<>(categoryDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+            Category oldCategory = categoryRepository
+                    .findByNameAndParent(categoryUpdateCO.getName(),
+                            savedCategory.getParent().getId());
+
+            if (oldCategory != null)
+                throw new CategoryFoundException("Category with similar name already exists".toUpperCase());
+
+                ModelMapper mapper = new ModelMapper();
+                mapper.map(categoryUpdateCO, savedCategory);
+                categoryRepository.save(savedCategory);
+                CategoryDTO categoryDTO = converterService.convertToCategoryDTO(savedCategory);
+                return new ResponseEntity<>(new MessageResponseEntity<>(categoryDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+            }
+            else
+                throw new CategoryNotFoundException("Category Not Found:"+categoryUpdateCO.getId());
         }
-        else {
-            return new ResponseEntity<>("Category Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
-        }
-    }
+
 
 
     //Admin Function to Add Metadata Field Values
@@ -243,23 +271,35 @@ public class AdminService {
         Long categoryId = categoryMetadataFieldValuesCO.getCategoryId();
         Long categoryMetadataFieldId = categoryMetadataFieldValuesCO.getCategoryMetadataFieldId();
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-        Optional<CategoryMetadataField> optionalCategoryMetadataField= categoryMetadataFieldRepository.findById(categoryMetadataFieldId);
+        Optional<CategoryMetadataField> optionalCategoryMetadataField = categoryMetadataFieldRepository.findById(categoryMetadataFieldId);
 
-        if(!optionalCategory.isPresent())
-            return new ResponseEntity<>("Message: Category Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+        if (!optionalCategory.isPresent())
+            throw new CategoryNotFoundException("Category Not Found:"+categoryId);
+
         if (!optionalCategoryMetadataField.isPresent())
-            return new ResponseEntity<>("Message: Category Metadata Field Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+            throw new CategoryMetadataFieldNotFoundException("Category Metadata Field Id Not Found: "+categoryMetadataFieldId);
 
-        Category category = optionalCategory.get();
-        CategoryMetadataField categoryMetadataField = optionalCategoryMetadataField.get();
-        CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();  //create
-        categoryMetadataFieldValues.setCategory(category);
-        categoryMetadataFieldValues.setCategoryMetadataField(categoryMetadataField);
-        categoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
-        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
-        return new ResponseEntity<>(new MessageResponseEntity<>("Category Metadata Field Values Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
+        CategoryMetadataFieldValuesID categoryMetadataFieldValuesId =
+                new CategoryMetadataFieldValuesID(optionalCategoryMetadataField.get().getId(), optionalCategory.get().getId());
+
+        Optional<CategoryMetadataFieldValues> optionalCategoryMetadataFieldValues =
+                categoryMetadataFieldValuesRepository.findById(categoryMetadataFieldValuesId);
+
+        if (optionalCategoryMetadataFieldValues.isPresent()) {
+            throw new CategoryMetadataFieldValuesFoundException("Category meta data already exists:"+categoryMetadataFieldValuesId);
+        }
+        else{
+            Category category = optionalCategory.get();
+            CategoryMetadataField categoryMetadataField = optionalCategoryMetadataField.get();
+
+            CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();  //create
+            categoryMetadataFieldValues.setCategory(category);
+            categoryMetadataFieldValues.setCategoryMetadataField(categoryMetadataField);
+            categoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
+            categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
+            return new ResponseEntity<>(new MessageResponseEntity<>("Category Metadata Field Values Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
+        }
     }
-
 
 
     //Admin Function to Update Metadata Field Values
@@ -268,31 +308,37 @@ public class AdminService {
         Long categoryMetadataFieldId = categoryMetadataFieldValuesCO.getCategoryMetadataFieldId();
 
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-        Optional<CategoryMetadataField> optionalCategoryMetadataField= categoryMetadataFieldRepository.findById(categoryMetadataFieldId);
+        Optional<CategoryMetadataField> optionalCategoryMetadataField = categoryMetadataFieldRepository.findById(categoryMetadataFieldId);
 
-        if(!optionalCategory.isPresent())
-            return new ResponseEntity<>("Message: Category Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+        if (!optionalCategory.isPresent())
+            throw new CategoryNotFoundException("Category Not Found:"+categoryId);
         if (!optionalCategoryMetadataField.isPresent())
-            return new ResponseEntity<>("Message: Category Metadata Field Id Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+            throw new CategoryMetadataFieldNotFoundException("Category Metadata Field Id Not Found: "+categoryMetadataFieldId);
 
-        Category category = optionalCategory.get();
-        CategoryMetadataField categoryMetadataField = optionalCategoryMetadataField.get();
+        CategoryMetadataFieldValuesID categoryMetadataFieldValuesId = new CategoryMetadataFieldValuesID(optionalCategoryMetadataField.get().getId(), optionalCategory.get().getId());
 
-        CategoryMetadataFieldValues categoryMetadataFieldValues = categoryMetadataFieldValuesRepository.findCategoryMetadataFieldValues(category.getId(),categoryMetadataField.getId());
+        Optional<CategoryMetadataFieldValues> optionalCategoryMetadataFieldValues = categoryMetadataFieldValuesRepository.findById(categoryMetadataFieldValuesId);
 
-        if (categoryMetadataFieldValues!=null){
-            CategoryMetadataFieldValues newCategoryMetadataFieldValues = new CategoryMetadataFieldValues();  //create
-            newCategoryMetadataFieldValues.setCategory(category);
-            newCategoryMetadataFieldValues.setCategoryMetadataField(categoryMetadataField);
-            newCategoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
-
-            ModelMapper mapper = new ModelMapper();
-            mapper.map(newCategoryMetadataFieldValues,categoryMetadataFieldValues);
-            categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
-            return new ResponseEntity<>(new MessageResponseEntity<>("Category Metadata Field Values Successfully Updated!", HttpStatus.CREATED), HttpStatus.CREATED);
-        }
+        CategoryMetadataFieldValues categoryMetadataFieldValues;
+        if (optionalCategoryMetadataFieldValues.isPresent())
+            categoryMetadataFieldValues = optionalCategoryMetadataFieldValues.get();
         else
-            return new ResponseEntity<>("Message: Category Metadata Field ID Not Found!", HttpStatus.NOT_FOUND);  //replace with exception class
+            throw new CategoryMetadataFieldNotFoundException("Category Metadata Field Id Not Found: "+categoryMetadataFieldValuesId);
+
+
+        if (categoryMetadataFieldValues.getValue()
+                .contains(categoryMetadataFieldValuesCO.getValue())) {
+            throw new CategoryMetadataFieldValuesFoundException("Category meta data already exists:"+categoryMetadataFieldValuesId);
+        }
+
+        String newValue = categoryMetadataFieldValues.getValue()
+                .concat("," + categoryMetadataFieldValuesCO.getValue());
+        categoryMetadataFieldValues.setValue(newValue);
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
+
+        categoryMetadataFieldValuesCO.setValue(newValue);
+        return new ResponseEntity<>(new MessageResponseEntity<>(categoryMetadataFieldValuesCO, HttpStatus.OK, "Metadata Field Values Updated"), HttpStatus.OK);
+
     }
 
 
@@ -305,17 +351,17 @@ public class AdminService {
     }
 
     //Admin Function to list All products
-    public List<Product> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Product> pagedResult = productRepository.listAllProductAdmin(paging);
-        return pagedResult.getContent();
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
     //Admin Function to Activate A Product
     public ResponseEntity<Object> activateProduct(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (!optionalProduct.isPresent())
-            return new ResponseEntity<>("Message:Product Id Not Found!", HttpStatus.NOT_FOUND);
+            throw new ProductNotFoundException("Product Not Found Exception:"+id);
 
         Product product = optionalProduct.get();
         Seller seller = product.getSeller();
@@ -332,7 +378,7 @@ public class AdminService {
             }
         }
         else
-            return new ResponseEntity<>("Message: Product Already Activated", HttpStatus.BAD_REQUEST);  //replace with exception class
+            throw new ProductActiveException("Product Already Activated:"+id);
     }
 
 
@@ -340,13 +386,13 @@ public class AdminService {
     public ResponseEntity<Object> deactivateProduct(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (!optionalProduct.isPresent())
-            return new ResponseEntity<>("Message:Product Id Not Found!", HttpStatus.NOT_FOUND);
+            throw new ProductNotFoundException("Product Not Found Exception:"+id);
 
         Product product = optionalProduct.get();
         Seller seller = product.getSeller();
         boolean flag = product.getActive();
-        if (!flag) {
-            product.setActive(true);
+        if (flag) {
+            product.setActive(false);
             productRepository.save(product);
             try {
                 smtpMailSender.send(seller.getEmail(), "Product De-activated!", "Dear  " + seller.getFirstName() + ", You're Product Has Been De-activated!");
@@ -357,7 +403,6 @@ public class AdminService {
             }
         }
         else
-            return new ResponseEntity<>("Message: Product De-activated Activated", HttpStatus.BAD_REQUEST);  //replace with exception class
-
+            throw new ProductDeactiveException(" Product Already De-activated: "+id);
     }
 }

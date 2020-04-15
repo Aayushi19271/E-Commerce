@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.FOUND)
-public class MetadataFieldExistsException extends RuntimeException{
-    public MetadataFieldExistsException(String message) {
+public class MetadataFieldFoundException extends RuntimeException{
+    public MetadataFieldFoundException(String message) {
         super(message);
     }
 }

@@ -3,20 +3,17 @@ package com.bootcamp.ECommerceApplication.controller;
 import com.bootcamp.ECommerceApplication.co.CategoryCO;
 import com.bootcamp.ECommerceApplication.co.CategoryMetadataFieldCO;
 import com.bootcamp.ECommerceApplication.co.CategoryMetadataFieldValuesCO;
+import com.bootcamp.ECommerceApplication.co.CategoryUpdateCO;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
-import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class AdminController {
@@ -65,8 +62,7 @@ public class AdminController {
     public ResponseEntity<Object> findAllRegisteredCustomers(@RequestParam(defaultValue = "0") Integer pageNo,
                                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                                             @RequestParam(defaultValue = "id") String sortBy) {
-        List<Customer> list = adminService.findAllCustomers(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return adminService.findAllCustomers(pageNo,pageSize,sortBy);
     }
 
     //LIST ALL REGISTERED SELLERS
@@ -74,8 +70,7 @@ public class AdminController {
     public ResponseEntity<Object> findAllRegisteredSellers(@RequestParam(defaultValue = "0") Integer pageNo,
                                                           @RequestParam(defaultValue = "10") Integer pageSize,
                                                           @RequestParam(defaultValue = "id")String sortBy){
-        List<Seller> list = adminService.findAllSellers(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return adminService.findAllSellers(pageNo,pageSize,sortBy);
     }
 
 
@@ -130,8 +125,7 @@ public class AdminController {
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
 
-        List<CategoryMetadataField> list = adminService.listAllMetadata(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return adminService.listAllMetadata(pageNo,pageSize,sortBy);
     }
 
     //Admin Function to Add New Category
@@ -142,7 +136,7 @@ public class AdminController {
 
     //Admin Function to List One Category
     @GetMapping("/admin/category/{id}")
-    public ResponseEntity<Category> listOneCategory(@PathVariable Long id){
+    public ResponseEntity<Object> listOneCategory(@PathVariable Long id){
         return adminService.listOneCategory(id);
     }
 
@@ -153,14 +147,13 @@ public class AdminController {
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
 
-        List<Category> list = adminService.listAllCategory(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return adminService.listAllCategory(pageNo,pageSize,sortBy);
     }
 
     //Admin Function to Update One Category
-    @PutMapping("/admin/update-category/{id}")
-    public ResponseEntity<Object> updateCategory(@Valid @RequestBody CategoryCO categoryCO,@PathVariable Long id){
-        return adminService.updateCategory(categoryCO,id);
+    @PutMapping("/admin/update-category")
+    public ResponseEntity<Object> updateCategory(@Valid @RequestBody CategoryUpdateCO categoryUpdateCO){
+        return adminService.updateCategory(categoryUpdateCO);
     }
 
     //Admin Function to Add Metadata Field Values
@@ -176,7 +169,6 @@ public class AdminController {
     }
 
 //-------------------------------------------ADMIN PRODUCT API'S-------------------------------------------------------
-
     //Admin Function to view a product
     @GetMapping("/admin/view-product/{id}")
     public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
@@ -184,26 +176,23 @@ public class AdminController {
     }
 
     //Admin Function to list All Category
-    @GetMapping("/admin/category")
+    @GetMapping("/admin/view-product")
     public ResponseEntity<Object> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
 
-        List<Product> list = adminService.listAllProducts(pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return adminService.listAllProducts(pageNo,pageSize,sortBy);
     }
 
     //Admin Function to Activate A Product
-    @PutMapping("/admin/sellers/activate/{id}")
-    public ResponseEntity<Object> activateProduct(@PathVariable Long id)
-            throws MessagingException {
+    @PutMapping("/admin/product/activate/{id}")
+    public ResponseEntity<Object> activateProduct(@PathVariable Long id) {
         return adminService.activateProduct(id);
     }
 
     //Admin Function to De-activate A Product
-    @PutMapping("/admin/sellers/deactivate/{id}")
-    public ResponseEntity<Object> deactivateProduct(@PathVariable Long id)
-            throws MessagingException {
+    @PutMapping("/admin/product/deactivate/{id}")
+    public ResponseEntity<Object> deactivateProduct(@PathVariable Long id){
         return adminService.deactivateProduct(id);
     }
 

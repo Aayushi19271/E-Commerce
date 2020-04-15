@@ -1,16 +1,12 @@
 package com.bootcamp.ECommerceApplication.service;
 
-import com.bootcamp.ECommerceApplication.co.AddressCO;
-import com.bootcamp.ECommerceApplication.co.PasswordCO;
-import com.bootcamp.ECommerceApplication.co.ProductCO;
-import com.bootcamp.ECommerceApplication.co.ProductUpdateCO;
+import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.AddressDTO;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
-import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
-import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
+import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,11 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -56,7 +47,7 @@ public class SellerService {
     @Autowired
     private ProductVariationRepository productVariationRepository;
 
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     //Get the LoggedIn Seller's Profile Details
     public ResponseEntity<Object> sellerProfile(String email)
@@ -67,15 +58,11 @@ public class SellerService {
     }
 
     //Update the Profile of LoggedIn Seller
-    public ResponseEntity<Object> sellerUpdateProfile(String email, Map<Object,Object> fields)
+    public ResponseEntity<Object> sellerUpdateProfile(String email, SellerProfileUpdateCO sellerProfileUpdateCO)
     {
-        Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
-
-        fields.forEach((k, v) -> {
-            Field field = ReflectionUtils.findRequiredField(Seller.class, (String)k);
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, seller, v);
-        });
+        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.map(sellerProfileUpdateCO,seller);
         sellerRepository.save(seller);
         SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
         return new ResponseEntity<>(new MessageResponseEntity<>(sellerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
@@ -103,7 +90,9 @@ public class SellerService {
     public ResponseEntity<Object> sellerUpdateAddress(String email, AddressCO addressCO) {
         User user = userRepository.findByEmailIgnoreCase(email);
         Address updatedAddress = converterService.convertToAddress(addressCO);
-        Optional<Address> optionalAddress = addressRepository.findById(addressCO.getId());
+        Address addresses = (Address) user.getAddresses();
+
+        Optional<Address> optionalAddress = addressRepository.findById(addresses.getId());
         if (optionalAddress.isPresent())
         {
             Address address = optionalAddress.get();
@@ -118,15 +107,24 @@ public class SellerService {
                 return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
             }
             else
-                throw new AddressNotFoundException("Address not found: " + addressCO.getId());
+                throw new AddressNotFoundException("Address not found: " + addresses.getId());
         }
         else
-            throw new AddressNotFoundException("Address not found: "+addressCO.getId());
+            throw new AddressNotFoundException("Address not found: "+addresses.getId());
     }
 
     //List All Category
-    public List<Map<Object, Object>> listAllCategories() {
-        return categoryMetadataFieldValuesRepository.findAllCategories();
+    public ResponseEntity<Object> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+
+        Map<Category, Object> response = new HashMap<>();
+
+        List<Category> categoryList = categoryRepository.findAllCategory(paging);
+        categoryList.forEach(category -> {
+            List<Map<Object, Object>> metadataValueList = categoryMetadataFieldValuesRepository.findByCategoryId(category.getId());
+            response.put(category, metadataValueList);
+        });
+        return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
     }
 
     //Add A Product
@@ -139,7 +137,7 @@ public class SellerService {
             if(optionalCategory.isPresent())
                 category=optionalCategory.get();
             else
-                return new ResponseEntity<>("The Category ID Does Not exist!", HttpStatus.BAD_REQUEST);
+                throw new CategoryNotFoundException("The Category does not Exist."+productCO.getCategory());
 
             Boolean leafNodeCategory = categoryRepository.findByCategoryLeafNode(categoryId);
             Product savedProduct = productRepository.findOneProduct(brand,categoryId,seller.getId());
@@ -158,9 +156,9 @@ public class SellerService {
                     return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
                 }
                 else
-                    return new ResponseEntity<>("The Product Already Exist!", HttpStatus.BAD_REQUEST);
+                    throw new ProductFoundException("Product already Exist Exception: "+productCO.getName());
             }
-        return new ResponseEntity<>("The Category is not a leaf node!", HttpStatus.BAD_REQUEST);
+            throw new CategoryNotLeafNodeException("Category Not a Leaf Node Exception: "+productCO.getCategory());
     }
 
     //Fetch Details Of One Product
@@ -170,7 +168,7 @@ public class SellerService {
         if(!product.isEmpty())
             return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
         else
-            return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
     }
 
     //Fetch Details Of All Products
@@ -180,7 +178,7 @@ public class SellerService {
         if(!product.isEmpty())
             return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
         else
-            return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
+            throw new ProductNotFoundException("The Product Does Not Exist");
     }
 
     //Fetch Details of One Product Variation
@@ -190,7 +188,7 @@ public class SellerService {
         if(!product.isEmpty())
             return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
         else
-            return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
     }
 
     //List Details All Product Variation
@@ -212,7 +210,7 @@ public class SellerService {
             return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Deleted!", HttpStatus.OK), HttpStatus.OK);
         }
         else {
-            return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
         }
     }
 
@@ -222,10 +220,10 @@ public class SellerService {
         Optional<Product> optionalProduct = productRepository.findById(id);
         List<Map<Object, Object>> optionalSellerProduct = productRepository.listOneProduct(seller.getId(), id);
 
-        if(!optionalProduct.isPresent()) {      //product ID exist or not
-            if (optionalSellerProduct.isEmpty())        //productID belong to the logged in seller or not
-                return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>("The Product Does Not Exist!", HttpStatus.BAD_REQUEST);
+        if(!optionalProduct.isPresent()) {
+            if (optionalSellerProduct.isEmpty())
+                throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
         }
         Product product = optionalProduct.get();
         ModelMapper mapper = new ModelMapper();

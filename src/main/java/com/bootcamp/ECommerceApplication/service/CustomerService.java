@@ -12,6 +12,7 @@ import com.bootcamp.ECommerceApplication.entity.Customer;
 import com.bootcamp.ECommerceApplication.entity.Product;
 import com.bootcamp.ECommerceApplication.entity.User;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
+import com.bootcamp.ECommerceApplication.exception.CategoryNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
 import com.bootcamp.ECommerceApplication.repository.*;
 import org.modelmapper.ModelMapper;
@@ -120,28 +121,24 @@ public class CustomerService {
     }
 
     //Update the already existing Address of LoggedIn Customer
-    public ResponseEntity<Object> customerUpdateAddress(String email, AddressCO addressCO) {
+    public ResponseEntity<Object> customerUpdateAddress(String email, AddressCO addressCO, Long id) {
         User user = userRepository.findByEmailIgnoreCase(email);
-        Address updatedAddress = converterService.convertToAddress(addressCO);
-        Optional<Address> optionalAddress = addressRepository.findById(addressCO.getId());
+        Optional<Address> optionalAddress = addressRepository.findById(id);
         if (optionalAddress.isPresent())
         {
             Address address = optionalAddress.get();
-            User savedUser = address.getUser();
-            if (savedUser.getId().equals(user.getId()))
-            {
+            if (address.getUser().getId().equals(user.getId())) {
                 ModelMapper modelMapper = new ModelMapper();
-                modelMapper.map(updatedAddress, address);
-                address.setUser(user);
+                modelMapper.map(addressCO, address);
                 addressRepository.save(address);
                 AddressDTO addressDTO = converterService.convertToAddressDto(address);
                 return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
             }
             else
-                throw new AddressNotFoundException("Address not found: " + addressCO.getId());
+                throw new AddressNotFoundException("Address not found: " + id);
         }
         else
-            throw new AddressNotFoundException("Address not found: "+addressCO.getId());
+            throw new AddressNotFoundException("Address not found: "+id);
     }
 
 
@@ -154,16 +151,25 @@ public class CustomerService {
         CustomerDTO customerDTO = converterService.convertToCustomerDto(customer);
         return new ResponseEntity<>(new MessageResponseEntity<>(customerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
     }
+//-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
     //List All Category
-    public List<Map<Object, Object>> listAllCustomerCategories(Long id) {
-        if(id!=null)
-            return categoryRepository.findByRootCategory(id);
-        else
-            return categoryRepository.findByCategoryIsNull();
+    public ResponseEntity<Object> listAllCustomerCategories(Long id) {
+        boolean exists;
+        if (id != null) {
+            exists = categoryRepository.existsById(id);
+            if (exists) {
+                List<Map<Object, Object>> categoryList = categoryRepository.findByParentCategory(id);
+                return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
+            }
+            else
+                throw new CategoryNotFoundException("Category Not Found Exception:"+id);
+        }
+        else {
+            List<Map<Object, Object>> categoryList = categoryRepository.findByCategoryIsNull();
+            return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
+        }
     }
-
-
 
 
 //-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------

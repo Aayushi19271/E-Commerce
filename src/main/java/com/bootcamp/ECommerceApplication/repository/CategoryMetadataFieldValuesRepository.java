@@ -18,4 +18,15 @@ public interface CategoryMetadataFieldValuesRepository extends CrudRepository<Ca
             "AND category_metadata_field_id=:categoryMetadataFieldId",nativeQuery = true)
     CategoryMetadataFieldValues findCategoryMetadataFieldValues(Long categoryId,Long categoryMetadataFieldId);
 
+    @Query(value = "select "
+            + "c.category_metadata_field_id, "
+            + "c.value, "
+            + "d.name "
+            + "from "
+            + "category_metadata_field_values c "
+            + "join category_metadata_field d ON c.category_metadata_field_id = d.id "
+            + "where "
+            + "c.category_id=:id", nativeQuery = true)
+    List<Map<Object, Object>> findByCategoryId(Long id);
+
 }
