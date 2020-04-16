@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
@@ -57,10 +59,25 @@ public class SellerController {
         String email = principal.getName();
         return sellerService.sellerUpdateAddress(email,addressCO);
     }
+
+//---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
+    //Upload Profile Image
+    @PostMapping(value = "/upload")
+    public ResponseEntity<Object> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile, Principal principal) {
+        String email = principal.getName();
+        return sellerService.uploadProfileImage(multipartFile, email);
+    }
+
+    //Get the Profile Image
+    @GetMapping(value = "/profile-image")
+    public ResponseEntity<Object> getProfileImage(Principal principal) {
+        String email = principal.getName();
+        return sellerService.getProfileImage(email);
+    }
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
 
     //List All Category
-    @GetMapping("/all-categories")
+    @GetMapping("/category")
     public ResponseEntity<Object> listAllCategory(
             @RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
@@ -79,28 +96,28 @@ public class SellerController {
     }
 
     //Fetch Details Of One Product
-    @GetMapping("/list-a-product/{id}")
+    @GetMapping("/products/{id}")
     public ResponseEntity<Object> listOneProduct(Principal principal,@PathVariable Long id){
         String email = principal.getName();
         return sellerService.listOneProduct(email,id);
     }
 
     //Fetch Details Of One Product
-    @GetMapping("/list-all-product")
+    @GetMapping("/products")
     public ResponseEntity<Object> listAllProduct(Principal principal){
         String email = principal.getName();
         return sellerService.listAllProduct(email);
     }
 
     //List Details of One Product Variation
-    @GetMapping("/list-a-product-variation/{id}")
+    @GetMapping("/product-variations/{id}")
     public ResponseEntity<Object> listOneProductVariation(Principal principal,@PathVariable Long id){
         String email = principal.getName();
         return sellerService.listOneProductVariation(email,id);
     }
 
     //List Details All Product Variation
-    @GetMapping("/list-all-product-variation")
+    @GetMapping("/product-variations")
     public ResponseEntity<Object> listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
@@ -111,14 +128,14 @@ public class SellerController {
     }
 
     //Delete One Product
-    @DeleteMapping("/delete-a-product/{id}")
+    @DeleteMapping("/delete-product/{id}")
     public ResponseEntity<Object> deleteOneProduct(Principal principal,@PathVariable Long id){
         String email = principal.getName();
         return sellerService.deleteOneProduct(email,id);
     }
 
     //Update One Product  --- NOT WORKING
-    @PutMapping("/update-a-product/{id}")
+    @PutMapping("/update-product/{id}")
     public ResponseEntity<Object> updateOneProduct(Principal principal, @PathVariable Long id, @Valid @RequestBody ProductUpdateCO productUpdateCO){
         String email = principal.getName();
         return sellerService.updateOneProduct(email,id,productUpdateCO);

@@ -29,30 +29,30 @@ import java.util.*;
 public class UserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
     @Autowired
     private SmtpMailSender smtpMailSender;
     @Autowired
-    ConfirmationTokenRepository confirmationTokenRepository;
+    private ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     private TokenStore tokenStore;
     @Autowired
-    ConverterService converterService;
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private ConverterService converterService;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-    //------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
+//------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
     //FIND CUSTOMER BY EMAIL ID
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmailIgnoreCase(email);
     }
 
 
-    //-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
+//-----------------------------------------------CONFIRMATION TOKEN METHOD'S--------------------------------------------
     //FIND ONE TOKEN
     public ConfirmationToken findConfirmationToken(String token) {
         return confirmationTokenRepository.findByConfirmationToken(token);

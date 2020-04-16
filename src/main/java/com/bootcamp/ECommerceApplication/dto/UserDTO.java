@@ -5,6 +5,8 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private boolean isActive;
+    private String profileImage;
+
 
     public String getEmail() {
         return email;
@@ -33,4 +35,12 @@ public class UserDTO {
     public boolean isActive() { return isActive; }
 
     public void setActive(boolean active) { isActive = active; }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

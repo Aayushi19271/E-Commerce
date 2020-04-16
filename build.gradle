@@ -35,7 +35,7 @@ dependencies {
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.2.5.RELEASE'
 	testImplementation 'org.springframework.security:spring-security-test'
 	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.7'
-
+	compile group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.25.0'
 }
 
 test {

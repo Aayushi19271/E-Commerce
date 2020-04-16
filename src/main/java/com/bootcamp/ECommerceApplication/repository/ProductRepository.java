@@ -1,6 +1,5 @@
 package com.bootcamp.ECommerceApplication.repository;
 
-import com.bootcamp.ECommerceApplication.entity.Category;
 import com.bootcamp.ECommerceApplication.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,4 +76,23 @@ public interface ProductRepository extends CrudRepository<Product,Long> {
             "ON a.category_id=c.id " +
             "WHERE c.leaf_node=true AND c.id=:id",nativeQuery = true)
     Page<Product> listAllProductCustomer(Pageable paging, Long id);
+
+    @Query(value = "select brand from product where category_id=:id", nativeQuery = true)
+    List<Object> findAllBrandsByCategoryId(Long id);
+
+    @Query(value = "select min(a.price) "
+            + "from product_variation a "
+            + "join product b "
+            + "on a.product_id=b.id "
+            + "where b.category_id=:id", nativeQuery = true)
+    Object findMinimum(Long id);
+
+    @Query(value = "select max(a.price) "
+            + "from product_variation a "
+            + "join product b "
+            + "on a.product_id=b.id "
+            + "where b.category_id=:id", nativeQuery = true)
+    Object findMaximum(Long id);
+
+
 }

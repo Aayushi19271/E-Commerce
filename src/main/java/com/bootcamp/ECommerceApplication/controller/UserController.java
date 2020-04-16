@@ -25,14 +25,12 @@ public class UserController {
     ConverterService converterService;
 
 //---------------------------------------REGISTER CUSTOMER AND SELLER---------------------------------------------------
-
     //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
     @PostMapping("/users/sellers-registration")
     public ResponseEntity<Object> createSeller(@Valid @RequestBody SellerCO sellerCO) throws MessagingException {
         Seller seller = converterService.convertToSeller(sellerCO);
         return userService.createSeller(seller);
     }
-
 
     //REGISTER A CUSTOMER AND SEND AN ACTIVATION LINK
     @PostMapping("/users/customers-registration")
@@ -58,19 +56,19 @@ public class UserController {
 
     //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @PostMapping("/users/customers/re-send-activation-link")
-    public ResponseEntity<Object> reSendActivationLink(@RequestBody UserCO userCO){
+    public ResponseEntity<Object> reSendActivationLink(@Valid @RequestBody UserCO userCO){
         return userService.reSendActivationLink(userCO);
     }
 
 
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
-    //FORGOT PASSWORD REQUEST
+    //FORGOT PASSWORD REQUEST -API to receive a token based url
     @PostMapping("/users/forgot-password")
     public ResponseEntity<Object> sendPasswordResetLink(@RequestBody UserCO userCO) {
         return userService.sendPasswordResetLink(userCO);
     }
 
-    //RESET THE PASSWORD
+    //RESET THE PASSWORD -API to reset the password using the Token
     @PatchMapping("/users/reset-password")
     public ResponseEntity<Object> resetPassword(@RequestParam String token, @Valid @RequestBody PasswordCO passwordCO) {
         return userService.resetPassword(token,passwordCO);

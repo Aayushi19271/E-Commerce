@@ -1,7 +1,6 @@
 package com.bootcamp.ECommerceApplication.repository;
 
 import com.bootcamp.ECommerceApplication.entity.Category;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -16,7 +15,7 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
     @Query(value = "select * from category where name=:name",nativeQuery = true)
     List<Map<Object,Object>> findCategory(String name);
 
-    @Query(value = "select * from category where is_leaf_node = true", nativeQuery = true)
+    @Query(value = "select * from category where leaf_node = true", nativeQuery = true)
     List<Category> findAllCategory(Pageable pageable);
 
     @Query(value = "select a.id as CategoryID,a.name as CategoryName,b.id as SubCategoryID,b.name as SubCategoryName " +
@@ -42,7 +41,7 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
     Boolean findByCategoryLeafNode(Long id);
 
 
-    @Query(value = "select id, name, is_leaf_node from category where parent_id=:id", nativeQuery = true)
+    @Query(value = "select id, name, leaf_node from category where parent_id=:id", nativeQuery = true)
     List<Object> findAllChildrenAdmin(Long id);
 
 

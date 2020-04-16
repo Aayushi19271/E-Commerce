@@ -120,7 +120,7 @@ public class AdminController {
     }
 
     //Admin Function to List All Category Metadata Field
-    @GetMapping("/admin/metadata")
+    @GetMapping("/admin/metadata-fields")
     public ResponseEntity<Object> listAllMetadata(@RequestParam(defaultValue = "0") Integer pageNo,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
@@ -170,13 +170,13 @@ public class AdminController {
 
 //-------------------------------------------ADMIN PRODUCT API'S-------------------------------------------------------
     //Admin Function to view a product
-    @GetMapping("/admin/view-product/{id}")
+    @GetMapping("/admin/products/{id}")
     public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
         return adminService.listOneProduct(id);
     }
 
     //Admin Function to list All Category
-    @GetMapping("/admin/view-product")
+    @GetMapping("/admin/products")
     public ResponseEntity<Object> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(defaultValue = "id") String sortBy){
@@ -185,13 +185,13 @@ public class AdminController {
     }
 
     //Admin Function to Activate A Product
-    @PutMapping("/admin/product/activate/{id}")
+    @PutMapping("/admin/products/activate/{id}")
     public ResponseEntity<Object> activateProduct(@PathVariable Long id) {
         return adminService.activateProduct(id);
     }
 
     //Admin Function to De-activate A Product
-    @PutMapping("/admin/product/deactivate/{id}")
+    @PutMapping("/admin/products/deactivate/{id}")
     public ResponseEntity<Object> deactivateProduct(@PathVariable Long id){
         return adminService.deactivateProduct(id);
     }

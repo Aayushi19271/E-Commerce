@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.mail.MessagingException;
@@ -46,8 +47,14 @@ public class SellerService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductVariationRepository productVariationRepository;
+    @Autowired
+    private ImageUploaderService imageUploaderService;
+
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
+//-------------------------------------------SELLER ACCOUNT API'S-------------------------------------------------------
 
     //Get the LoggedIn Seller's Profile Details
     public ResponseEntity<Object> sellerProfile(String email)
@@ -113,6 +120,33 @@ public class SellerService {
             throw new AddressNotFoundException("Address not found: "+addresses.getId());
     }
 
+//---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
+
+    //Upload Profile Image
+    public ResponseEntity<Object> uploadProfileImage(MultipartFile multipartFile, String email) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        try {
+            String imageUri = imageUploaderService.uploadUserImage(multipartFile, email);
+            user.setProfileImage(imageUri);
+            userRepository.save(user);
+            return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST, "Try again"), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    //Get the Profile Image
+    public ResponseEntity<Object> getProfileImage(String email) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        if (user.getProfileImage() != null) {
+            return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+    }
+
+//-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
+
     //List All Category
     public ResponseEntity<Object> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
@@ -126,6 +160,8 @@ public class SellerService {
         });
         return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
     }
+
+//-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------
 
     //Add A Product
     public ResponseEntity<Object> addProduct(ProductCO productCO, String email) throws MessagingException {
@@ -231,6 +267,4 @@ public class SellerService {
         productRepository.save(product);
         return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
-
-
 }

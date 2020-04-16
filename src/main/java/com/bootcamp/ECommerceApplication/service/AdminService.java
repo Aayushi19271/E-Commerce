@@ -62,7 +62,7 @@ public class AdminService {
         return customer;
     }
 
-//----------------------------------------------ADMIN CUSTOMER/SELLERS METHODS-------------------------------------------------
+//------------------------------------------ADMIN CUSTOMER/SELLERS METHODS----------------------------------------------
 //------------------------------------------LIST OF USERS,SELLERS,CUSTOMERS---------------------------------------------
 
     //List Of All Users
@@ -73,15 +73,15 @@ public class AdminService {
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
     public ResponseEntity<Object> findAllCustomers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Customer> pagedResult = customerRepository.findAll(paging);
-        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+        List<Map<Object, Object>> pagedResult = customerRepository.findAllCustomers(paging);
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
     //LIST OF SELLERS - PAGING (0,10) AND SORTING ASC "ID"
     public ResponseEntity<Object> findAllSellers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Seller> pagedResult = sellerRepository.findAll(paging);
-        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+        List<Map<Object, Object>> pagedResult = sellerRepository.findAllSellers(paging);
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
 
     }
 
@@ -235,7 +235,7 @@ public class AdminService {
             List<Object> subCategory = categoryRepository.findAllChildrenAdmin(id);
 
             response.put("Sub-categories".toUpperCase(), subCategory);
-            response.put("Category Datail".toUpperCase(), category);
+            response.put("Category Details".toUpperCase(), category);
 
             return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
         }
@@ -292,7 +292,7 @@ public class AdminService {
             Category category = optionalCategory.get();
             CategoryMetadataField categoryMetadataField = optionalCategoryMetadataField.get();
 
-            CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();  //create
+            CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();
             categoryMetadataFieldValues.setCategory(category);
             categoryMetadataFieldValues.setCategoryMetadataField(categoryMetadataField);
             categoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
@@ -347,6 +347,8 @@ public class AdminService {
     //Admin Function to view a product
     public  ResponseEntity<Object>  listOneProduct(Long id) {
          List<Map<Object, Object>> product = productRepository.listOneProductAdmin(id);
+         if (product.isEmpty())
+             throw new ProductNotFoundException("Product Not Found: "+id);
         return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
     }
 
@@ -354,6 +356,8 @@ public class AdminService {
     public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Product> pagedResult = productRepository.listAllProductAdmin(paging);
+        if (pagedResult.isEmpty())
+            throw new ProductNotFoundException("Product Not Found");
         return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 

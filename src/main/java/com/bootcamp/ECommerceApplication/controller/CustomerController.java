@@ -3,17 +3,15 @@ package com.bootcamp.ECommerceApplication.controller;
 import com.bootcamp.ECommerceApplication.co.AddressCO;
 import com.bootcamp.ECommerceApplication.co.CustomerUpdateProfileCO;
 import com.bootcamp.ECommerceApplication.co.PasswordCO;
-import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
-import com.bootcamp.ECommerceApplication.entity.Product;
 import com.bootcamp.ECommerceApplication.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 
 
 @RestController
@@ -22,6 +20,8 @@ public class CustomerController {
 
     @Autowired
     CustomerService customerService;
+
+//-------------------------------------------CUSTOMER ACCOUNT API'S-----------------------------------------------------
 
     //LoggedIn Customer's Welcome Page
     @GetMapping("/home")
@@ -79,30 +79,52 @@ public class CustomerController {
         String email = principal.getName();
         return customerService.customerUpdateProfile(email,customerUpdateProfileCO);
     }
+//---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
+    //Upload Profile Image
+    @PostMapping(value = "/upload")
+    public ResponseEntity<Object> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile, Principal principal) {
+        String email = principal.getName();
+        return customerService.uploadProfileImage(multipartFile, email);
+    }
+
+    //Get the Profile Image
+    @GetMapping(value = "/profile-image")
+    public ResponseEntity<Object> getProfileImage(Principal principal) {
+            String email = principal.getName();
+            return customerService.getProfileImage(email);
+    }
+
+//-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
     //list all Categories
-    @GetMapping({"/list-all-categories-customer/{id}","/list-all-categories-customer"})
+    @GetMapping({"/category/{id}","/category"})
     public ResponseEntity<Object> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
         return customerService.listAllCustomerCategories(id);
     }
 
+    //API to fetch filtering details for a category
+    @GetMapping({"/category-filtering-details/{id}","/category-filtering-details"})
+    public ResponseEntity<Object> getFilterDetails(@PathVariable(name = "id", required = false) Long id){
+        return customerService.getFilterDetails(id);
+    }
+
+
 //-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
 
-    //Customer Function to view a product
-    @GetMapping("/view-product/{id}")
+    //Customer Function to view a product  -Product Id
+    @GetMapping("/products/{id}")
     public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
         return customerService.listOneProduct(id);
     }
 
-    //Customer Function to view all products
-    @GetMapping("/view-all-products/{id}")
+    //Customer Function to view all products  -Category Id
+    @GetMapping("/products/categories/{id}")
     public ResponseEntity<Object> listAllProduct(@RequestParam(defaultValue = "0") Integer pageNo,
                                                  @RequestParam(defaultValue = "10") Integer pageSize,
                                                  @RequestParam(defaultValue = "id") String sortBy,
                                                  @PathVariable Long id){
 
-        List<Product> list = customerService.listAllProducts(pageNo,pageSize,sortBy,id);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return customerService.listAllProducts(pageNo,pageSize,sortBy,id);
     }
 
 

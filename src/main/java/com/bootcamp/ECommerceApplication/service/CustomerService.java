@@ -26,13 +26,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CustomerService {
@@ -50,9 +48,14 @@ public class CustomerService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
+    @Autowired
+    private ImageUploaderService imageUploaderService;
 
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+//-------------------------------------------CUSTOMER ACCOUNT API'S-----------------------------------------------------
 
     //Get the LoggedIn Customer's Profile Details
     public ResponseEntity<Object> customerProfile(String email)
@@ -151,6 +154,33 @@ public class CustomerService {
         CustomerDTO customerDTO = converterService.convertToCustomerDto(customer);
         return new ResponseEntity<>(new MessageResponseEntity<>(customerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
     }
+
+
+//---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
+
+    //Upload Profile Image
+    public ResponseEntity<Object> uploadProfileImage(MultipartFile multipartFile, String email) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        try {
+            String imageUri = imageUploaderService.uploadUserImage(multipartFile, email);
+            user.setProfileImage(imageUri);
+            userRepository.save(user);
+            return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST, "Try again"), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    //Get the Profile Image
+    public ResponseEntity<Object> getProfileImage(String email) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        if (user.getProfileImage() != null) {
+            return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+    }
+
 //-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
     //List All Category
@@ -171,6 +201,24 @@ public class CustomerService {
         }
     }
 
+    //API to fetch filtering details for a category
+    public ResponseEntity<Object> getFilterDetails(Long id) {
+
+        boolean exists = categoryRepository.existsById(id);
+
+        if (!exists) {
+            throw new CategoryNotFoundException("invalid Category Id");
+        }
+
+        List<Object> responseList = new ArrayList();
+//    All metadata field along with possible values for that category
+        responseList.add(categoryMetadataFieldValuesRepository.findByCategoryId(id));
+        responseList.add(productRepository.findAllBrandsByCategoryId(id));
+        responseList.add(productRepository.findMinimum(id));
+        responseList.add(productRepository.findMaximum(id));
+
+        return new ResponseEntity<>(new MessageResponseEntity<>(responseList, HttpStatus.OK), HttpStatus.OK);
+    }
 
 //-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
 
@@ -180,9 +228,10 @@ public class CustomerService {
         return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
     }
 
-    public List<Product> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
+    //Customer Function to view all products
+    public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Product> pagedResult = productRepository.listAllProductCustomer(paging,id);
-        return pagedResult.getContent();
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 }
