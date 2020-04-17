@@ -14,6 +14,7 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/sellers")
@@ -40,11 +41,12 @@ public class SellerController {
 
     //Update the Profile of LoggedIn Seller
     @PatchMapping("/update-profile")
-    public ResponseEntity<Object> sellerUpdateProfile(Principal principal, @Valid @RequestBody SellerProfileUpdateCO sellerProfileUpdateCO)
+    public ResponseEntity<Object> sellerUpdateProfile(Principal principal,@RequestBody Map<Object,Object> fields)
     {
         String email = principal.getName();
-        return sellerService.sellerUpdateProfile(email,sellerProfileUpdateCO);
+        return sellerService.sellerUpdateProfile(email,fields);
     }
+
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
     @PatchMapping("/change-password")

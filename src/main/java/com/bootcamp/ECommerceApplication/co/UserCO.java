@@ -27,7 +27,7 @@ public class UserCO {
             message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
 
-    @NotNull(message = "Please provide password")
+    @NotNull(message = "Please provide confirm password")
     private String confirmPassword;
 
     public String getEmail() {

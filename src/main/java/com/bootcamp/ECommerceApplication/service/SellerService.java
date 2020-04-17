@@ -7,23 +7,35 @@ import com.bootcamp.ECommerceApplication.dto.AddressDTO;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
+import com.bootcamp.ECommerceApplication.exception.handler.ExceptionResponse;
 import com.bootcamp.ECommerceApplication.repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -50,6 +62,7 @@ public class SellerService {
     @Autowired
     private ImageUploaderService imageUploaderService;
 
+    private static Logger LOGGER = LoggerFactory.getLogger(SellerService.class);
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -65,15 +78,35 @@ public class SellerService {
     }
 
     //Update the Profile of LoggedIn Seller
-    public ResponseEntity<Object> sellerUpdateProfile(String email, SellerProfileUpdateCO sellerProfileUpdateCO)
+    public ResponseEntity<Object> sellerUpdateProfile(String email, Map<Object,Object> fields)
     {
-        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.map(sellerProfileUpdateCO,seller);
+        Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
+
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findRequiredField(Seller.class, (String)k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, seller, v);
+        });
+        SellerProfileUpdateCO sellerCO = converterService.convertToSellerProfileUpdateCO(seller);
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<SellerProfileUpdateCO>> violations = validator.validate(sellerCO);
+
+        final List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<SellerProfileUpdateCO> violation : violations) {
+            errors.add(violation.getMessage());
+            LOGGER.error(violation.getMessage());
+        }
+
+        if (!errors.isEmpty())
+            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+
         sellerRepository.save(seller);
         SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
         return new ResponseEntity<>(new MessageResponseEntity<>(sellerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
     }
+
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
     public ResponseEntity<Object> sellerUpdatePassword(String email, PasswordCO passwordCO) throws MessagingException {

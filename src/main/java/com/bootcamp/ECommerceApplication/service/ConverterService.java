@@ -33,7 +33,11 @@ public class ConverterService {
         return modelMapper.map(seller, SellerDTO.class);
     }
 
-    public Seller convertToSeller(@Valid SellerCO sellerCO){ return modelMapper.map(sellerCO,Seller.class);   }
+    public Seller convertToSeller(SellerCO sellerCO){ return modelMapper.map(sellerCO,Seller.class);   }
+
+    public Seller convertToSeller(SellerProfileUpdateCO sellerProfileUpdateCO){ return modelMapper.map(sellerProfileUpdateCO,Seller.class);   }
+
+    public SellerProfileUpdateCO convertToSellerProfileUpdateCO(Seller seller){ return modelMapper.map(seller,SellerProfileUpdateCO.class);   }
 
     public SellerCO convertToSellerCO(Seller seller){ return modelMapper.map(seller,SellerCO.class);   }
 
