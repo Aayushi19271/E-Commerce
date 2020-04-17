@@ -49,4 +49,14 @@ public class ProductCO {
     public void setBrand(String brand) {
         this.brand = brand;
     }
+
+    @Override
+    public String toString() {
+        return "ProductCO{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", category=" + category +
+                ", brand='" + brand + '\'' +
+                '}';
+    }
 }

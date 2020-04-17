@@ -1,8 +1,6 @@
 package com.bootcamp.ECommerceApplication.controller;
 
 import com.bootcamp.ECommerceApplication.co.AddressCO;
-import com.bootcamp.ECommerceApplication.co.CustomerUpdateProfileCO;
-import com.bootcamp.ECommerceApplication.co.PasswordCO;
 import com.bootcamp.ECommerceApplication.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Map;
 
 
 @RestController
@@ -45,9 +44,9 @@ public class CustomerController {
 
     //Change the LoggedIn Customer's Password And Send Mail Upon Change
     @PatchMapping("/change-password")
-    public ResponseEntity<Object> customerUpdatePassword(Principal principal, @Valid @RequestBody PasswordCO passwordCO) throws MessagingException {
+    public ResponseEntity<Object> customerUpdatePassword(Principal principal,@RequestBody Map<Object,Object> fields) throws MessagingException {
         String email = principal.getName();
-        return customerService.customerUpdatePassword(email,passwordCO);
+        return customerService.customerUpdatePassword(email,fields);
     }
 
     //Add the New Address to the LoggedIn Customer
@@ -67,17 +66,17 @@ public class CustomerController {
     //Update the already existing Address of LoggedIn Customer
     @PatchMapping("/update-address/{id}")
     public ResponseEntity<Object> customerUpdateAddress(Principal principal,
-                                                        @Valid @RequestBody AddressCO addressCO,
+                                                        @RequestBody Map<Object,Object> fields,
                                                         @PathVariable Long id){
         String email = principal.getName();
-        return customerService.customerUpdateAddress(email,addressCO,id);
+        return customerService.customerUpdateAddress(email,fields,id);
     }
 
     //Update the Profile of LoggedIn Customer
     @PatchMapping("/update-profile")
-    public ResponseEntity<Object> customerUpdateProfile(Principal principal, @Valid @RequestBody CustomerUpdateProfileCO customerUpdateProfileCO){
+    public ResponseEntity<Object> customerUpdateProfile(Principal principal,@RequestBody Map<Object,Object> fields){
         String email = principal.getName();
-        return customerService.customerUpdateProfile(email,customerUpdateProfileCO);
+        return customerService.customerUpdateProfile(email,fields);
     }
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
     //Upload Profile Image

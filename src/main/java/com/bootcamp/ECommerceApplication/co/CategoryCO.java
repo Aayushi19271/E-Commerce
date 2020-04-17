@@ -26,4 +26,12 @@ public class CategoryCO {
     public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
+
+    @Override
+    public String toString() {
+        return "CategoryCO{" +
+                "name='" + name + '\'' +
+                ", parentId=" + parentId +
+                '}';
+    }
 }

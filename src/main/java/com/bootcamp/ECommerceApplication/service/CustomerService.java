@@ -1,35 +1,36 @@
 package com.bootcamp.ECommerceApplication.service;
 
-import com.bootcamp.ECommerceApplication.co.AddressCO;
-import com.bootcamp.ECommerceApplication.co.CustomerUpdateProfileCO;
-import com.bootcamp.ECommerceApplication.co.PasswordCO;
+import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.AddressDTO;
 import com.bootcamp.ECommerceApplication.dto.CustomerDTO;
-import com.bootcamp.ECommerceApplication.entity.Address;
-import com.bootcamp.ECommerceApplication.entity.Customer;
-import com.bootcamp.ECommerceApplication.entity.Product;
-import com.bootcamp.ECommerceApplication.entity.User;
+import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.CategoryNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
 import com.bootcamp.ECommerceApplication.repository.*;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -52,8 +53,10 @@ public class CustomerService {
     private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
     @Autowired
     private ImageUploaderService imageUploaderService;
-
+    @Autowired
+    private MessageSource messageSource;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
 //-------------------------------------------CUSTOMER ACCOUNT API'S-----------------------------------------------------
 
@@ -76,21 +79,46 @@ public class CustomerService {
     }
 
     //Change the LoggedIn Customer's Password And Send Mail Upon Change
-    public ResponseEntity<Object> customerUpdatePassword(String email, PasswordCO passwordCO) throws MessagingException {
-        Customer customer= (Customer) userRepository.findByEmailIgnoreCase(email);
-        if(passwordCO.getPassword().equals(passwordCO.getConfirmPassword())) {
-            customer.setPassword(passwordEncoder.encode(passwordCO.getPassword()));
-            customer.setUpdatedBy("user@"+customer.getFirstName());
-            customer.setLastUpdated(new Date());
-            userRepository.save(customer);
-            smtpMailSender.send(customer.getEmail(), "Password Changed!",
-                    "Dear "+customer.getFirstName()+" ,Your Password has been changed Successfully!");
+    public ResponseEntity<Object> customerUpdatePassword(String email, Map<Object,Object> fields) throws MessagingException {
+        User user=userRepository.findByEmailIgnoreCase(email);
+
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, user, v);
+        });
+
+        UserCO userCO = converterService.convertToUserCO(user);
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<UserCO>> violations = validator.validate(userCO);
+
+        final List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<UserCO> violation : violations) {
+            errors.add(violation.getMessage());
+        }
+
+        if (!errors.isEmpty())
+            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+
+        if(user.getPassword().equals(user.getConfirmPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setUpdatedBy("user@"+user.getFirstName());
+            user.setLastUpdated(new Date());
+            userRepository.save(user);
+
+            String subject = messageSource.getMessage("successful.password.changed.subject", null, LocaleContextHolder.getLocale());
+            String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+            String message = messageSource.getMessage("successful.password.reset.message", null, LocaleContextHolder.getLocale());
+
+            smtpMailSender.send(user.getEmail(), subject, dear+" "+user.getFirstName()+" ,"+message);
         }
         else {
             throw new PasswordDoesNotMatchException("Password and Confirm Password does not match!");
         }
         return new ResponseEntity<>(new MessageResponseEntity<>("Password Changed Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
+
 
     //Add the New Address to the LoggedIn Customer
     public ResponseEntity<Object> customerAddAddress(String email, AddressCO addressCO) {
@@ -124,15 +152,20 @@ public class CustomerService {
     }
 
     //Update the already existing Address of LoggedIn Customer
-    public ResponseEntity<Object> customerUpdateAddress(String email, AddressCO addressCO, Long id) {
+    public ResponseEntity<Object> customerUpdateAddress(String email,Map<Object,Object> fields, Long id) {
         User user = userRepository.findByEmailIgnoreCase(email);
         Optional<Address> optionalAddress = addressRepository.findById(id);
         if (optionalAddress.isPresent())
         {
             Address address = optionalAddress.get();
             if (address.getUser().getId().equals(user.getId())) {
-                ModelMapper modelMapper = new ModelMapper();
-                modelMapper.map(addressCO, address);
+
+                fields.forEach((k, v) -> {
+                    Field field = ReflectionUtils.findRequiredField(Address.class, (String)k);
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, address, v);
+                });
+
                 addressRepository.save(address);
                 AddressDTO addressDTO = converterService.convertToAddressDto(address);
                 return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
@@ -146,10 +179,27 @@ public class CustomerService {
 
 
     //Update the Profile of LoggedIn Customer
-    public ResponseEntity<Object> customerUpdateProfile(String email, CustomerUpdateProfileCO customerUpdateProfileCO) {
-        Customer customer = customerRepository.findByEmailIgnoreCase(email);
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.map(customerUpdateProfileCO,customer);
+    public ResponseEntity<Object> customerUpdateProfile(String email,Map<Object,Object> fields) {
+        Customer customer= (Customer) userRepository.findByEmailIgnoreCase(email);
+
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findRequiredField(Customer.class, (String)k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, customer, v);
+        });
+        CustomerUpdateProfileCO customerCO = converterService.convertToCustomerUpdateProfileCO(customer);
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<CustomerUpdateProfileCO>> violations = validator.validate(customerCO);
+
+        final List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<CustomerUpdateProfileCO> violation : violations) {
+            errors.add(violation.getMessage());
+        }
+
+        if (!errors.isEmpty())
+            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
         customerRepository.save(customer);
         CustomerDTO customerDTO = converterService.convertToCustomerDto(customer);
         return new ResponseEntity<>(new MessageResponseEntity<>(customerDTO, HttpStatus.CREATED), HttpStatus.CREATED);
@@ -167,10 +217,9 @@ public class CustomerService {
             userRepository.save(user);
             return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST, "Try again"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponseEntity<>("Image Upload Failed.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
         }
     }
-
 
     //Get the Profile Image
     public ResponseEntity<Object> getProfileImage(String email) {
@@ -178,7 +227,7 @@ public class CustomerService {
         if (user.getProfileImage() != null) {
             return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new MessageResponseEntity<>("Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
     }
 
 //-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------

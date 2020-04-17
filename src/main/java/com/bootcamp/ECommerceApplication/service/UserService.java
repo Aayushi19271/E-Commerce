@@ -1,6 +1,5 @@
 package com.bootcamp.ECommerceApplication.service;
 
-import com.bootcamp.ECommerceApplication.co.PasswordCO;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.co.UserCO;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
@@ -12,6 +11,9 @@ import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
 import com.bootcamp.ECommerceApplication.repository.RoleRepository;
 import com.bootcamp.ECommerceApplication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +25,11 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -43,6 +50,8 @@ public class UserService {
     @Autowired
     private ConverterService converterService;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private MessageSource messageSource;
 
 
 //------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
@@ -99,8 +108,12 @@ public class UserService {
                 seller.setDateCreated(new Date());
                 userRepository.save(seller);
                 try {
-                    smtpMailSender.send(seller.getEmail(), "Pending Approval",
-                            "The Account has been Registered but is Pending Approval! ");
+                    String goodMorning = messageSource.getMessage("good.morning.message", null, LocaleContextHolder.getLocale());
+                    String subject = messageSource.getMessage("pending.approval.subject", null, LocaleContextHolder.getLocale());
+                    String text = messageSource.getMessage("pending.approval.message", null, LocaleContextHolder.getLocale());
+                    String message = goodMorning+" "+seller.getFirstName()+", "+text;
+
+                    smtpMailSender.send(seller.getEmail(), subject, message);
                     return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
                 } catch (Exception ex) {
                     throw new MailSendFailedException("Failed to Send Mail: " + seller.getEmail());
@@ -111,8 +124,6 @@ public class UserService {
             else
                 throw new UserFoundException("The Seller's EmailID Already Exist: " + seller.getEmail());
     }
-
-
 
 
 //--------------------------------------------------CUSTOMER REGISTRATION METHOD'S--------------------------------------
@@ -183,8 +194,10 @@ public class UserService {
             savedUser.setLastUpdated(new Date());
             userRepository.save(savedUser);
             confirmationTokenRepository.deleteByConfirmationToken(token.getConfirmationToken());
-            smtpMailSender.send(savedUser.getEmail(), "Account Activated",
-                    "Dear "+savedUser.getFirstName()+", Your Account Has Been Activated!!");
+            String subject = messageSource.getMessage("account.activated.subject", null, LocaleContextHolder.getLocale());
+            String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+            String message = messageSource.getMessage("account.activated.message", null, LocaleContextHolder.getLocale());
+            smtpMailSender.send(user.getEmail(), subject, dear+" "+user.getFirstName() + ", "+message);
             return new ResponseEntity<>(new MessageResponseEntity<>("Account Successfully Activated!", HttpStatus.CREATED), HttpStatus.CREATED);
         }
     }
@@ -209,9 +222,13 @@ public class UserService {
     //SEND REGISTRATION MAIL TO CUSTOMER
     public ResponseEntity<Object> sendMailCustomer(User user, ConfirmationToken newConfirmationToken )
     {
+        String subject = messageSource.getMessage("complete.registration", null, LocaleContextHolder.getLocale());
+        String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage("registration.message", null, LocaleContextHolder.getLocale());
+
         try {
-            smtpMailSender.send(user.getEmail(), "Complete Registration",
-                    "Dear " + user.getFirstName() + ",To activate your account, please click the link here : " +
+            smtpMailSender.send(user.getEmail(), subject,
+                    dear +" "+ user.getFirstName() + ", "+ message +
                             "http://localhost:8080/users/customers/confirm-account?token=" + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
@@ -241,9 +258,12 @@ public class UserService {
 
     //SEND RESET PASSWORD MAIL TO USERS
     public ResponseEntity<Object> sendResetPasswordMailUsers(User user, ConfirmationToken newConfirmationToken ) {
+        String subject = messageSource.getMessage("password.reset.subject", null, LocaleContextHolder.getLocale());
+        String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage("password.reset.message", null, LocaleContextHolder.getLocale());
+
         try {
-            smtpMailSender.send(user.getEmail(), "PASSWORD RESET",
-                    "Dear " + user.getFirstName() + ",To reset your account's password, please click the link here : " +
+            smtpMailSender.send(user.getEmail(), subject, dear +" "+ user.getFirstName() + ", "+message +
                             "http://localhost:8080/users/reset-password?token="
                             + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
@@ -255,9 +275,11 @@ public class UserService {
 
     //SEND RESET PASSWORD SUCCESS MAIL TO USER
     public ResponseEntity<Object> sendResetPasswordSuccessMail(User user) {
+        String subject = messageSource.getMessage("successful.password.reset.subject", null, LocaleContextHolder.getLocale());
+        String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+        String message = messageSource.getMessage("successful.password.reset.message", null, LocaleContextHolder.getLocale());
         try {
-            smtpMailSender.send(user.getEmail(), "SUCCESSFUL PASSWORD RESET",
-                    "Dear " + user.getFirstName() + ", You're Password has been successfully changed! ");
+            smtpMailSender.send(user.getEmail(), subject, dear +" "+ user.getFirstName() + ", "+message);
         }catch (Exception ex) {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
@@ -266,7 +288,7 @@ public class UserService {
 
     //PASSWORD RESET METHOD
     @Transactional
-    public ResponseEntity<Object> resetPassword(String confirmationToken, PasswordCO passwordCo) {
+    public ResponseEntity<Object> resetPassword(String confirmationToken,Map<Object,Object> fields) {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
@@ -282,9 +304,29 @@ public class UserService {
         //IF THE TOKEN IS NOT EXPIRED
         else {
             if (user.isActive()) {
-                if(passwordCo.getPassword().equals(passwordCo.getConfirmPassword()))
+                fields.forEach((k, v) -> {
+                    Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
+                    field.setAccessible(true);
+                    ReflectionUtils.setField(field, user, v);
+                });
+
+                UserCO userCO = converterService.convertToUserCO(user);
+                ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+                Validator validator = factory.getValidator();
+                Set<ConstraintViolation<UserCO>> violations = validator.validate(userCO);
+
+                final List<String> errors = new ArrayList<>();
+                for (ConstraintViolation<UserCO> violation : violations) {
+                    errors.add(violation.getMessage());
+                }
+
+                if (!errors.isEmpty())
+                    return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+
+
+                if(user.getPassword().equals(user.getConfirmPassword()))
                 {
-                    user.setPassword(passwordEncoder.encode(passwordCo.getPassword()));
+                    user.setPassword(passwordEncoder.encode(user.getPassword()));
                     user.setUpdatedBy("user@"+user.getFirstName());
                     user.setLastUpdated(new Date());
                     userRepository.save(user);

@@ -13,14 +13,18 @@ import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.util.ReflectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
@@ -44,23 +48,9 @@ public class AdminService {
     private ProductRepository productRepository;
     @Autowired
     private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
+    @Autowired
+    private MessageSource messageSource;
 
-//---------------------------------------------------TEST METHODS-------------------------------------------------------
-
-    //CREATE THE CUSTOMER USING GETTER AND SETTERS - TEST METHOD
-    public Customer createCustomerManually() {
-        Customer customer = new Customer();
-        customer.setEmail("aayushithani27@gmail.in");
-        customer.setFirstName("abcd");
-        customer.setMiddleName("Kumar");
-        customer.setLastName("Thani");
-        customer.setPassword("Aayushi12@");
-        customer.setActive(false);
-        customer.setDeleted(false);
-        customer.setContact("8130170780");
-        userRepository.save(customer);
-        return customer;
-    }
 
 //------------------------------------------ADMIN CUSTOMER/SELLERS METHODS----------------------------------------------
 //------------------------------------------LIST OF USERS,SELLERS,CUSTOMERS---------------------------------------------
@@ -71,14 +61,14 @@ public class AdminService {
     }
 
     //LIST OF CUSTOMERS - PAGING (0,10) AND SORTING ASC "ID"
-    public ResponseEntity<Object> findAllCustomers(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> findAllCustomers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Map<Object, Object>> pagedResult = customerRepository.findAllCustomers(paging);
         return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
     //LIST OF SELLERS - PAGING (0,10) AND SORTING ASC "ID"
-    public ResponseEntity<Object> findAllSellers(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> findAllSellers(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Map<Object, Object>> pagedResult = sellerRepository.findAllSellers(paging);
         return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
@@ -113,17 +103,26 @@ public class AdminService {
 
 //----------------------------------------ACTIVATE AND DE-ACTIVATE THE ACCOUNT------------------------------------------
     //ACTIVATE AN ACCOUNT
-    public ResponseEntity<Object> activateAccount(Long id) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> activateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
         boolean flag = user.isActive();
+
         if (!flag) {
-            user.setActive(true);
+            fields.forEach((k, v) -> {
+                Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, user, v);
+            });
             String updatedBy = "admin@aayushi";
             user.setUpdatedBy(updatedBy);
             user.setLastUpdated(new Date());
             updateUser(user);
             try {
-                smtpMailSender.send(user.getEmail(), "Account Activated!", "Dear  " + user.getFirstName() + ", You're Account Has Been Activated!");
+                String subject = messageSource.getMessage("account.activated.subject", null, LocaleContextHolder.getLocale());
+                String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("account.activated.message", null, LocaleContextHolder.getLocale());
+
+                smtpMailSender.send(user.getEmail(), subject, dear+" "+user.getFirstName() + ", "+message);
                 return new ResponseEntity<>(new MessageResponseEntity<>("Account Activated Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
             }
             catch (Exception ex) {
@@ -136,17 +135,25 @@ public class AdminService {
 
 
     //DE-ACTIVATE THE ACCOUNT
-    public ResponseEntity<Object> deactivateAccount(Long id) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
         boolean flag = user.isActive();
         if (flag) {
-            user.setActive(false);
+            fields.forEach((k, v) -> {
+                Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, user, v);
+            });
             String updatedBy = "admin@aayushi";
             user.setUpdatedBy(updatedBy);
             user.setLastUpdated(new Date());
             updateUser(user);
             try {
-                smtpMailSender.send(user.getEmail(), "Account De-activated!", "Dear  "+user.getFirstName()+", You're Account Has Been De-activated!");
+                String subject = messageSource.getMessage("account.deactivated.subject", null, LocaleContextHolder.getLocale());
+                String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("account.deactivated.message", null, LocaleContextHolder.getLocale());
+
+                smtpMailSender.send(user.getEmail(), subject, dear+" "+user.getFirstName()+", "+message);
                 return new ResponseEntity<>(new MessageResponseEntity<>("Account De-activated Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
             }catch (Exception ex) {
                 throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
@@ -159,7 +166,7 @@ public class AdminService {
 
 
     //Admin Function to Add Category Metadata Field
-    public ResponseEntity<Object> addMetadataField(CategoryMetadataFieldCO categoryMetadataFieldCO) {
+    public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldDTO>> addMetadataField(CategoryMetadataFieldCO categoryMetadataFieldCO) {
         CategoryMetadataField categoryMetadataField = converterService.convertToCategoryMetadataField(categoryMetadataFieldCO);
         String name = categoryMetadataField.getName();
 
@@ -176,7 +183,7 @@ public class AdminService {
 
 
     //Admin Function to List All Category Metadata Field
-    public ResponseEntity<Object> listAllMetadata(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<CategoryMetadataField>>> listAllMetadata(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<CategoryMetadataField> metadataFieldsList = categoryMetadataFieldRepository.findAll(paging);
         return new ResponseEntity<>(new MessageResponseEntity<>(metadataFieldsList.getContent(), HttpStatus.OK), HttpStatus.OK);
@@ -184,7 +191,7 @@ public class AdminService {
 
 
     //Admin Function to Add New Category
-    public ResponseEntity<Object> addCategory(CategoryCO categoryCO) {
+    public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(CategoryCO categoryCO) {
         Category savedCategory = categoryRepository.findByNameAndParent(categoryCO.getName(), categoryCO.getParentId());
         if (savedCategory != null) {
             throw new CategoryFoundException("Category Already Exists: "+categoryCO.getName());
@@ -218,7 +225,7 @@ public class AdminService {
     }
 
     //Admin Function to list All Category
-    public ResponseEntity<Object> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Category>>> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Category> categoryList = categoryRepository.findAllCategory(paging);
         return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
@@ -226,7 +233,7 @@ public class AdminService {
 
 
    //Admin Function to List One Category
-    public ResponseEntity<Object> listOneCategory(Long id) {
+    public ResponseEntity<MessageResponseEntity<Map<String, Object>>> listOneCategory(Long id) {
         Map<String, Object> response = new HashMap<>();
         Optional<Category> optionalCategory = categoryRepository.findById(id);
 
@@ -243,7 +250,7 @@ public class AdminService {
     }
 
     //Admin Function to Update One Category
-    public ResponseEntity<Object> updateCategory(CategoryUpdateCO categoryUpdateCO) {
+    public ResponseEntity<MessageResponseEntity<CategoryDTO>> updateCategory(CategoryUpdateCO categoryUpdateCO) {
         Optional<Category> optionalCategory = categoryRepository.findById(categoryUpdateCO.getId());
         if (optionalCategory.isPresent()) {
             Category savedCategory = optionalCategory.get();
@@ -267,7 +274,7 @@ public class AdminService {
 
 
     //Admin Function to Add Metadata Field Values
-    public ResponseEntity<Object> addMetadataFieldValues(CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO) {
+    public ResponseEntity<MessageResponseEntity<String>> addMetadataFieldValues(CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO) {
         Long categoryId = categoryMetadataFieldValuesCO.getCategoryId();
         Long categoryMetadataFieldId = categoryMetadataFieldValuesCO.getCategoryMetadataFieldId();
         Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
@@ -303,7 +310,7 @@ public class AdminService {
 
 
     //Admin Function to Update Metadata Field Values
-    public ResponseEntity<Object> updateMetadataFieldValues(CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO) {
+    public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldValuesCO>> updateMetadataFieldValues(CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO) {
         Long categoryId = categoryMetadataFieldValuesCO.getCategoryId();
         Long categoryMetadataFieldId = categoryMetadataFieldValuesCO.getCategoryMetadataFieldId();
 
@@ -345,7 +352,7 @@ public class AdminService {
 //-------------------------------------------ADMIN PRODUCT API'S--------------------------------------------------------
 
     //Admin Function to view a product
-    public  ResponseEntity<Object>  listOneProduct(Long id) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(Long id) {
          List<Map<Object, Object>> product = productRepository.listOneProductAdmin(id);
          if (product.isEmpty())
              throw new ProductNotFoundException("Product Not Found: "+id);
@@ -353,7 +360,7 @@ public class AdminService {
     }
 
     //Admin Function to list All products
-    public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Product>>> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<Product> pagedResult = productRepository.listAllProductAdmin(paging);
         if (pagedResult.isEmpty())
@@ -362,7 +369,7 @@ public class AdminService {
     }
 
     //Admin Function to Activate A Product
-    public ResponseEntity<Object> activateProduct(Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> activateProduct(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (!optionalProduct.isPresent())
             throw new ProductNotFoundException("Product Not Found Exception:"+id);
@@ -374,7 +381,11 @@ public class AdminService {
             product.setActive(true);
             productRepository.save(product);
             try {
-                smtpMailSender.send(seller.getEmail(), "Product Activated!", "Dear  " + seller.getFirstName() + ", You're Product Has Been Activated!");
+                String subject = messageSource.getMessage("product.activated.subject", null, LocaleContextHolder.getLocale());
+                String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("product.activated.message", null, LocaleContextHolder.getLocale());
+
+                smtpMailSender.send(seller.getEmail(), subject, dear+" " + seller.getFirstName() + ", "+message);
                 return new ResponseEntity<>(new MessageResponseEntity<>("Product Activated Successfully!", HttpStatus.OK), HttpStatus.OK);
             }
             catch (Exception ex) {
@@ -387,7 +398,7 @@ public class AdminService {
 
 
     //Admin Function to De-activate A Product
-    public ResponseEntity<Object> deactivateProduct(Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> deactivateProduct(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if (!optionalProduct.isPresent())
             throw new ProductNotFoundException("Product Not Found Exception:"+id);
@@ -399,7 +410,11 @@ public class AdminService {
             product.setActive(false);
             productRepository.save(product);
             try {
-                smtpMailSender.send(seller.getEmail(), "Product De-activated!", "Dear  " + seller.getFirstName() + ", You're Product Has Been De-activated!");
+                String subject = messageSource.getMessage("product.deactivated.subject", null, LocaleContextHolder.getLocale());
+                String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("product.deactivated.message", null, LocaleContextHolder.getLocale());
+
+                smtpMailSender.send(seller.getEmail(), subject, dear+" " + seller.getFirstName() + ", "+message);
                 return new ResponseEntity<>(new MessageResponseEntity<>("Product Deactivated Successfully!", HttpStatus.OK), HttpStatus.OK);
             }
             catch (Exception ex) {

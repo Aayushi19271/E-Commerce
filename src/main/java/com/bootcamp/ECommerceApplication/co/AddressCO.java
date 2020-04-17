@@ -84,4 +84,17 @@ public class AddressCO {
     public void setUserCO(UserCO userCO) {
         this.userCO = userCO;
     }
+
+    @Override
+    public String toString() {
+        return "AddressCO{" +
+                "city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", country='" + country + '\'' +
+                ", addressLine='" + addressLine + '\'' +
+                ", zipCode=" + zipCode +
+                ", label='" + label + '\'' +
+                ", userCO=" + userCO +
+                '}';
+    }
 }

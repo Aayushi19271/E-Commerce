@@ -19,6 +19,8 @@ public class ConverterService {
 
     public UserDTO convertToUserDto(User user){ return modelMapper.map(user, UserDTO.class);}
 
+    public UserCO convertToUserCO(User user){ return modelMapper.map(user, UserCO.class);}
+
 //-------------------------------------------ADDRESS ENTITY AND ADDRESS CO/DTO------------------------------------------
 
     public AddressDTO convertToAddressDto(Address address){
@@ -27,17 +29,18 @@ public class ConverterService {
 
     public Address convertToAddress(AddressCO addressCO){ return modelMapper.map(addressCO, Address.class); }
 
+    public AddressCO convertToAddressCO(Address address){ return modelMapper.map(address, AddressCO.class); }
 
-//-------------------------------------------SELLER ENTITY AND SELLER CO/DTO--------------------------------------------
+    //-------------------------------------------SELLER ENTITY AND SELLER CO/DTO--------------------------------------------
     public SellerDTO convertToSellerDto(Seller seller){
         return modelMapper.map(seller, SellerDTO.class);
     }
 
     public Seller convertToSeller(SellerCO sellerCO){ return modelMapper.map(sellerCO,Seller.class);   }
 
-    public Seller convertToSeller(SellerProfileUpdateCO sellerProfileUpdateCO){ return modelMapper.map(sellerProfileUpdateCO,Seller.class);   }
+    public Seller convertToSeller(SellerUpdateProfileCO sellerProfileUpdateCO){ return modelMapper.map(sellerProfileUpdateCO,Seller.class);   }
 
-    public SellerProfileUpdateCO convertToSellerProfileUpdateCO(Seller seller){ return modelMapper.map(seller,SellerProfileUpdateCO.class);   }
+    public SellerUpdateProfileCO convertToSellerProfileUpdateCO(Seller seller){ return modelMapper.map(seller,SellerUpdateProfileCO.class);   }
 
     public SellerCO convertToSellerCO(Seller seller){ return modelMapper.map(seller,SellerCO.class);   }
 
@@ -48,6 +51,12 @@ public class ConverterService {
     }
 
     public Customer convertToCustomer(CustomerCO customerCO){ return modelMapper.map(customerCO,Customer.class); }
+
+    public CustomerUpdateProfileCO convertToCustomerUpdateProfileCO(Customer customer){
+        return modelMapper.map(customer, CustomerUpdateProfileCO.class);
+    }
+
+    public Customer convertToCustomer(CustomerUpdateProfileCO customerUpdateProfileCO){ return modelMapper.map(customerUpdateProfileCO,Customer.class); }
 
 //-------------------------------------------Category Metadata Field CO/DTO---------------------------------------------
 

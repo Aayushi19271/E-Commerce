@@ -3,8 +3,10 @@ package com.bootcamp.ECommerceApplication.co;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import static com.bootcamp.ECommerceApplication.constant.Constants.CONTACT;
+
 public class CustomerCO extends UserCO {
-    @Pattern(regexp = "^(?:\\s+|)((0|(?:(\\+|)91))(?:\\s|-)*(?:(?:\\d(?:\\s|-)*\\d{9})|(?:\\d{2}(?:\\s|-)*\\d{8})|(?:\\d{3}(?:\\s|-)*\\d{7}))|\\d{10})(?:\\s+|)$"
+    @Pattern(regexp = CONTACT
             ,message = "Please provide valid Contact No.")
     @NotNull(message = "Please provide Contact No.")
     private String contact;
@@ -15,5 +17,12 @@ public class CustomerCO extends UserCO {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerCO{" +
+                "contact='" + contact + '\'' +
+                '}';
     }
 }

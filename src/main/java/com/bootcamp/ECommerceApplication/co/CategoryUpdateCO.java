@@ -25,4 +25,12 @@ public class CategoryUpdateCO {
     public void setName(String name) {
         this.name = name.toUpperCase();
     }
+
+    @Override
+    public String toString() {
+        return "CategoryUpdateCO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

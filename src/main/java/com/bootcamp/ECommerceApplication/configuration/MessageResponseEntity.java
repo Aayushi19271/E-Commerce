@@ -28,6 +28,7 @@ public class MessageResponseEntity<T> {
         }
         this.statusCode = statusCode;
         this.message = message;
+        this.status=false;
     }
 
     public MessageResponseEntity(HttpStatus statusCode, String message, Boolean status) {

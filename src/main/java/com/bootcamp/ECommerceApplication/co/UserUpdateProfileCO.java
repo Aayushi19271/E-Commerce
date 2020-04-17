@@ -3,7 +3,7 @@ package com.bootcamp.ECommerceApplication.co;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-public class UserProfileUpdateCO {
+public class UserUpdateProfileCO {
     @NotNull(message = "Please provide first name")
     @NotBlank(message = "Please provide valid first name")
     private String firstName;
@@ -39,7 +39,7 @@ public class UserProfileUpdateCO {
 
     @Override
     public String toString() {
-        return "UserProfileUpdateCO{" +
+        return "UserUpdateProfileCO{" +
                 "firstName='" + firstName + '\'' +
                 ", middleName='" + middleName + '\'' +
                 ", lastName='" + lastName + '\'' +

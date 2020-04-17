@@ -50,16 +50,16 @@ public class SellerController {
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
     @PatchMapping("/change-password")
-    public ResponseEntity<Object> sellerUpdatePassword(Principal principal, @Valid @RequestBody PasswordCO passwordCO) throws MessagingException {
+    public ResponseEntity<Object> sellerUpdatePassword(Principal principal,@RequestBody Map<Object,Object> fields) throws MessagingException {
         String email = principal.getName();
-        return sellerService.sellerUpdatePassword(email,passwordCO);
+        return sellerService.sellerUpdatePassword(email,fields);
     }
 
     //Update the already existing Address of LoggedIn Seller
     @PatchMapping("/update-address")
-    public ResponseEntity<Object> sellerUpdateAddress(Principal principal, @Valid @RequestBody AddressCO addressCO){
+    public ResponseEntity<Object> sellerUpdateAddress(Principal principal,@RequestBody Map<Object,Object> fields){
         String email = principal.getName();
-        return sellerService.sellerUpdateAddress(email,addressCO);
+        return sellerService.sellerUpdateAddress(email,fields);
     }
 
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------

@@ -4,14 +4,16 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class SellerUpdateProfileCO extends UserProfileUpdateCO{
+import static com.bootcamp.ECommerceApplication.constant.Constants.CONTACT;
+import static com.bootcamp.ECommerceApplication.constant.Constants.GST;
+
+public class SellerUpdateProfileCO extends UserUpdateProfileCO {
     @NotNull(message = "Please provide GST number")
-    @Pattern(regexp = "^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$",
+    @Pattern(regexp = GST,
             message = "GST should be valid as per Govt. norms")
     private String gst;
 
-    //This Pattern is to Validate Mobile Number with 10 digit Number and Countrycode as Optional, And check for Landline Numbers as well.
-    @Pattern(regexp = "^(?:\\s+|)((0|(?:(\\+|)91))(?:\\s|-)*(?:(?:\\d(?:\\s|-)*\\d{9})|(?:\\d{2}(?:\\s|-)*\\d{8})|(?:\\d{3}(?:\\s|-)*\\d{7}))|\\d{10})(?:\\s+|)$"
+    @Pattern(regexp = CONTACT
             , message = "The Contact No. is not valid")
     @NotNull(message = "Please provide Company Contact")
     private String companyContact;
@@ -44,5 +46,14 @@ public class SellerUpdateProfileCO extends UserProfileUpdateCO{
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    @Override
+    public String toString() {
+        return "SellerUpdateProfileCO{" +
+                "gst='" + gst + '\'' +
+                ", companyContact='" + companyContact + '\'' +
+                ", companyName='" + companyName + '\'' +
+                '}';
     }
 }

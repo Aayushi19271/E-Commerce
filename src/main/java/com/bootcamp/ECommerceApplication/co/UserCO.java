@@ -6,6 +6,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import static com.bootcamp.ECommerceApplication.constant.Constants.PASSWORD;
+
 public class UserCO {
     @Email(message = "Please provide valid Email ID")
     @NotNull(message = "Please provide Email ID")
@@ -23,7 +25,7 @@ public class UserCO {
 
     @NotNull(message = "Please provide password")
     @Length(min = 8,max = 15,message = "The Length of the password should be between 8 to 15 characters.")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d.*)(?=.*\\W.*)[a-zA-Z0-9\\S]{8,15}$",
+    @Pattern(regexp = PASSWORD,
             message = "The Password should be 8-15 Characters with atleast 1 Lower case, 1 Upper case, 1 Special Character, 1 Number")
     private String password;
 
@@ -76,5 +78,17 @@ public class UserCO {
 
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
+    }
+
+    @Override
+    public String toString() {
+        return "UserCO{" +
+                "email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", password='" + password + '\'' +
+                ", confirmPassword='" + confirmPassword + '\'' +
+                '}';
     }
 }

@@ -7,13 +7,11 @@ import com.bootcamp.ECommerceApplication.dto.AddressDTO;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
-import com.bootcamp.ECommerceApplication.exception.handler.ExceptionResponse;
 import com.bootcamp.ECommerceApplication.repository.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,17 +22,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
-
-
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -61,8 +55,8 @@ public class SellerService {
     private ProductVariationRepository productVariationRepository;
     @Autowired
     private ImageUploaderService imageUploaderService;
-
-    private static Logger LOGGER = LoggerFactory.getLogger(SellerService.class);
+    @Autowired
+    private MessageSource messageSource;
 
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -87,20 +81,19 @@ public class SellerService {
             field.setAccessible(true);
             ReflectionUtils.setField(field, seller, v);
         });
-        SellerProfileUpdateCO sellerCO = converterService.convertToSellerProfileUpdateCO(seller);
+        SellerUpdateProfileCO sellerCO = converterService.convertToSellerProfileUpdateCO(seller);
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<SellerProfileUpdateCO>> violations = validator.validate(sellerCO);
+        Set<ConstraintViolation<SellerUpdateProfileCO>> violations = validator.validate(sellerCO);
 
         final List<String> errors = new ArrayList<>();
-        for (ConstraintViolation<SellerProfileUpdateCO> violation : violations) {
+        for (ConstraintViolation<SellerUpdateProfileCO> violation : violations) {
             errors.add(violation.getMessage());
-            LOGGER.error(violation.getMessage());
         }
 
         if (!errors.isEmpty())
-            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
 
         sellerRepository.save(seller);
         SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
@@ -109,15 +102,38 @@ public class SellerService {
 
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
-    public ResponseEntity<Object> sellerUpdatePassword(String email, PasswordCO passwordCO) throws MessagingException {
-        Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
-        if(passwordCO.getPassword().equals(passwordCO.getConfirmPassword())) {
-            seller.setPassword(passwordEncoder.encode(passwordCO.getPassword()));
-            seller.setUpdatedBy("user@"+seller.getFirstName());
-            seller.setLastUpdated(new Date());
-            userRepository.save(seller);
-            smtpMailSender.send(seller.getEmail(), "Password Changed!",
-                    "Dear "+seller.getFirstName()+" ,Your Password has been changed Successfully!");
+    public ResponseEntity<Object> sellerUpdatePassword(String email,Map<Object,Object> fields) throws MessagingException {
+        User user=  userRepository.findByEmailIgnoreCase(email);
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, user, v);
+        });
+
+        UserCO userCO = converterService.convertToUserCO(user);
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<UserCO>> violations = validator.validate(userCO);
+
+        final List<String> errors = new ArrayList<>();
+        for (ConstraintViolation<UserCO> violation : violations) {
+            errors.add(violation.getMessage());
+        }
+
+        if (!errors.isEmpty())
+            return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+
+        if(user.getPassword().equals(user.getConfirmPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setUpdatedBy("user@"+user.getFirstName());
+            user.setLastUpdated(new Date());
+            userRepository.save(user);
+
+            String subject = messageSource.getMessage("successful.password.changed.subject", null, LocaleContextHolder.getLocale());
+            String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
+            String message = messageSource.getMessage("successful.password.reset.message", null, LocaleContextHolder.getLocale());
+
+            smtpMailSender.send(user.getEmail(), subject, dear+" "+user.getFirstName()+" ,"+message);
         }
         else {
             throw new PasswordDoesNotMatchException("Password and Confirm Password does not match!");
@@ -127,30 +143,25 @@ public class SellerService {
 
 
     //Update the already existing Address of LoggedIn Seller
-    public ResponseEntity<Object> sellerUpdateAddress(String email, AddressCO addressCO) {
-        User user = userRepository.findByEmailIgnoreCase(email);
-        Address updatedAddress = converterService.convertToAddress(addressCO);
-        Address addresses = (Address) user.getAddresses();
+    public ResponseEntity<Object> sellerUpdateAddress(String email, Map<Object,Object> fields) {
+        Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
+        List<Address> addresses = seller.getAddresses();
+        Address address = addresses.get(0);
 
-        Optional<Address> optionalAddress = addressRepository.findById(addresses.getId());
-        if (optionalAddress.isPresent())
-        {
-            Address address = optionalAddress.get();
-            User savedUser = address.getUser();
-            if (savedUser.getId().equals(user.getId()))
-            {
-                ModelMapper modelMapper = new ModelMapper();
-                modelMapper.map(updatedAddress, address);
-                address.setUser(user);
-                addressRepository.save(address);
-                AddressDTO addressDTO = converterService.convertToAddressDto(address);
-                return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
-            }
-            else
-                throw new AddressNotFoundException("Address not found: " + addresses.getId());
+        Optional<Address> optionalAddress = addressRepository.findById(address.getId());
+
+        if(optionalAddress.isPresent()) {
+            fields.forEach((k, v) -> {
+                Field field = ReflectionUtils.findRequiredField(Address.class, (String) k);
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, address, v);
+            });
+
+            addressRepository.save(address);
+            AddressDTO addressDTO = converterService.convertToAddressDto(address);
+            return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
         }
-        else
-            throw new AddressNotFoundException("Address not found: "+addresses.getId());
+        throw new AddressNotFoundException("Address not found: " + address.getId());
     }
 
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
@@ -220,8 +231,11 @@ public class SellerService {
                     product.setDescription(productCO.getDescription());
                     product.setSeller(seller);
                     productRepository.save(product);
-                    smtpMailSender.send("aayushithani@yahoo.in", "Product Added!",
-                            "Dear Admin, New Product Has Been Added,Please Active the product! Added Product Name Is:"+product.getName());
+
+                    String subject = messageSource.getMessage("product.added.subject", null, LocaleContextHolder.getLocale());
+                    String message = messageSource.getMessage("product.added.message", null, LocaleContextHolder.getLocale());
+
+                    smtpMailSender.send("aayushithani@yahoo.in", subject, message+" "+product.getName());
                     return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
                 }
                 else
