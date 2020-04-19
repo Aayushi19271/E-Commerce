@@ -1,134 +1,144 @@
 package com.bootcamp.ECommerceApplication.controller;
 
 import com.bootcamp.ECommerceApplication.co.AddressCO;
+import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
+import com.bootcamp.ECommerceApplication.dto.AddressDTO;
+import com.bootcamp.ECommerceApplication.dto.CustomerDTO;
 import com.bootcamp.ECommerceApplication.service.CustomerService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
-
+@ApiModel(description = "Customer Controller Class")
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
 
 //-------------------------------------------CUSTOMER ACCOUNT API'S-----------------------------------------------------
 
-    //LoggedIn Customer's Welcome Page
+    @ApiOperation(value = "Customer Home Page")
     @GetMapping("/home")
     public String customerHome( Principal principal) {
         return "Welcome " +principal.getName();
     }
 
-    //Get the LoggedIn Customer's Profile Details
+    @ApiOperation(value = "API to view my profile")
     @GetMapping("/profile")
-    public ResponseEntity<Object> customerProfile(Principal principal) {
+    public ResponseEntity<MessageResponseEntity<CustomerDTO>> customerProfile(Principal principal) {
         String email = principal.getName();
         return customerService.customerProfile(email);
     }
 
-    //Get the list of LoggedIn Customer's Addresses
+    @ApiOperation(value = "API to view my addresses")
     @GetMapping("/addresses")
-    public ResponseEntity<Object> customerAddresses(Principal principal) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> customerAddresses(Principal principal) {
         String email = principal.getName();
         return customerService.customerAddresses(email);
     }
 
-    //Change the LoggedIn Customer's Password And Send Mail Upon Change
+    @ApiOperation(value = "API to update my password")
     @PatchMapping("/password/change")
-    public ResponseEntity<Object> customerUpdatePassword(Principal principal,@RequestBody Map<Object,Object> fields) throws MessagingException {
+    public ResponseEntity<Object> customerUpdatePassword(Principal principal,
+                                                         @RequestBody Map<Object,Object> fields) throws MessagingException {
         String email = principal.getName();
         return customerService.customerUpdatePassword(email,fields);
     }
 
-    //Add the New Address to the LoggedIn Customer
+    @ApiOperation(value = "API to add a new address")
     @PostMapping("/addresses")
-    public ResponseEntity<Object> customerAddAddress(Principal principal, @Valid @RequestBody AddressCO addressCO){
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> customerAddAddress(Principal principal,
+                                                                                @Valid @RequestBody AddressCO addressCO){
         String email = principal.getName();
         return customerService.customerAddAddress(email,addressCO);
     }
 
-    //Delete the already existing Address of the LoggedIn Customer
+    @ApiOperation(value = "API to delete an address")
     @DeleteMapping("/addresses/{id}")
-    public ResponseEntity<Object> customerDeleteAddress(Principal principal, @PathVariable("id") Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> customerDeleteAddress(Principal principal,
+                                                                               @PathVariable("id") Long id) {
         String email = principal.getName();
         return customerService.customerDeleteAddress(email,id);
     }
 
-    //Update the already existing Address of LoggedIn Customer
+    @ApiOperation(value = "API to update an address")
     @PatchMapping("/addresses/{id}")
-    public ResponseEntity<Object> customerUpdateAddress(Principal principal,
-                                                        @RequestBody Map<Object,Object> fields,
-                                                        @PathVariable Long id){
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> customerUpdateAddress(Principal principal,
+                                                                                   @RequestBody Map<Object,Object> fields,
+                                                                                   @PathVariable Long id){
         String email = principal.getName();
         return customerService.customerUpdateAddress(email,fields,id);
     }
 
-    //Update the Profile of LoggedIn Customer
+    @ApiOperation(value = "API to update my profile")
     @PatchMapping("/profile")
     public ResponseEntity<Object> customerUpdateProfile(Principal principal,@RequestBody Map<Object,Object> fields){
         String email = principal.getName();
         return customerService.customerUpdateProfile(email,fields);
     }
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
-    //Upload Profile Image
+    @ApiOperation(value = "API to upload the profile image")
     @PostMapping(value = "/profile/image")
-    public ResponseEntity<Object> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile, Principal principal) {
+    public ResponseEntity<MessageResponseEntity<String>> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
+                                                                            Principal principal) {
         String email = principal.getName();
         return customerService.uploadProfileImage(multipartFile, email);
     }
 
-    //Get the Profile Image
+    @ApiOperation(value = "API to view the profile image")
     @GetMapping(value = "/profile/image")
-    public ResponseEntity<Object> getProfileImage(Principal principal) {
+    public ResponseEntity<MessageResponseEntity<String>> getProfileImage(Principal principal) {
             String email = principal.getName();
             return customerService.getProfileImage(email);
     }
 
 //-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
-    //list all Categories
+    @ApiOperation(value = "API to list all categories")
     @GetMapping({"/categories/{id}","/categories"})
-    public ResponseEntity<Object> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
         return customerService.listAllCustomerCategories(id);
     }
 
-    //API to fetch filtering details for a category
+    @ApiOperation(value = "API to fetch filtering details for a category")
     @GetMapping("/categories/filtering/{id}")
-    public ResponseEntity<Object> getFilterDetails(@PathVariable(name = "id", required = false) Long id){
+    public ResponseEntity<MessageResponseEntity<List<Object>>> getFilterDetails(@PathVariable(name = "id", required = false) Long id){
         return customerService.getFilterDetails(id);
     }
 
 
 //-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
 
-    //Customer Function to view a product  -Product Id
+    @ApiOperation(value = "API to view a product")
     @GetMapping("/products/{id}")
-    public ResponseEntity<Object> listOneProduct(@PathVariable Long id){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(@PathVariable Long id){
         return customerService.listOneProduct(id);
     }
 
-    //Customer Function to view all products  -Category Id
+
+    @ApiOperation(value = "API to view all products")
     @GetMapping("/products/categories/{id}")
-    public ResponseEntity<Object> listAllProduct(@RequestParam(defaultValue = "0") Integer pageNo,
-                                                 @RequestParam(defaultValue = "10") Integer pageSize,
-                                                 @RequestParam(defaultValue = "id") String sortBy,
-                                                 @PathVariable Long id){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                                                           @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                           @RequestParam(defaultValue = "id") String sortBy,
+                                                                                           @PathVariable Long id){
 
         return customerService.listAllProducts(pageNo,pageSize,sortBy,id);
     }
 
-    //Get the Product variation Image
+    @ApiOperation(value = "API to view the product variation image")
     @GetMapping(value = "/products/variations/image/{id}")
-    public ResponseEntity<Object> getProductVariationImage(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> getProductVariationImage(@PathVariable(value = "id") Long id) {
         return customerService.getProductVariationImage(id);
     }
 }

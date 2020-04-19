@@ -14,7 +14,6 @@ import com.bootcamp.ECommerceApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -64,7 +63,7 @@ public class CustomerService {
 //-------------------------------------------CUSTOMER ACCOUNT API'S-----------------------------------------------------
 
     //Get the LoggedIn Customer's Profile Details
-    public ResponseEntity<Object> customerProfile(String email)
+    public ResponseEntity<MessageResponseEntity<CustomerDTO>> customerProfile(String email)
     {
         Customer customer = (Customer) userRepository.findByEmailIgnoreCase(email);
         CustomerDTO customerDTO = converterService.convertToCustomerDto(customer);
@@ -73,7 +72,7 @@ public class CustomerService {
 
 
     //Get the list of LoggedIn Customer's Addresses
-    public ResponseEntity<Object> customerAddresses(String email) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> customerAddresses(String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         List<Map<Object, Object>> result =  userRepository.findAllAddress(user.getId());
         if(result==null)
@@ -124,7 +123,7 @@ public class CustomerService {
 
 
     //Add the New Address to the LoggedIn Customer
-    public ResponseEntity<Object> customerAddAddress(String email, AddressCO addressCO) {
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> customerAddAddress(String email, AddressCO addressCO) {
         Address address = converterService.convertToAddress(addressCO);
         User user = userRepository.findByEmailIgnoreCase(email);
         address.setUser(user);
@@ -135,7 +134,7 @@ public class CustomerService {
 
     //Delete the already existing Address of the LoggedIn Customer
     @Transactional
-    public ResponseEntity<Object> customerDeleteAddress(String email, Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> customerDeleteAddress(String email, Long id) {
         User user = userRepository.findByEmailIgnoreCase(email);
         Optional<Address> optionalAddress = addressRepository.findById(id);
         Address address;
@@ -155,7 +154,7 @@ public class CustomerService {
     }
 
     //Update the already existing Address of LoggedIn Customer
-    public ResponseEntity<Object> customerUpdateAddress(String email,Map<Object,Object> fields, Long id) {
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> customerUpdateAddress(String email, Map<Object,Object> fields, Long id) {
         User user = userRepository.findByEmailIgnoreCase(email);
         Optional<Address> optionalAddress = addressRepository.findById(id);
         if (optionalAddress.isPresent())
@@ -212,7 +211,7 @@ public class CustomerService {
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
 
     //Upload Profile Image
-    public ResponseEntity<Object> uploadProfileImage(MultipartFile multipartFile, String email) {
+    public ResponseEntity<MessageResponseEntity<String>> uploadProfileImage(MultipartFile multipartFile, String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         try {
             String imageUri = imageUploaderService.uploadImage(multipartFile, email);
@@ -225,7 +224,7 @@ public class CustomerService {
     }
 
     //Get the Profile Image
-    public ResponseEntity<Object> getProfileImage(String email) {
+    public ResponseEntity<MessageResponseEntity<String>> getProfileImage(String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         if (user.getProfileImage() != null) {
             return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
@@ -236,7 +235,7 @@ public class CustomerService {
 //-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
     //List All Category
-    public ResponseEntity<Object> listAllCustomerCategories(Long id) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllCustomerCategories(Long id) {
         boolean exists;
         if (id != null) {
             exists = categoryRepository.existsById(id);
@@ -254,7 +253,7 @@ public class CustomerService {
     }
 
     //API to fetch filtering details for a category
-    public ResponseEntity<Object> getFilterDetails(Long id) {
+    public ResponseEntity<MessageResponseEntity<List<Object>>> getFilterDetails(Long id) {
 
         boolean exists = categoryRepository.existsById(id);
 
@@ -275,13 +274,13 @@ public class CustomerService {
 //-------------------------------------------CUSTOMER PRODUCT API'S-----------------------------------------------------
 
     //Customer Function to view a product
-    public  ResponseEntity<Object>  listOneProduct(Long id) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(Long id) {
         List<Map<Object, Object>> product = productRepository.listOneProductCustomer(id);
         return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
     }
 
     //Customer Function to view all products
-    public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Map<Object,Object>> pagedResult = productRepository.listAllProductCustomer(paging,id);
         return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
@@ -289,7 +288,7 @@ public class CustomerService {
 
 
     //Get the Product variation Image
-    public ResponseEntity<Object> getProductVariationImage(Long productVariationId) {
+    public ResponseEntity<MessageResponseEntity<String>> getProductVariationImage(Long productVariationId) {
 
         Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationId);
         if (optionalProductVariation.isPresent()) {

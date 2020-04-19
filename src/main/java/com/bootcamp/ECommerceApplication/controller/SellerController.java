@@ -9,6 +9,8 @@ import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.Category;
 import com.bootcamp.ECommerceApplication.service.SellerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +24,15 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+@ApiModel(description = "Seller Controller Class")
 @RestController
 @RequestMapping("/sellers")
 public class SellerController {
 
     @Autowired
-    SellerService sellerService;
+    private SellerService sellerService;
 
-    //LoggedIn Seller's Welcome Page
+    @ApiOperation(value = "Seller Home Page")
     @GetMapping("/home")
     public String sellerHome(Principal principal) {
         return "Welcome " +principal.getName();
@@ -37,7 +40,7 @@ public class SellerController {
 
 //-------------------------------------------SELLER ACCOUNT API'S-------------------------------------------------------
 
-    //Get the LoggedIn Seller's Profile Details
+    @ApiOperation(value = "API to view my profile")
     @GetMapping("/profile")
     public ResponseEntity<MessageResponseEntity<SellerDTO>> sellerProfile(Principal principal)
     {
@@ -45,7 +48,7 @@ public class SellerController {
         return sellerService.sellerProfile(email);
     }
 
-    //Update the Profile of LoggedIn Seller
+    @ApiOperation(value = "API to update my profile")
     @PatchMapping("/profile")
     public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateProfile(Principal principal,
                                                                              @RequestBody Map<Object,Object> fields)
@@ -55,7 +58,7 @@ public class SellerController {
     }
 
 
-    //Update the LoggedIn Seller's Password And Send Mail Upon Change
+    @ApiOperation(value = "API to update my password")
     @PatchMapping("/password/change")
     public ResponseEntity<MessageResponseEntity<Object>> sellerUpdatePassword(Principal principal,
                                                                               @RequestBody Map<Object,Object> fields)
@@ -64,7 +67,7 @@ public class SellerController {
         return sellerService.sellerUpdatePassword(email,fields);
     }
 
-    //Update the already existing Address of LoggedIn Seller
+    @ApiOperation(value = "API to update an address")
     @PatchMapping("/addresses")
     public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerUpdateAddress(Principal principal,
                                                                                  @RequestBody Map<Object,Object> fields){
@@ -73,7 +76,7 @@ public class SellerController {
     }
 
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
-    //Upload Profile Image
+    @ApiOperation(value = "API to upload the profile image")
     @PostMapping(value = "/profile/image")
     public ResponseEntity<MessageResponseEntity<Object>> uploadProfileImage(@RequestParam(value = "upload", required = true)
                                                                                         MultipartFile multipartFile,
@@ -82,7 +85,7 @@ public class SellerController {
         return sellerService.uploadProfileImage(multipartFile, email);
     }
 
-    //Get the Profile Image
+    @ApiOperation(value = "API to view the profile image")
     @GetMapping(value = "/profile/image")
     public ResponseEntity<MessageResponseEntity<Serializable>> getProfileImage(Principal principal) {
         String email = principal.getName();
@@ -90,7 +93,7 @@ public class SellerController {
     }
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
 
-    //List All Category
+    @ApiOperation(value = "API to list all categories")
     @GetMapping("/categories")
     public ResponseEntity<MessageResponseEntity<Map<Category, Object>>> listAllCategory(
             @RequestParam(defaultValue = "0") Integer pageNo,
@@ -102,7 +105,7 @@ public class SellerController {
 
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------
 
-    //Add A Product
+    @ApiOperation(value = "API add a product")
     @PostMapping("/products")
     public ResponseEntity<MessageResponseEntity<ProductDTO>> addProduct(Principal principal,
                                                                         @Valid @RequestBody ProductCO productCO)
@@ -111,7 +114,7 @@ public class SellerController {
         return sellerService.addProduct(productCO,email);
     }
 
-    //Get Details Of One Product
+    @ApiOperation(value = "API to view a product")
     @GetMapping("/products/{id}")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(Principal principal,
                                                                                            @PathVariable Long id){
@@ -119,7 +122,7 @@ public class SellerController {
         return sellerService.listOneProduct(email,id);
     }
 
-    //Get Details Of All Product
+    @ApiOperation(value = "API to view all products")
     @GetMapping("/products")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(Principal principal,
                                                                                            @RequestParam(defaultValue = "0") Integer pageNo,
@@ -129,7 +132,7 @@ public class SellerController {
         return sellerService.listAllProduct(email,pageNo,pageSize,sortBy);
     }
 
-    //Delete One Product
+    @ApiOperation(value = "API to delete a product")
     @DeleteMapping("/products/{id}")
     public ResponseEntity<MessageResponseEntity<String>> deleteOneProduct(Principal principal,
                                                                           @PathVariable Long id){
@@ -137,7 +140,7 @@ public class SellerController {
         return sellerService.deleteOneProduct(email,id);
     }
 
-    //Update One Product
+    @ApiOperation(value = "API to update a product")
     @PutMapping("/products/{id}")
     public ResponseEntity<MessageResponseEntity<ProductDTO>> updateOneProduct(Principal principal,
                                                                               @PathVariable Long id,
@@ -146,7 +149,7 @@ public class SellerController {
         return sellerService.updateOneProduct(email,id,productUpdateCO);
     }
 
-    //List Details of One Product Variation
+    @ApiOperation(value = "API to view a product variation")
     @GetMapping("/products/variations/{id}")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProductVariation(Principal principal,
                                                                                                     @PathVariable Long id){
@@ -154,7 +157,7 @@ public class SellerController {
         return sellerService.listOneProductVariation(email,id);
     }
 
-    //List Details All Product Variation
+    @ApiOperation(value = "API to view all product variations")
     @GetMapping("/products/variations")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
                 listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
@@ -165,7 +168,7 @@ public class SellerController {
         return sellerService.listAllProductVariation(email,pageNo,pageSize,sortBy);
     }
 
-    //Add a product variation
+    @ApiOperation(value = "API to add a product variation")
     @PostMapping("/products/variations")
     public ResponseEntity<MessageResponseEntity<ProductVariationDTO>> addProductVariation(
             @Valid @RequestBody ProductVariationCO productVariationCO) {
@@ -177,24 +180,7 @@ public class SellerController {
         }
     }
 
-
-    //Upload Product variation Image
-    @PostMapping(value = "/products/variations/image/{id}")
-    public ResponseEntity<MessageResponseEntity<String>> uploadProductVariationImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
-                                                                                    Principal principal,
-                                                                                    @PathVariable(value = "id") Long id) {
-        String email = principal.getName();
-        return sellerService.uploadProductVariationImage(multipartFile, email,id);
-    }
-
-    //Get the Product variation Image
-    @GetMapping(value = "/products/variations/image/{id}")
-    public ResponseEntity<Object> getProductVariationImage(Principal principal,@PathVariable(value = "id") Long id) {
-        String email = principal.getName();
-        return sellerService.getProductVariationImage(email,id);
-    }
-
-    //Update the product Variation
+    @ApiOperation(value = "API to update a product variation")
     @PatchMapping("/products/variations/{id}")
     public ResponseEntity<Object> updateProductVariation(Principal principal,
                                                         @RequestBody Map<Object,Object> fields,
@@ -203,7 +189,21 @@ public class SellerController {
         return sellerService.updateProductVariation(email,fields,productVariationId);
     }
 
+    @ApiOperation(value = "API to upload the product variation image")
+    @PostMapping(value = "/products/variations/image/{id}")
+    public ResponseEntity<MessageResponseEntity<String>> uploadProductVariationImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
+                                                                                     Principal principal,
+                                                                                     @PathVariable(value = "id") Long id) {
+        String email = principal.getName();
+        return sellerService.uploadProductVariationImage(multipartFile, email,id);
+    }
 
+    @ApiOperation(value = "API to view the product variation image")
+    @GetMapping(value = "/products/variations/image/{id}")
+    public ResponseEntity<MessageResponseEntity<String>> getProductVariationImage(Principal principal, @PathVariable(value = "id") Long id) {
+        String email = principal.getName();
+        return sellerService.getProductVariationImage(email,id);
+    }
 }
 
 

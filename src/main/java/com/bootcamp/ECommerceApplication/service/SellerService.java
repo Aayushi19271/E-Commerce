@@ -379,7 +379,7 @@ public class SellerService {
     }
 
     //Get the Product Variation Image
-    public ResponseEntity<Object> getProductVariationImage(String email, Long productVariationId) {
+    public ResponseEntity<MessageResponseEntity<String>> getProductVariationImage(String email, Long productVariationId) {
 
         User user = userRepository.findByEmailIgnoreCase(email);
         Long productVariationRepositoryId = productVariationRepository.findAllBySellerId(user.getId(), productVariationId);

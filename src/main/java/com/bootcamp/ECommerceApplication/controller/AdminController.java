@@ -11,6 +11,8 @@ import com.bootcamp.ECommerceApplication.dto.CategoryMetadataFieldDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.UserNotFoundException;
 import com.bootcamp.ECommerceApplication.service.AdminService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,30 +21,33 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
+@ApiModel(description = "Admin Controller Class")
 @RestController
 public class AdminController {
 
     @Autowired
-    AdminService adminService;
+    private AdminService adminService;
 
     @Autowired
     private SmtpMailSender smtpMailSender;
 
 
 //-----------------------------------------------ADMIN HOME-------------------------------------------------------------
+    @ApiOperation(value = "Admin Home Page")
     @GetMapping("/admin/home")
     public String adminHome() {
         return "Welcome Admin!";
     }
 
 //-----------------------------------------------GET USERS--------------------------------------------------------------
-    //GET THE LIST OF USERS
+    @ApiOperation(value = "Get the list of all Users")
     @GetMapping("/admin/users")
     public List<User> listOfUsers() {
         return adminService.findAllUsers();
     }
 
-    //GET A SINGLE USER
+
+    @ApiOperation(value = "Get the Single User")
     @GetMapping("/admin/users/{id}")
     public User retrieveCustomer(@PathVariable Long id)
     {
@@ -54,7 +59,7 @@ public class AdminController {
 
 
 //-----------------------------------------FETCH THE LIST OF CUSTOMERS AND SELLERS--------------------------------------
-    //LIST ALL REGISTERED CUSTOMERS
+    @ApiOperation(value = "API to register customer")
     @GetMapping("/admin/customers")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
     findAllRegisteredCustomers(@RequestParam(defaultValue = "0") Integer pageNo,
@@ -63,7 +68,7 @@ public class AdminController {
         return adminService.findAllCustomers(pageNo,pageSize,sortBy);
     }
 
-    //LIST ALL REGISTERED SELLERS
+    @ApiOperation(value = "API to register seller")
     @GetMapping("/admin/sellers")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
     findAllRegisteredSellers(@RequestParam(defaultValue = "0") Integer pageNo,
@@ -74,7 +79,7 @@ public class AdminController {
 
 
 //-------------------------------------------ACTIVATE AND DE-ACTIVATE THE CUSTOMER-------------------------------------
-    //ACTIVATE A CUSTOMER
+    @ApiOperation(value = "API to activate a customer")
     @PatchMapping("/admin/customers/activate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> activateCustomer(@PathVariable Long id,
                                                                           @RequestBody Map<Object,Object> fields)
@@ -82,7 +87,8 @@ public class AdminController {
         return adminService.activateAccount(id,fields);
     }
 
-    //DE-ACTIVE A CUSTOMER
+
+    @ApiOperation(value = "API to de-activate a customer")
     @PatchMapping("/admin/customers/deactivate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> deactivateCustomer(@PathVariable Long id,
                                                                             @RequestBody Map<Object,Object> fields)
@@ -93,7 +99,7 @@ public class AdminController {
 
 //----------------------------------------ACTIVATE AND DE-ACTIVATE THE SELLER-------------------------------------------
 
-    //ACTIVATE A SELLER
+    @ApiOperation(value = "API to activate a seller")
     @PatchMapping("/admin/sellers/activate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> activateSeller(@PathVariable Long id,
                                                                         @RequestBody Map<Object,Object> fields)
@@ -101,7 +107,8 @@ public class AdminController {
         return adminService.activateAccount(id,fields);
     }
 
-    //DE-ACTIVE A SELLER
+
+    @ApiOperation(value = "API to de-activate a seller")
     @PatchMapping("/admin/sellers/deactivate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> deactivateSeller(@PathVariable Long id,
                                                                           @RequestBody Map<Object,Object> fields)
@@ -112,14 +119,14 @@ public class AdminController {
 
 //-------------------------------------------ADMIN CATEGORY API'S-------------------------------------------------------
 
-    //Admin Function to add a Metadata field
+    @ApiOperation(value = "API add a Metadata field")
     @PostMapping("/admin/metadata-field")
     public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldDTO>>
     addMetadataField(@Valid @RequestBody CategoryMetadataFieldCO categoryMetadataFieldCO){
         return adminService.addMetadataField(categoryMetadataFieldCO);
     }
 
-    //Admin Function to view all Metadata fields
+    @ApiOperation(value = "API to view all Metadata fields")
     @GetMapping("/admin/metadata-fields")
     public ResponseEntity<MessageResponseEntity<List<CategoryMetadataField>>>
     listAllMetadata(@RequestParam(defaultValue = "0") Integer pageNo,
@@ -129,20 +136,22 @@ public class AdminController {
         return adminService.listAllMetadata(pageNo,pageSize,sortBy);
     }
 
-    //Admin Function to Add New Category
+
+    @ApiOperation(value = "API to add a category")
     @PostMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(@Valid @RequestBody CategoryCO categoryCO){
         return adminService.addCategory(categoryCO);
     }
 
-    //Admin Function to List One Category
+
+    @ApiOperation(value = "API to view a category")
     @GetMapping("/admin/categories/{id}")
     public ResponseEntity<MessageResponseEntity<Map<String, Object>>> listOneCategory(@PathVariable Long id){
         return adminService.listOneCategory(id);
     }
 
 
-    //Admin Function to list All Category
+    @ApiOperation(value = "API to view all categories")
     @GetMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<List<Category>>> listAllCategory(@RequestParam(defaultValue = "0") Integer pageNo,
                                                                                  @RequestParam(defaultValue = "10") Integer pageSize,
@@ -151,19 +160,22 @@ public class AdminController {
         return adminService.listAllCategory(pageNo,pageSize,sortBy);
     }
 
-    //Admin Function to Update One Category
+
+    @ApiOperation(value = "API to update a category")
     @PutMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> updateCategory(@Valid @RequestBody CategoryUpdateCO categoryUpdateCO){
         return adminService.updateCategory(categoryUpdateCO);
     }
 
-    //Admin Function to Add Metadata Field Values
+
+    @ApiOperation(value = "API to add new category metadata field for category")
     @PostMapping("/admin/metadata-field-values")
     public ResponseEntity<MessageResponseEntity<String>> addMetadataFieldValues(@Valid @RequestBody CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO){
         return adminService.addMetadataFieldValues(categoryMetadataFieldValuesCO);
     }
 
-    //Admin Function to Update Metadata Field Values
+
+    @ApiOperation(value = "API to update values for an existing metadata field")
     @PutMapping("/admin/metadata-field-values")
     public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldValuesCO>>
     updateMetadataFieldValues(@Valid @RequestBody CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO){
@@ -171,13 +183,14 @@ public class AdminController {
     }
 
 //-------------------------------------------ADMIN PRODUCT API'S-------------------------------------------------------
-    //Admin Function to view a product
+    @ApiOperation(value = "API to view a product")
     @GetMapping("/admin/products/{id}")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(@PathVariable Long id){
         return adminService.listOneProduct(id);
     }
 
-    //Admin Function to list All Category
+
+    @ApiOperation(value = "API to view all products")
     @GetMapping("/admin/products")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
                                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
@@ -186,24 +199,26 @@ public class AdminController {
         return adminService.listAllProducts(pageNo,pageSize,sortBy);
     }
 
-    //Admin Function to Activate A Product
+
+    @ApiOperation(value = "API to activate a product")
     @PutMapping("/admin/products/activate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> activateProduct(@PathVariable Long id) {
         return adminService.activateProduct(id);
     }
 
-    //Admin Function to De-activate A Product
+
+    @ApiOperation(value = "API to deactivate a product")
     @PutMapping("/admin/products/deactivate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> deactivateProduct(@PathVariable Long id){
         return adminService.deactivateProduct(id);
     }
 
-    //Get the Product variation Image
+
+    @ApiOperation(value = "API to get Product Variation Image")
     @GetMapping(value = "/admin/products/variations/image/{id}")
     public ResponseEntity<Object> getProductVariationImage(@PathVariable(value = "id") Long id) {
         return adminService.getProductVariationImage(id);
     }
-
 }
 
 

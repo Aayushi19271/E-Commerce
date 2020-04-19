@@ -4,8 +4,6 @@ import com.bootcamp.ECommerceApplication.entity.ProductVariation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 

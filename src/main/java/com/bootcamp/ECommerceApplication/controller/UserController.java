@@ -3,9 +3,13 @@ package com.bootcamp.ECommerceApplication.controller;
 import com.bootcamp.ECommerceApplication.co.CustomerCO;
 import com.bootcamp.ECommerceApplication.co.SellerCO;
 import com.bootcamp.ECommerceApplication.co.UserCO;
+import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
+import com.bootcamp.ECommerceApplication.dto.UserDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.service.ConverterService;
 import com.bootcamp.ECommerceApplication.service.UserService;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,75 +18,81 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
+@ApiModel(description = "User Controller Class")
 @RestController
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    ConverterService converterService;
+    private ConverterService converterService;
 
 //---------------------------------------REGISTER CUSTOMER AND SELLER---------------------------------------------------
-    //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
+    @ApiOperation(value = "API to register a seller")
     @PostMapping("/users/sellers-registration")
-    public ResponseEntity<Object> createSeller(@Valid @RequestBody SellerCO sellerCO)throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<UserDTO>> createSeller(@Valid @RequestBody SellerCO sellerCO)
+            throws MessagingException {
         Seller seller = converterService.convertToSeller(sellerCO);
         return userService.createSeller(seller);
     }
 
-    //REGISTER A CUSTOMER AND SEND AN ACTIVATION LINK
+
+    @ApiOperation(value = "API to register a customer")
     @PostMapping("/users/customers-registration")
-    public ResponseEntity<Object> createCustomerToken(@Valid @RequestBody CustomerCO customerCO) {
+    public ResponseEntity<MessageResponseEntity<UserDTO>> createCustomerToken(@Valid @RequestBody CustomerCO customerCO) {
         Customer customer = converterService.convertToCustomer(customerCO);
         return userService.createCustomer(customer);
     }
 
 
-    //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
+    @ApiOperation(value = "API to activate the customer")
     @GetMapping("/users/customers/confirm-account")
-    public ResponseEntity<Object> confirmUserAccount(@RequestParam("token") String confirmationToken) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> confirmUserAccount(@RequestParam("token") String confirmationToken)
+            throws MessagingException {
         return userService.confirmUserAccountToken(confirmationToken);
     }
 
 
-    //ACTIVATE THE CUSTOMER - SAME AS ABOVE USING PUT METHOD
+    @ApiOperation(value = "API to activate the customer using PUT method")
     @PutMapping("/users/customers/confirm-account/{token}")
-    public ResponseEntity<Object> confirmUserAccountToken(@PathVariable String token) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> confirmUserAccountToken(@PathVariable String token)
+            throws MessagingException {
         return userService.confirmUserAccountToken(token);
     }
 
 
-    //RE-SEND ACTIVATION LINK TO THE CUSTOMER
+    @ApiOperation(value = "API to re-send activation link")
     @PostMapping("/users/customers/re-send-activation-link")
-    public ResponseEntity<Object> reSendActivationLink(@RequestBody UserCO userCO){
+    public ResponseEntity<MessageResponseEntity<UserDTO>> reSendActivationLink(@RequestBody UserCO userCO){
         return userService.reSendActivationLink(userCO);
     }
 
 
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
-    //FORGOT PASSWORD REQUEST -API to receive a token based url
+    @ApiOperation(value = "API to receive a token based URL in mail for forgot password")
     @PostMapping("/users/password/forgot")
-    public ResponseEntity<Object> sendPasswordResetLink(@RequestBody UserCO userCO) {
+    public ResponseEntity<MessageResponseEntity<String>> sendPasswordResetLink(@RequestBody UserCO userCO) {
         return userService.sendPasswordResetLink(userCO);
     }
 
-    //RESET THE PASSWORD -API to reset the password using the Token
+    @ApiOperation(value = "API to reset the password using the token")
     @PatchMapping("/users/password/reset")
-    public ResponseEntity<Object> resetPassword(@RequestParam String token,@RequestBody Map<Object,Object> fields) {
+    public ResponseEntity<Object> resetPassword(@RequestParam String token,
+                                                @RequestBody Map<Object,Object> fields) {
         return userService.resetPassword(token,fields);
     }
 
 //--------------------------------------------------LOGOUT METHOD'S-----------------------------------------------------
-    //WELCOME METHOD
+    @ApiOperation(value = "API to display Main Welcome page")
     @GetMapping("/")
     public String test() {
         return "Welcome to the E-Commerce Application!!!";
     }
 
-    //LOGOUT REQUEST
+    @ApiOperation(value = "API to logout of account")
     @GetMapping("/doLogout")
-    public ResponseEntity<Object> logout(HttpServletRequest request){
+    public ResponseEntity<MessageResponseEntity<String>> logout(HttpServletRequest request){
         return userService.logout(request);
     }
 }

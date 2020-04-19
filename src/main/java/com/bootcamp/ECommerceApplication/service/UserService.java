@@ -88,7 +88,7 @@ public class UserService {
 //------------------------------------------------SELLER REGISTRATION METHOD'S------------------------------------------
 
     //REGISTER A SELLER - SET THE ACCOUNT AS INACTIVE ACCOUNT, WAIT FOR ADMIN APPROVAL
-    public ResponseEntity<Object> createSeller(Seller seller) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<UserDTO>> createSeller(Seller seller) throws MessagingException {
         String customerEmail = seller.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
         UserDTO userDTO = converterService.convertToSellerDto(seller);
@@ -129,7 +129,7 @@ public class UserService {
 //--------------------------------------------------CUSTOMER REGISTRATION METHOD'S--------------------------------------
 
     //REGISTER A CUSTOMER AND SEND AN ACTIVATION LINK
-    public ResponseEntity<Object> createCustomer(Customer customer) {
+    public ResponseEntity<MessageResponseEntity<UserDTO>> createCustomer(Customer customer) {
         String customerEmail = customer.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
 
@@ -161,7 +161,7 @@ public class UserService {
 
     //ACTIVATE THE CUSTOMER ACCOUNT - VERIFY THE TOKEN SEND USING ACTIVATION LINK
     @Transactional
-    public ResponseEntity<Object> confirmUserAccountToken(String confirmationToken) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> confirmUserAccountToken(String confirmationToken) throws MessagingException {
         //IF THE TOKEN IS NOT FOUND/WRONG
         ConfirmationToken token = findConfirmationToken(confirmationToken);
         if (token == null)
@@ -172,7 +172,7 @@ public class UserService {
 
     //CHECK THE TOKEN EXPIRY (3 CONDITIONS-- token correct, token expires, token wrong)
     @Transactional
-    public ResponseEntity<Object> confirmTokenExpiry(String confirmationToken) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<String>> confirmTokenExpiry(String confirmationToken) throws MessagingException {
         ConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
         User user = token.getUser();
         Calendar calendar = Calendar.getInstance();
@@ -205,7 +205,7 @@ public class UserService {
 
     //RE-SEND ACTIVATION LINK TO THE CUSTOMER
     @Transactional
-    public ResponseEntity<Object> reSendActivationLink(UserCO userCO){
+    public ResponseEntity<MessageResponseEntity<UserDTO>> reSendActivationLink(UserCO userCO){
         Customer customer= findCustomerByEmail(userCO.getEmail());
         if (customer == null)
             throw new UserNotFoundException("EmailID:-"+userCO.getEmail());
@@ -220,7 +220,7 @@ public class UserService {
     }
 
     //SEND REGISTRATION MAIL TO CUSTOMER
-    public ResponseEntity<Object> sendMailCustomer(User user, ConfirmationToken newConfirmationToken )
+    public ResponseEntity<MessageResponseEntity<UserDTO>> sendMailCustomer(User user, ConfirmationToken newConfirmationToken )
     {
         String subject = messageSource.getMessage("complete.registration", null, LocaleContextHolder.getLocale());
         String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
@@ -240,7 +240,7 @@ public class UserService {
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
 
     //FORGOT PASSWORD REQUEST
-    public ResponseEntity<Object> sendPasswordResetLink(UserCO userDto) {
+    public ResponseEntity<MessageResponseEntity<String>> sendPasswordResetLink(UserCO userDto) {
         String email = userDto.getEmail();
         User user = userRepository.findByEmailIgnoreCase(email);
         if(user==null)
@@ -257,7 +257,7 @@ public class UserService {
 
 
     //SEND RESET PASSWORD MAIL TO USERS
-    public ResponseEntity<Object> sendResetPasswordMailUsers(User user, ConfirmationToken newConfirmationToken ) {
+    public ResponseEntity<MessageResponseEntity<String>> sendResetPasswordMailUsers(User user, ConfirmationToken newConfirmationToken ) {
         String subject = messageSource.getMessage("password.reset.subject", null, LocaleContextHolder.getLocale());
         String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
         String message = messageSource.getMessage("password.reset.message", null, LocaleContextHolder.getLocale());
@@ -344,7 +344,7 @@ public class UserService {
 
 //-------------------------------------------------LOGOUT THE ACCOUNT---------------------------------------------------
     //LOGOUT METHOD
-    public ResponseEntity<Object> logout(HttpServletRequest request){
+    public ResponseEntity<MessageResponseEntity<String>> logout(HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null) {
             String tokenValue = authHeader.replace("Bearer", "").trim();
