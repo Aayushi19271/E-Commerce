@@ -30,11 +30,10 @@ public class ImageUploaderService {
     @Autowired
     @Qualifier("com.cloudinary.api_secret")
     String mApiSecret;
-    private static Logger logger = LoggerFactory.getLogger(ImageUploaderService.class);
 
 
     //upload User Images
-    public String uploadUserImage(MultipartFile multiPartFile, String imagePublicId)
+    public String uploadImage(MultipartFile multiPartFile, String imagePublicId)
             throws IOException {
 
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap("cloud_name", mCloudName, "api_key", mApiKey, "api_secret", mApiSecret));
@@ -47,34 +46,5 @@ public class ImageUploaderService {
         } catch (Exception e) {
             throw new IOException("Please try again Later!");
         }
-    }
-
-    //upload Product Variation Images
-    public HashSet<String> uploadProductVariationImage(List<MultipartFile> multipartFileList) {
-
-        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap("cloud_name", mCloudName, "api_key", mApiKey, "api_secret", mApiSecret));
-
-        List<Map> resultList = new ArrayList<>();
-        multipartFileList.forEach(multipartFile -> {
-
-            File file;
-            try {
-                file = Files.createTempFile("temp", multipartFile.getOriginalFilename()).toFile();
-                multipartFile.transferTo(file);
-                Map response = cloudinary.uploader().upload(file, ObjectUtils.asMap("public_id", multipartFile.getOriginalFilename(),
-                                                                                    "folder", "/E-commerce/profileImage"));
-                resultList.add(response);
-            }
-            catch (IOException e) {
-                logger.error(e.getMessage());
-            }
-        });
-
-        HashSet<String> imageApis = new HashSet<>();
-        resultList.forEach(response -> {
-            String imageApi = (String) response.get("url");
-            imageApis.add(imageApi);
-        });
-        return imageApis;
     }
 }

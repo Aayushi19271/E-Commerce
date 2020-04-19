@@ -7,8 +7,6 @@ import com.bootcamp.ECommerceApplication.dto.ProductDTO;
 import com.bootcamp.ECommerceApplication.dto.ProductVariationDTO;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.Category;
-import com.bootcamp.ECommerceApplication.entity.ProductVariation;
-import com.bootcamp.ECommerceApplication.exception.ProductNotFoundException;
 import com.bootcamp.ECommerceApplication.service.SellerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
@@ -159,7 +156,7 @@ public class SellerController {
 
     //List Details All Product Variation
     @GetMapping("/products/variations")
-    public ResponseEntity<MessageResponseEntity<List<ProductVariation>>>
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
                 listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
                                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                                             @RequestParam(defaultValue = "id") String sortBy){
@@ -174,25 +171,27 @@ public class SellerController {
             @Valid @RequestBody ProductVariationCO productVariationCO) {
         try {
             return sellerService.addProductVariation(productVariationCO);
-        } catch (ProductNotFoundException pe) {
-            throw pe;
-        } catch (JsonProcessingException jpe) {
+        }
+        catch (JsonProcessingException jpe) {
             return new ResponseEntity(new MessageResponseEntity<>("Something went wrong.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
         }
     }
 
 
-    //add variation of a product Image
-    @PostMapping(path = "/products/variations/images/{id}")
-    public ResponseEntity<MessageResponseEntity<String>> addProductVariationImages(@PathVariable(value = "id") Long id,
-                                                    List<MultipartFile> imageFiles) {
-        try {
-            return sellerService.addProductVariationImages(id, imageFiles);
-        } catch (ProductNotFoundException pe) {
-            throw pe;
-        } catch (IOException ioe) {
-            return new ResponseEntity(new MessageResponseEntity<>("Something went wrong.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
-        }
+    //Upload Product variation Image
+    @PostMapping(value = "/products/variations/image/{id}")
+    public ResponseEntity<MessageResponseEntity<String>> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
+                                                                            Principal principal,
+                                                                            @PathVariable(value = "id") Long id) {
+        String email = principal.getName();
+        return sellerService.uploadProductVariationImage(multipartFile, email,id);
+    }
+
+    //Get the Product variation Image
+    @GetMapping(value = "/products/variations/image/{id}")
+    public ResponseEntity<Object> getProfileImage(Principal principal,@PathVariable(value = "id") Long id) {
+        String email = principal.getName();
+        return sellerService.getProductVariationImage(email,id);
     }
 }
 

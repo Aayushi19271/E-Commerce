@@ -212,7 +212,7 @@ public class CustomerService {
     public ResponseEntity<Object> uploadProfileImage(MultipartFile multipartFile, String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         try {
-            String imageUri = imageUploaderService.uploadUserImage(multipartFile, email);
+            String imageUri = imageUploaderService.uploadImage(multipartFile, email);
             user.setProfileImage(imageUri);
             userRepository.save(user);
             return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);

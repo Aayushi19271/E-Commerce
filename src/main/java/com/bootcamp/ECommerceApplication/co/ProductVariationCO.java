@@ -7,16 +7,12 @@ import java.util.HashMap;
 public class ProductVariationCO {
 
     @NotNull(message = "Please provide product Id")
-    @NotBlank(message = "Please provide valid product Id")
     private Long productId;
     @NotNull(message = "Please provide Quantity Available")
-    @NotBlank(message = "Please provide valid Quantity Available")
     private Integer quantityAvailable;
     @NotNull(message = "Please provide  price")
-    @NotBlank(message = "Please provide valid  price")
     private Float price;
     @NotNull(message = "Please provide metadataHashmap")
-    @NotBlank(message = "Please provide valid metadataHashmap")
     private HashMap metadataHashmap;
 
     private boolean isActive;

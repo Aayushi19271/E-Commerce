@@ -288,50 +288,67 @@ public class Bootstrap implements ApplicationRunner {
         brand.setName("brand");
         categoryMetadataFieldRepository.save(brand);
 
+        CategoryMetadataField length = new CategoryMetadataField();
+        size.setName("length");
+        categoryMetadataFieldRepository.save(length);
+
+        CategoryMetadataField fabric = new CategoryMetadataField();
+        color.setName("fabric");
+        categoryMetadataFieldRepository.save(fabric);
+
+        CategoryMetadataField heelSize = new CategoryMetadataField();
+        brand.setName("Heel Size");
+        categoryMetadataFieldRepository.save(heelSize);
+
 //---------------ADD DATA TO CATEGORY METADATA FIELD VALUES TABLE------------------
 
         CategoryMetadataFieldValues categoryMetadataFieldValues = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues.setCategory(studyTable);
         categoryMetadataFieldValues.setCategoryMetadataField(color);
-        categoryMetadataFieldValues.setValue("Red,yellow,green");
+        categoryMetadataFieldValues.setValue("orange,white,brown");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
-
 
         CategoryMetadataFieldValues categoryMetadataFieldValues2 = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues2.setCategory(officeChair);
         categoryMetadataFieldValues2.setCategoryMetadataField(size);
-        categoryMetadataFieldValues2.setValue("large,small");
+        categoryMetadataFieldValues2.setValue("small,large");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues2);
 
         CategoryMetadataFieldValues categoryMetadataFieldValues3 = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues3.setCategory(officeTable);
         categoryMetadataFieldValues3.setCategoryMetadataField(brand);
-        categoryMetadataFieldValues3.setValue("brand1,brand2");
+        categoryMetadataFieldValues3.setValue("Wooden Street,Urban Ladder");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues3);
-
-
-//---------------ADD DATA TO CATEGORY METADATA FIELD VALUES TABLE--------------------
-
 
         CategoryMetadataFieldValues categoryMetadataFieldValues4 = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues4.setCategory(menShoes);
         categoryMetadataFieldValues4.setCategoryMetadataField(color);
-        categoryMetadataFieldValues4.setValue("Red,yellow,green");
+        categoryMetadataFieldValues4.setValue("black,brown");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues4);
 
+        CategoryMetadataFieldValues categoryMetadataFieldValues7 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues7.setCategory(menShoes);
+        categoryMetadataFieldValues7.setCategoryMetadataField(size);
+        categoryMetadataFieldValues7.setValue("8,8.5,9,9.5,10");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues7);
 
         CategoryMetadataFieldValues categoryMetadataFieldValues5 = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues5.setCategory(menShirts);
         categoryMetadataFieldValues5.setCategoryMetadataField(size);
-        categoryMetadataFieldValues5.setValue("large,small");
+        categoryMetadataFieldValues5.setValue("S,M,L,XL,XXL");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues5);
+
+        CategoryMetadataFieldValues categoryMetadataFieldValues8 = new CategoryMetadataFieldValues();
+        categoryMetadataFieldValues8.setCategory(menShirts);
+        categoryMetadataFieldValues8.setCategoryMetadataField(fabric);
+        categoryMetadataFieldValues8.setValue("fine cotton,linen");
+        categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues8);
 
         CategoryMetadataFieldValues categoryMetadataFieldValues6 = new CategoryMetadataFieldValues();
         categoryMetadataFieldValues6.setCategory(womenShoes);
         categoryMetadataFieldValues6.setCategoryMetadataField(brand);
-        categoryMetadataFieldValues6.setValue("brand1,brand2");
+        categoryMetadataFieldValues6.setValue("crocs,sparx,Puma");
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues6);
-
 
     }
 }

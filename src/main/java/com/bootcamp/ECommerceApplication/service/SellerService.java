@@ -15,7 +15,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +30,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -174,12 +172,12 @@ public class SellerService {
     public ResponseEntity<MessageResponseEntity<Object>> uploadProfileImage(MultipartFile multipartFile, String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         try {
-            String imageUri = imageUploaderService.uploadUserImage(multipartFile, email);
+            String imageUri = imageUploaderService.uploadImage(multipartFile, email);
             user.setProfileImage(imageUri);
             userRepository.save(user);
             return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST, "Try again"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -190,7 +188,7 @@ public class SellerService {
         if (user.getProfileImage() != null) {
             return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new MessageResponseEntity<>(HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
 
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
@@ -331,12 +329,12 @@ public class SellerService {
 
 
     //List Details All Product Variation
-    public ResponseEntity<MessageResponseEntity<List<ProductVariation>>>
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
     listAllProductVariation(String email, Integer pageNo, Integer pageSize, String sortBy) {
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<ProductVariation> pagedResult = productVariationRepository.findAll(paging,seller.getId());
-        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+        List<Map<Object, Object>> pagedResult = productVariationRepository.findAll(paging,seller.getId());
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
 
@@ -360,17 +358,45 @@ public class SellerService {
         return new ResponseEntity<>(new MessageResponseEntity<>(productVariationDTO, HttpStatus.CREATED), HttpStatus.CREATED);
     }
 
-    //Add product Image of a product variation
-    public ResponseEntity<MessageResponseEntity<String>> addProductVariationImages(Long id, List<MultipartFile> imageFiles) throws IOException {
-        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(id);
+    //Upload Product Variation Image
+    public ResponseEntity<MessageResponseEntity<String>> uploadProductVariationImage(MultipartFile multipartFile, String email, Long productVariationId) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        Long productVariationRepositoryId = productVariationRepository.findAllBySellerId(user.getId(), productVariationId);
+        if(productVariationRepositoryId==null)
+            throw new ProductNotFoundException("The Product Does Not Exist: "+productVariationId);
 
-        if (!optionalProductVariation.isPresent())
-            throw new ProductNotFoundException("The Product Variation Does Not Exist: "+id);
+        try {
+            String imageUri = imageUploaderService.uploadImage(multipartFile, email);
+            Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationRepositoryId);
+            if (optionalProductVariation.isPresent()) {
+                ProductVariation productVariation = optionalProductVariation.get();
+                productVariation.setPrimaryImageName(imageUri);
+                productVariationRepository.save(productVariation);
+                return new ResponseEntity<>(new MessageResponseEntity<>(imageUri, HttpStatus.CREATED), HttpStatus.CREATED);
+            }
+            else
+                throw new ProductNotFoundException("The Product Does Not Exist: "+productVariationId);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new MessageResponseEntity<>("Image Upload Failed.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+        }
+    }
 
-        ProductVariation productVariation = optionalProductVariation.get();
-        HashSet imageApis = imageUploaderService.uploadProductVariationImage(imageFiles);
-        productVariation.setPrimaryImageName(imageApis);
-        productVariationRepository.save(productVariation);
-        return new ResponseEntity<>(new MessageResponseEntity<>("Image Uploaded Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
+    //Get the Product Variation Image
+    public ResponseEntity<Object> getProductVariationImage(String email, Long productVariationId) {
+
+        User user = userRepository.findByEmailIgnoreCase(email);
+        Long productVariationRepositoryId = productVariationRepository.findAllBySellerId(user.getId(), productVariationId);
+        if(productVariationRepositoryId==null)
+            throw new ProductNotFoundException("The Product Does Not Exist: "+productVariationId);
+
+        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationRepositoryId);
+        if (optionalProductVariation.isPresent()) {
+            ProductVariation productVariation = optionalProductVariation.get();
+            if (productVariation.getPrimaryImageName() != null)
+                return new ResponseEntity<>(new MessageResponseEntity<>(productVariation.getPrimaryImageName(), HttpStatus.OK), HttpStatus.OK);
+            else
+                throw new ProductNotFoundException("The Product Does Not Exist: " + productVariationId);
+        }
+        return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
 }

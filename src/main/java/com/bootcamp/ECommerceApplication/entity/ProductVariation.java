@@ -3,11 +3,9 @@ package com.bootcamp.ECommerceApplication.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import javax.persistence.*;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 @Entity
@@ -26,7 +24,7 @@ public class ProductVariation {
     @Transient
     private HashMap metadataHashmap;
 
-    private HashSet<String> primaryImageName;
+    private String primaryImageName;
 
     @OneToMany(mappedBy = "productVariation")
     private List<OrderProduct> orderProducts;
@@ -64,11 +62,11 @@ public class ProductVariation {
         this.price = price;
     }
 
-    public HashSet<String> getPrimaryImageName() {
+    public String getPrimaryImageName() {
         return primaryImageName;
     }
 
-    public void setPrimaryImageName(HashSet<String> primaryImageName) {
+    public void setPrimaryImageName(String primaryImageName) {
         this.primaryImageName = primaryImageName;
     }
 
@@ -116,7 +114,7 @@ public class ProductVariation {
                 ", metadata='" + metadata + '\'' +
                 ", isActive=" + isActive +
                 ", metadataHashmap=" + metadataHashmap +
-                ", primaryImageName=" + primaryImageName +
+                ", primaryImageName='" + primaryImageName + '\'' +
                 ", orderProducts=" + orderProducts +
                 '}';
     }

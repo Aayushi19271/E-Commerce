@@ -33,6 +33,9 @@ public class User implements UserDetails {
     private String createdBy;
     private String updatedBy;
     private String profileImage;
+    private Integer falseAttemptCount = 0;
+
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
@@ -64,12 +67,12 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !isDeleted;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !isLocked;
     }
 
     @Override
@@ -207,6 +210,13 @@ public class User implements UserDetails {
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+    public Integer getFalseAttemptCount() {
+        return falseAttemptCount;
+    }
+
+    public void setFalseAttemptCount(Integer falseAttemptCount) {
+        this.falseAttemptCount = falseAttemptCount;
+    }
 
     @Override
     public String toString() {
@@ -217,6 +227,7 @@ public class User implements UserDetails {
                 ", middleName='" + middleName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", password='" + password + '\'' +
+                ", confirmPassword='" + confirmPassword + '\'' +
                 ", isDeleted=" + isDeleted +
                 ", isActive=" + isActive +
                 ", isLocked=" + isLocked +
@@ -224,6 +235,8 @@ public class User implements UserDetails {
                 ", lastUpdated=" + lastUpdated +
                 ", createdBy='" + createdBy + '\'' +
                 ", updatedBy='" + updatedBy + '\'' +
+                ", profileImage='" + profileImage + '\'' +
+                ", falseAttemptCount=" + falseAttemptCount +
                 ", roles=" + roles +
                 ", addresses=" + addresses +
                 ", confirmationToken=" + confirmationToken +
