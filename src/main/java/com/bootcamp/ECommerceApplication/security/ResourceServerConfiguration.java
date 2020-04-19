@@ -50,6 +50,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         http
                 .authorizeRequests()
                 .antMatchers("/").anonymous()
+                .antMatchers("/swagger-ui.html","/v2/api-docs").permitAll()
                 .antMatchers("/users/*").anonymous()
                 .antMatchers("/users/customers/*").anonymous()
                 .antMatchers("/users/reset-password/*").anonymous()

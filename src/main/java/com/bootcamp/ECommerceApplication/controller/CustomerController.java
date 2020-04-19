@@ -43,28 +43,28 @@ public class CustomerController {
     }
 
     //Change the LoggedIn Customer's Password And Send Mail Upon Change
-    @PatchMapping("/change-password")
+    @PatchMapping("/password/change")
     public ResponseEntity<Object> customerUpdatePassword(Principal principal,@RequestBody Map<Object,Object> fields) throws MessagingException {
         String email = principal.getName();
         return customerService.customerUpdatePassword(email,fields);
     }
 
     //Add the New Address to the LoggedIn Customer
-    @PostMapping("/add-address")
+    @PostMapping("/addresses")
     public ResponseEntity<Object> customerAddAddress(Principal principal, @Valid @RequestBody AddressCO addressCO){
         String email = principal.getName();
         return customerService.customerAddAddress(email,addressCO);
     }
 
     //Delete the already existing Address of the LoggedIn Customer
-    @DeleteMapping("/delete-address/{id}")
+    @DeleteMapping("/addresses/{id}")
     public ResponseEntity<Object> customerDeleteAddress(Principal principal, @PathVariable("id") Long id) {
         String email = principal.getName();
         return customerService.customerDeleteAddress(email,id);
     }
 
     //Update the already existing Address of LoggedIn Customer
-    @PatchMapping("/update-address/{id}")
+    @PatchMapping("/addresses/{id}")
     public ResponseEntity<Object> customerUpdateAddress(Principal principal,
                                                         @RequestBody Map<Object,Object> fields,
                                                         @PathVariable Long id){
@@ -73,21 +73,21 @@ public class CustomerController {
     }
 
     //Update the Profile of LoggedIn Customer
-    @PatchMapping("/update-profile")
+    @PatchMapping("/profile")
     public ResponseEntity<Object> customerUpdateProfile(Principal principal,@RequestBody Map<Object,Object> fields){
         String email = principal.getName();
         return customerService.customerUpdateProfile(email,fields);
     }
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
     //Upload Profile Image
-    @PostMapping(value = "/upload")
+    @PostMapping(value = "/profile/image")
     public ResponseEntity<Object> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile, Principal principal) {
         String email = principal.getName();
         return customerService.uploadProfileImage(multipartFile, email);
     }
 
     //Get the Profile Image
-    @GetMapping(value = "/profile-image")
+    @GetMapping(value = "/profile/image")
     public ResponseEntity<Object> getProfileImage(Principal principal) {
             String email = principal.getName();
             return customerService.getProfileImage(email);
@@ -96,13 +96,13 @@ public class CustomerController {
 //-------------------------------------------CUSTOMER CATEGORY API'S-----------------------------------------------------
 
     //list all Categories
-    @GetMapping({"/category/{id}","/category"})
+    @GetMapping({"/categories/{id}","/categories"})
     public ResponseEntity<Object> listAllCustomerCategories(@PathVariable(name = "id", required = false) Long id){
         return customerService.listAllCustomerCategories(id);
     }
 
     //API to fetch filtering details for a category
-    @GetMapping({"/category-filtering-details/{id}","/category-filtering-details"})
+    @GetMapping("/categories/filtering/{id}")
     public ResponseEntity<Object> getFilterDetails(@PathVariable(name = "id", required = false) Long id){
         return customerService.getFilterDetails(id);
     }

@@ -11,7 +11,6 @@ import java.util.Locale;
 
 @SpringBootApplication
 public class ECommerceApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(ECommerceApplication.class, args);
 	}
@@ -28,5 +27,4 @@ public class ECommerceApplication {
 		localeResolver.setDefaultLocale(Locale.US);
 		return localeResolver;
 	}
-
 }

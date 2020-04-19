@@ -3,35 +3,34 @@ package com.bootcamp.ECommerceApplication.repository;
 import com.bootcamp.ECommerceApplication.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 import java.util.Map;
 
-public interface ProductRepository extends CrudRepository<Product,Long> {
+public interface ProductRepository extends PagingAndSortingRepository<Product,Long> {
 
     @Query(value = "select * from product where brand=:brand AND category_id=:category AND seller_user_id=:seller",nativeQuery = true)
-    Product findOneProduct(String brand,Long category,Long seller);
+    Product findOneProductByCombination(String brand,Long category,Long seller);
 
     @Query(value = "select a.name AS ProductName,a.description,a.brand,a.is_cancellable,a.is_returnable,a.is_active,b.name AS CategoryName " +
             "FROM product a inner join category b " +
             "ON a.category_id = b.id " +
             "Where a.seller_user_id=:sellerId " +
-            "AND a.id=:productId",nativeQuery = true)
+            "AND a.id=:productId AND is_deleted=false",nativeQuery = true)
     List<Map<Object,Object>> listOneProduct(Long sellerId, Long productId);
 
     @Query(value = "select a.name AS ProductName,a.description,a.brand,a.is_cancellable,a.is_returnable,a.is_active,b.name AS CategoryName " +
             "FROM product a inner join category b " +
             "ON a.category_id = b.id " +
-            "Where a.seller_user_id=:sellerId",nativeQuery = true)
-    List<Map<Object,Object>> listAllProduct(Long sellerId);
+            "Where a.seller_user_id=:sellerId  AND is_deleted=false",nativeQuery = true)
+    List<Map<Object,Object>> listAllProduct(Long sellerId, Pageable paging);
 
 
-    @Modifying
-    @Query(value = "delete from product where id=:id",nativeQuery = true)
-    void deleteByProductID(Long id);
+    @Query(value = "select id from product where id=:productId AND seller_user_id=:sellerId  AND is_deleted=false ",nativeQuery = true)
+    Long findOneProduct(Long sellerId, Long productId);
+
 
 
     @Query(value = "select a.name AS ProductName,a.description,a.brand,a.is_cancellable,a.is_returnable,a.is_active As ProductActive," +

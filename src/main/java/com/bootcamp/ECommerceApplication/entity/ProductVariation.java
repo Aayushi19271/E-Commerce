@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.persistence.*;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 @Entity
@@ -25,12 +26,12 @@ public class ProductVariation {
     @Transient
     private HashMap metadataHashmap;
 
-    private String primaryImageName;
+    private HashSet<String> primaryImageName;
 
     @OneToMany(mappedBy = "productVariation")
     private List<OrderProduct> orderProducts;
 
-    
+
     public Long getId() {
         return id;
     }
@@ -63,20 +64,20 @@ public class ProductVariation {
         this.price = price;
     }
 
-    public String getPrimaryImageName() {
+    public HashSet<String> getPrimaryImageName() {
         return primaryImageName;
     }
 
-    public void setPrimaryImageName(String primaryImageName) {
+    public void setPrimaryImageName(HashSet<String> primaryImageName) {
         this.primaryImageName = primaryImageName;
     }
 
-    public List<OrderProduct> getOrderProducts() {
-        return orderProducts;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setOrderProducts(List<OrderProduct> orderProducts) {
-        this.orderProducts = orderProducts;
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public String getMetadata() {
@@ -96,21 +97,13 @@ public class ProductVariation {
     }
 
     public void jsonMetadataStringSerialize() throws JsonProcessingException {
-        ObjectMapper objectMapper= new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         this.metadata = objectMapper.writeValueAsString(metadataHashmap);
     }
 
     public void jsonMetadataStringDeserialize() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        metadataHashmap= objectMapper.readValue(this.metadata, HashMap.class);
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
+        metadataHashmap = objectMapper.readValue(this.metadata, HashMap.class);
     }
 
     @Override
@@ -121,8 +114,9 @@ public class ProductVariation {
                 ", quantityAvailable=" + quantityAvailable +
                 ", price=" + price +
                 ", metadata='" + metadata + '\'' +
+                ", isActive=" + isActive +
                 ", metadataHashmap=" + metadataHashmap +
-                ", primaryImageName='" + primaryImageName + '\'' +
+                ", primaryImageName=" + primaryImageName +
                 ", orderProducts=" + orderProducts +
                 '}';
     }

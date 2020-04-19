@@ -4,10 +4,13 @@ import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.AddressDTO;
+import com.bootcamp.ECommerceApplication.dto.ProductDTO;
+import com.bootcamp.ECommerceApplication.dto.ProductVariationDTO;
 import com.bootcamp.ECommerceApplication.dto.SellerDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -24,11 +27,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import javax.mail.MessagingException;
-import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -64,7 +68,7 @@ public class SellerService {
 //-------------------------------------------SELLER ACCOUNT API'S-------------------------------------------------------
 
     //Get the LoggedIn Seller's Profile Details
-    public ResponseEntity<Object> sellerProfile(String email)
+    public ResponseEntity<MessageResponseEntity<SellerDTO>> sellerProfile(String email)
     {
         Seller seller = (Seller) userRepository.findByEmailIgnoreCase(email);
         SellerDTO sellerDTO = converterService.convertToSellerDto(seller);
@@ -72,7 +76,7 @@ public class SellerService {
     }
 
     //Update the Profile of LoggedIn Seller
-    public ResponseEntity<Object> sellerUpdateProfile(String email, Map<Object,Object> fields)
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateProfile(String email, Map<Object,Object> fields)
     {
         Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
 
@@ -102,7 +106,7 @@ public class SellerService {
 
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
-    public ResponseEntity<Object> sellerUpdatePassword(String email,Map<Object,Object> fields) throws MessagingException {
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdatePassword(String email,Map<Object,Object> fields) throws MessagingException {
         User user=  userRepository.findByEmailIgnoreCase(email);
         fields.forEach((k, v) -> {
             Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
@@ -143,7 +147,7 @@ public class SellerService {
 
 
     //Update the already existing Address of LoggedIn Seller
-    public ResponseEntity<Object> sellerUpdateAddress(String email, Map<Object,Object> fields) {
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerUpdateAddress(String email, Map<Object,Object> fields) {
         Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
         List<Address> addresses = seller.getAddresses();
         Address address = addresses.get(0);
@@ -167,7 +171,7 @@ public class SellerService {
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
 
     //Upload Profile Image
-    public ResponseEntity<Object> uploadProfileImage(MultipartFile multipartFile, String email) {
+    public ResponseEntity<MessageResponseEntity<Object>> uploadProfileImage(MultipartFile multipartFile, String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         try {
             String imageUri = imageUploaderService.uploadUserImage(multipartFile, email);
@@ -181,7 +185,7 @@ public class SellerService {
 
 
     //Get the Profile Image
-    public ResponseEntity<Object> getProfileImage(String email) {
+    public ResponseEntity<MessageResponseEntity<Serializable>> getProfileImage(String email) {
         User user = userRepository.findByEmailIgnoreCase(email);
         if (user.getProfileImage() != null) {
             return new ResponseEntity<>(new MessageResponseEntity<>(user.getProfileImage(), HttpStatus.OK), HttpStatus.OK);
@@ -192,7 +196,7 @@ public class SellerService {
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
 
     //List All Category
-    public ResponseEntity<Object> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<Map<Category, Object>>> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
 
         Map<Category, Object> response = new HashMap<>();
@@ -208,88 +212,83 @@ public class SellerService {
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------
 
     //Add A Product
-    public ResponseEntity<Object> addProduct(ProductCO productCO, String email) throws MessagingException {
-            Long categoryId = productCO.getCategory();
-            String brand = productCO.getBrand();
-            Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-            Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-            Category category;
-            if(optionalCategory.isPresent())
-                category=optionalCategory.get();
-            else
-                throw new CategoryNotFoundException("The Category does not Exist."+productCO.getCategory());
-
-            Boolean leafNodeCategory = categoryRepository.findByCategoryLeafNode(categoryId);
-            Product savedProduct = productRepository.findOneProduct(brand,categoryId,seller.getId());
-            if(leafNodeCategory){
-                if(savedProduct==null){
-                    Product product = new Product();
-                    product.setActive(false);
-                    product.setBrand(brand);
-                    product.setName(productCO.getName());
-                    product.setCategory(category);
-                    product.setDescription(productCO.getDescription());
-                    product.setSeller(seller);
-                    productRepository.save(product);
-
-                    String subject = messageSource.getMessage("product.added.subject", null, LocaleContextHolder.getLocale());
-                    String message = messageSource.getMessage("product.added.message", null, LocaleContextHolder.getLocale());
-
-                    smtpMailSender.send("aayushithani@yahoo.in", subject, message+" "+product.getName());
-                    return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
-                }
-                else
-                    throw new ProductFoundException("Product already Exist Exception: "+productCO.getName());
-            }
-            throw new CategoryNotLeafNodeException("Category Not a Leaf Node Exception: "+productCO.getCategory());
-    }
-
-    //Fetch Details Of One Product
-    public ResponseEntity<Object> listOneProduct(String email, Long id) {
+    public ResponseEntity<MessageResponseEntity<ProductDTO>> addProduct(ProductCO productCO, String email) throws MessagingException {
+        Long categoryId = productCO.getCategory();
+        String brand = productCO.getBrand();
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        List<Map<Object, Object>> product = productRepository.listOneProduct(seller.getId(), id);
-        if(!product.isEmpty())
-            return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
+        Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+        Category category;
+        if (optionalCategory.isPresent())
+            category = optionalCategory.get();
         else
-            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+            throw new CategoryNotFoundException("The Category does not Exist." + productCO.getCategory());
+
+        Boolean leafNodeCategory = categoryRepository.findByCategoryLeafNode(categoryId);
+        Product savedProduct = productRepository.findOneProductByCombination(brand, categoryId, seller.getId());
+        if (leafNodeCategory) {
+            if (savedProduct == null) {
+                Product product = new Product();
+                ModelMapper mapper = new ModelMapper();
+                mapper.map(productCO, product);
+                product.setCategory(category);
+                product.setSeller(seller);
+                product.setCancellable(productCO.isCancellable());
+                product.setReturnable(productCO.isReturnable());
+                productRepository.save(product);
+
+                String subject = messageSource.getMessage("product.added.subject", null, LocaleContextHolder.getLocale());
+                String message = messageSource.getMessage("product.added.message", null, LocaleContextHolder.getLocale());
+                ProductDTO productDTO = converterService.convertToProductDTO(product);
+                smtpMailSender.send("aayushithani@yahoo.in", subject, message + " " + product.getName());
+                return new ResponseEntity<>(new MessageResponseEntity<>(productDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+            } else
+                throw new ProductFoundException("Product already Exist Exception: " + productCO.getName());
+        }
+        throw new CategoryNotLeafNodeException("Category Not a Leaf Node Exception: " + productCO.getCategory());
     }
 
-    //Fetch Details Of All Products
-    public ResponseEntity<Object> listAllProduct(String email) {
+    //Get Details Of One Product
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(String email, Long id) {
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        List<Map<Object, Object>> product = productRepository.listAllProduct(seller.getId());
+
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (!optionalProduct.isPresent())
+            throw new ProductNotFoundException("The Product Is Deleted: "+id);
+
+        List<Map<Object,Object>> savedProduct = productRepository.listOneProduct(seller.getId(), id);
+        if(savedProduct.isEmpty())
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+
+        return new ResponseEntity<>(new MessageResponseEntity<>(savedProduct, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    //Get Details Of All Products
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(String email,
+                                                                                           Integer pageNo,
+                                                                                           Integer pageSize,
+                                                                                           String sortBy) {
+
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+
+        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
+        List<Map<Object, Object>> product = productRepository.listAllProduct(seller.getId(),paging);
         if(!product.isEmpty())
             return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
         else
             throw new ProductNotFoundException("The Product Does Not Exist");
     }
 
-    //Fetch Details of One Product Variation
-    public ResponseEntity<Object> listOneProductVariation(String email, Long id) {
-        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        List<Map<Object, Object>> product = productVariationRepository.findOneProductVariationById(seller.getId(), id);
-        if(!product.isEmpty())
-            return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
-        else
-            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
-    }
-
-    //List Details All Product Variation
-    public List<ProductVariation> listAllProductVariation(String email, Integer pageNo, Integer pageSize, String sortBy) {
-        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<ProductVariation> pagedResult = productVariationRepository.findAll(paging,seller.getId());
-        return pagedResult.getContent();
-    }
-
-
     //Delete One Product
-    @Transactional
-    public ResponseEntity<Object> deleteOneProduct(String email, Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> deleteOneProduct(String email, Long id) {
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
-        List<Map<Object, Object>> product = productRepository.listOneProduct(seller.getId(), id);
-        if(!product.isEmpty()){
-            productRepository.deleteByProductID(id);
+        Long productId = productRepository.findOneProduct(seller.getId(), id);
+        if (productId==null)
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if(optionalProduct.isPresent()){
+            Product savedProduct = optionalProduct.get();
+            savedProduct.setDeleted(true);
+            productRepository.save(savedProduct);
             return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Deleted!", HttpStatus.OK), HttpStatus.OK);
         }
         else {
@@ -298,20 +297,80 @@ public class SellerService {
     }
 
     //Update One Product
-    public ResponseEntity<Object> updateOneProduct(String email, Long id, ProductUpdateCO productUpdateCO) {
+    public ResponseEntity<MessageResponseEntity<ProductDTO>> updateOneProduct(String email, Long id, ProductUpdateCO productUpdateCO) {
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
         Optional<Product> optionalProduct = productRepository.findById(id);
-        List<Map<Object, Object>> optionalSellerProduct = productRepository.listOneProduct(seller.getId(), id);
+        List<Map<Object,Object>> optionalSellerProduct = productRepository.listOneProduct(seller.getId(), id);
 
-        if(!optionalProduct.isPresent()) {
+        if(optionalProduct.isPresent()) {
             if (optionalSellerProduct.isEmpty())
                 throw new ProductNotFoundException("The Product Does Not Exist: "+id);
-            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
         }
+        else
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+
         Product product = optionalProduct.get();
         ModelMapper mapper = new ModelMapper();
         mapper.map(productUpdateCO,product);
         productRepository.save(product);
-        return new ResponseEntity<>(new MessageResponseEntity<>("Product Successfully Added!", HttpStatus.CREATED), HttpStatus.CREATED);
+        ProductDTO productDTO = converterService.convertToProductDTO(product);
+        return new ResponseEntity<>(new MessageResponseEntity<>(productDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+    }
+
+
+    //Fetch Details of One Product Variation
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProductVariation(String email, Long id) {
+        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
+        List<Map<Object, Object>> product = productVariationRepository.findOneProductVariationById(seller.getId(), id);
+        if(product.isEmpty())
+            throw new ProductNotFoundException("The Product Does Not Exist: "+id);
+
+        return new ResponseEntity<>(new MessageResponseEntity<>(product, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
+
+    //List Details All Product Variation
+    public ResponseEntity<MessageResponseEntity<List<ProductVariation>>>
+    listAllProductVariation(String email, Integer pageNo, Integer pageSize, String sortBy) {
+        Seller seller = sellerRepository.findByEmailIgnoreCase(email);
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        Page<ProductVariation> pagedResult = productVariationRepository.findAll(paging,seller.getId());
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+    }
+
+
+    //Add a product Variation
+    public ResponseEntity<MessageResponseEntity<ProductVariationDTO>> addProductVariation(
+            ProductVariationCO productVariationCO) throws JsonProcessingException {
+
+        Long productId = productVariationCO.getProductId();
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+
+        if (!optionalProduct.isPresent())
+            throw new ProductNotFoundException("The Product Does Not Exist: "+productId);
+
+
+        ProductVariation productVariation = new ProductVariation();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.map(productVariationCO, productVariation);
+        productVariation.jsonMetadataStringSerialize();
+        productVariationRepository.save(productVariation);
+        ProductVariationDTO productVariationDTO = converterService.convertToProductVariationDTO(productVariation);
+        return new ResponseEntity<>(new MessageResponseEntity<>(productVariationDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+    }
+
+    //Add product Image of a product variation
+    public ResponseEntity<MessageResponseEntity<String>> addProductVariationImages(Long id, List<MultipartFile> imageFiles) throws IOException {
+        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(id);
+
+        if (!optionalProductVariation.isPresent())
+            throw new ProductNotFoundException("The Product Variation Does Not Exist: "+id);
+
+        ProductVariation productVariation = optionalProductVariation.get();
+        HashSet imageApis = imageUploaderService.uploadProductVariationImage(imageFiles);
+        productVariation.setPrimaryImageName(imageApis);
+        productVariationRepository.save(productVariation);
+        return new ResponseEntity<>(new MessageResponseEntity<>("Image Uploaded Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
     }
 }

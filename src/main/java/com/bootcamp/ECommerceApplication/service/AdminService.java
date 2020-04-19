@@ -165,7 +165,7 @@ public class AdminService {
 //-------------------------------------------ADMIN CATEGORY API'S-------------------------------------------------------
 
 
-    //Admin Function to Add Category Metadata Field
+    //Admin Function to add a Metadata field
     public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldDTO>> addMetadataField(CategoryMetadataFieldCO categoryMetadataFieldCO) {
         CategoryMetadataField categoryMetadataField = converterService.convertToCategoryMetadataField(categoryMetadataFieldCO);
         String name = categoryMetadataField.getName();
@@ -182,7 +182,7 @@ public class AdminService {
     }
 
 
-    //Admin Function to List All Category Metadata Field
+    //Admin Function to view all Metadata fields
     public ResponseEntity<MessageResponseEntity<List<CategoryMetadataField>>> listAllMetadata(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         Page<CategoryMetadataField> metadataFieldsList = categoryMetadataFieldRepository.findAll(paging);
@@ -193,9 +193,9 @@ public class AdminService {
     //Admin Function to Add New Category
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(CategoryCO categoryCO) {
         Category savedCategory = categoryRepository.findByNameAndParent(categoryCO.getName(), categoryCO.getParentId());
-        if (savedCategory != null) {
+        if (savedCategory != null)
             throw new CategoryFoundException("Category Already Exists: "+categoryCO.getName());
-        }
+
 
         if(categoryCO.getParentId()==null){
             Category category = new Category();
@@ -241,8 +241,8 @@ public class AdminService {
             Category category = optionalCategory.get();
             List<Object> subCategory = categoryRepository.findAllChildrenAdmin(id);
 
-            response.put("Sub-categories".toUpperCase(), subCategory);
-            response.put("Category Details".toUpperCase(), category);
+            response.put("SUB-CATEGORY", subCategory);
+            response.put("ROOT-CATEGORY", category);
 
             return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
         }
@@ -254,9 +254,7 @@ public class AdminService {
         Optional<Category> optionalCategory = categoryRepository.findById(categoryUpdateCO.getId());
         if (optionalCategory.isPresent()) {
             Category savedCategory = optionalCategory.get();
-            Category oldCategory = categoryRepository
-                    .findByNameAndParent(categoryUpdateCO.getName(),
-                            savedCategory.getParent().getId());
+            Category oldCategory = categoryRepository.findByNameAndParent(categoryUpdateCO.getName(), savedCategory.getParent().getId());
 
             if (oldCategory != null)
                 throw new CategoryFoundException("Category with similar name already exists".toUpperCase());

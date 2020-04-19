@@ -9,11 +9,9 @@ import com.bootcamp.ECommerceApplication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -64,13 +62,13 @@ public class UserController {
 
 //--------------------------------------------------FORGOT PASSWORD METHOD'S--------------------------------------------
     //FORGOT PASSWORD REQUEST -API to receive a token based url
-    @PostMapping("/users/forgot-password")
+    @PostMapping("/users/password/forgot")
     public ResponseEntity<Object> sendPasswordResetLink(@RequestBody UserCO userCO) {
         return userService.sendPasswordResetLink(userCO);
     }
 
     //RESET THE PASSWORD -API to reset the password using the Token
-    @PatchMapping("/users/reset-password")
+    @PatchMapping("/users/password/reset")
     public ResponseEntity<Object> resetPassword(@RequestParam String token,@RequestBody Map<Object,Object> fields) {
         return userService.resetPassword(token,fields);
     }

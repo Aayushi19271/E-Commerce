@@ -264,7 +264,7 @@ public class UserService {
 
         try {
             smtpMailSender.send(user.getEmail(), subject, dear +" "+ user.getFirstName() + ", "+message +
-                            "http://localhost:8080/users/reset-password?token="
+                            "http://localhost:8080/users/password/reset?token="
                             + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());

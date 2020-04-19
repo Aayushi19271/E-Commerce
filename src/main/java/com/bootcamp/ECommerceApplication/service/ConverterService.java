@@ -77,4 +77,9 @@ public class ConverterService {
     public ProductDTO convertToProductDTO(Product product){ return modelMapper.map(product, ProductDTO.class); }
 
     public Product convertToProduct(ProductCO productCO){ return modelMapper.map(productCO,Product.class); }
+
+//------------------------------------------------Product CO/DTO-------------------------------------------------------
+    public ProductVariationDTO convertToProductVariationDTO(ProductVariation productVariation){ return modelMapper.map(productVariation, ProductVariationDTO.class); }
+
+    public ProductVariation convertToProductVariation(ProductVariationCO productVariationCO){ return modelMapper.map(productVariationCO,ProductVariation.class); }
 }

@@ -2,8 +2,15 @@ package com.bootcamp.ECommerceApplication.controller;
 
 import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
+import com.bootcamp.ECommerceApplication.dto.AddressDTO;
+import com.bootcamp.ECommerceApplication.dto.ProductDTO;
+import com.bootcamp.ECommerceApplication.dto.ProductVariationDTO;
+import com.bootcamp.ECommerceApplication.dto.SellerDTO;
+import com.bootcamp.ECommerceApplication.entity.Category;
 import com.bootcamp.ECommerceApplication.entity.ProductVariation;
+import com.bootcamp.ECommerceApplication.exception.ProductNotFoundException;
 import com.bootcamp.ECommerceApplication.service.SellerService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +42,16 @@ public class SellerController {
 
     //Get the LoggedIn Seller's Profile Details
     @GetMapping("/profile")
-    public ResponseEntity<Object> sellerProfile(Principal principal)
+    public ResponseEntity<MessageResponseEntity<SellerDTO>> sellerProfile(Principal principal)
     {
         String email = principal.getName();
         return sellerService.sellerProfile(email);
     }
 
     //Update the Profile of LoggedIn Seller
-    @PatchMapping("/update-profile")
-    public ResponseEntity<Object> sellerUpdateProfile(Principal principal,@RequestBody Map<Object,Object> fields)
+    @PatchMapping("/profile")
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateProfile(Principal principal,
+                                                                             @RequestBody Map<Object,Object> fields)
     {
         String email = principal.getName();
         return sellerService.sellerUpdateProfile(email,fields);
@@ -49,38 +59,43 @@ public class SellerController {
 
 
     //Update the LoggedIn Seller's Password And Send Mail Upon Change
-    @PatchMapping("/change-password")
-    public ResponseEntity<Object> sellerUpdatePassword(Principal principal,@RequestBody Map<Object,Object> fields) throws MessagingException {
+    @PatchMapping("/password/change")
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdatePassword(Principal principal,
+                                                                              @RequestBody Map<Object,Object> fields)
+                                                                              throws MessagingException {
         String email = principal.getName();
         return sellerService.sellerUpdatePassword(email,fields);
     }
 
     //Update the already existing Address of LoggedIn Seller
-    @PatchMapping("/update-address")
-    public ResponseEntity<Object> sellerUpdateAddress(Principal principal,@RequestBody Map<Object,Object> fields){
+    @PatchMapping("/addresses")
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerUpdateAddress(Principal principal,
+                                                                                 @RequestBody Map<Object,Object> fields){
         String email = principal.getName();
         return sellerService.sellerUpdateAddress(email,fields);
     }
 
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
     //Upload Profile Image
-    @PostMapping(value = "/upload")
-    public ResponseEntity<Object> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile, Principal principal) {
+    @PostMapping(value = "/profile/image")
+    public ResponseEntity<MessageResponseEntity<Object>> uploadProfileImage(@RequestParam(value = "upload", required = true)
+                                                                                        MultipartFile multipartFile,
+                                                                            Principal principal) {
         String email = principal.getName();
         return sellerService.uploadProfileImage(multipartFile, email);
     }
 
     //Get the Profile Image
-    @GetMapping(value = "/profile-image")
-    public ResponseEntity<Object> getProfileImage(Principal principal) {
+    @GetMapping(value = "/profile/image")
+    public ResponseEntity<MessageResponseEntity<Serializable>> getProfileImage(Principal principal) {
         String email = principal.getName();
         return sellerService.getProfileImage(email);
     }
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
 
     //List All Category
-    @GetMapping("/category")
-    public ResponseEntity<Object> listAllCategory(
+    @GetMapping("/categories")
+    public ResponseEntity<MessageResponseEntity<Map<Category, Object>>> listAllCategory(
             @RequestParam(defaultValue = "0") Integer pageNo,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(defaultValue = "id") String sortBy) {
@@ -91,56 +106,93 @@ public class SellerController {
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------
 
     //Add A Product
-    @PostMapping("/add-product")
-    public ResponseEntity<Object> addProduct(Principal principal,@Valid @RequestBody ProductCO productCO) throws MessagingException {
+    @PostMapping("/products")
+    public ResponseEntity<MessageResponseEntity<ProductDTO>> addProduct(Principal principal,
+                                                                        @Valid @RequestBody ProductCO productCO)
+                                                                    throws MessagingException {
         String email = principal.getName();
         return sellerService.addProduct(productCO,email);
     }
 
-    //Fetch Details Of One Product
+    //Get Details Of One Product
     @GetMapping("/products/{id}")
-    public ResponseEntity<Object> listOneProduct(Principal principal,@PathVariable Long id){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProduct(Principal principal,
+                                                                                           @PathVariable Long id){
         String email = principal.getName();
         return sellerService.listOneProduct(email,id);
     }
 
-    //Fetch Details Of One Product
+    //Get Details Of All Product
     @GetMapping("/products")
-    public ResponseEntity<Object> listAllProduct(Principal principal){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(Principal principal,
+                                                                                           @RequestParam(defaultValue = "0") Integer pageNo,
+                                                                                           @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                           @RequestParam(defaultValue = "id") String sortBy){
         String email = principal.getName();
-        return sellerService.listAllProduct(email);
+        return sellerService.listAllProduct(email,pageNo,pageSize,sortBy);
+    }
+
+    //Delete One Product
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<MessageResponseEntity<String>> deleteOneProduct(Principal principal,
+                                                                          @PathVariable Long id){
+        String email = principal.getName();
+        return sellerService.deleteOneProduct(email,id);
+    }
+
+    //Update One Product
+    @PutMapping("/products/{id}")
+    public ResponseEntity<MessageResponseEntity<ProductDTO>> updateOneProduct(Principal principal,
+                                                                              @PathVariable Long id,
+                                                                              @Valid @RequestBody ProductUpdateCO productUpdateCO){
+        String email = principal.getName();
+        return sellerService.updateOneProduct(email,id,productUpdateCO);
     }
 
     //List Details of One Product Variation
-    @GetMapping("/product-variations/{id}")
-    public ResponseEntity<Object> listOneProductVariation(Principal principal,@PathVariable Long id){
+    @GetMapping("/products/variations/{id}")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listOneProductVariation(Principal principal,
+                                                                                                    @PathVariable Long id){
         String email = principal.getName();
         return sellerService.listOneProductVariation(email,id);
     }
 
     //List Details All Product Variation
-    @GetMapping("/product-variations")
-    public ResponseEntity<Object> listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
-                                                  @RequestParam(defaultValue = "10") Integer pageSize,
-                                                  @RequestParam(defaultValue = "id") String sortBy){
+    @GetMapping("/products/variations")
+    public ResponseEntity<MessageResponseEntity<List<ProductVariation>>>
+                listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
+                                                            @RequestParam(defaultValue = "10") Integer pageSize,
+                                                            @RequestParam(defaultValue = "id") String sortBy){
 
         String email = principal.getName();
-        List<ProductVariation> list = sellerService.listAllProductVariation(email,pageNo,pageSize,sortBy);
-        return new ResponseEntity<>(new MessageResponseEntity<>(list, HttpStatus.OK), HttpStatus.OK);
+        return sellerService.listAllProductVariation(email,pageNo,pageSize,sortBy);
     }
 
-    //Delete One Product
-    @DeleteMapping("/delete-product/{id}")
-    public ResponseEntity<Object> deleteOneProduct(Principal principal,@PathVariable Long id){
-        String email = principal.getName();
-        return sellerService.deleteOneProduct(email,id);
+    //Add a product variation
+    @PostMapping("/products/variations")
+    public ResponseEntity<MessageResponseEntity<ProductVariationDTO>> addProductVariation(
+            @Valid @RequestBody ProductVariationCO productVariationCO) {
+        try {
+            return sellerService.addProductVariation(productVariationCO);
+        } catch (ProductNotFoundException pe) {
+            throw pe;
+        } catch (JsonProcessingException jpe) {
+            return new ResponseEntity(new MessageResponseEntity<>("Something went wrong.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+        }
     }
 
-    //Update One Product  --- NOT WORKING
-    @PutMapping("/update-product/{id}")
-    public ResponseEntity<Object> updateOneProduct(Principal principal, @PathVariable Long id, @Valid @RequestBody ProductUpdateCO productUpdateCO){
-        String email = principal.getName();
-        return sellerService.updateOneProduct(email,id,productUpdateCO);
+
+    //add variation of a product Image
+    @PostMapping(path = "/products/variations/images/{id}")
+    public ResponseEntity<MessageResponseEntity<String>> addProductVariationImages(@PathVariable(value = "id") Long id,
+                                                    List<MultipartFile> imageFiles) {
+        try {
+            return sellerService.addProductVariationImages(id, imageFiles);
+        } catch (ProductNotFoundException pe) {
+            throw pe;
+        } catch (IOException ioe) {
+            return new ResponseEntity(new MessageResponseEntity<>("Something went wrong.Try Again!", HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+        }
     }
 }
 

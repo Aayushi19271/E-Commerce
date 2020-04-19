@@ -1,25 +1,13 @@
 package com.bootcamp.ECommerceApplication.dto;
 
-import com.bootcamp.ECommerceApplication.entity.Category;
-import com.bootcamp.ECommerceApplication.entity.Seller;
-
 public class ProductDTO {
-    private Seller seller;
     private String name;
     private String description;
-    private Category category;
     private Boolean isCancellable;
     private Boolean isReturnable;
     private String brand;
     private Boolean isActive;
 
-    public Seller getSeller() {
-        return seller;
-    }
-
-    public void setSeller(Seller seller) {
-        this.seller = seller;
-    }
 
     public String getName() {
         return name;
@@ -35,14 +23,6 @@ public class ProductDTO {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
     }
 
     public Boolean getCancellable() {

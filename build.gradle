@@ -35,6 +35,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.7'
 	compile group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.25.0'
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 }
 
 test {

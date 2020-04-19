@@ -1,6 +1,8 @@
 package com.bootcamp.ECommerceApplication.co;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +12,10 @@ public class ProductCO {
     @NotBlank(message = "Please provide valid Name")
     private String name;
     private String description;
+    @JsonProperty
+    private boolean isCancellable=false;
+    @JsonProperty
+    private boolean isReturnable=false;
 
     @NotNull(message = "Please provide Category")
     private Long category;
@@ -34,6 +40,22 @@ public class ProductCO {
         this.description = description;
     }
 
+    public boolean isCancellable() {
+        return isCancellable;
+    }
+
+    public void setCancellable(boolean cancellable) {
+        isCancellable = cancellable;
+    }
+
+    public boolean isReturnable() {
+        return isReturnable;
+    }
+
+    public void setReturnable(boolean returnable) {
+        isReturnable = returnable;
+    }
+
     public Long getCategory() {
         return category;
     }
@@ -55,6 +77,8 @@ public class ProductCO {
         return "ProductCO{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", isCancellable=" + isCancellable +
+                ", isReturnable=" + isReturnable +
                 ", category=" + category +
                 ", brand='" + brand + '\'' +
                 '}';

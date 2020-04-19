@@ -20,10 +20,11 @@ public class Product {
     @JoinColumn(name="categoryId")
     private Category category;
 
-    private Boolean isCancellable=false;
-    private Boolean isReturnable=false;
+    private boolean isCancellable=false;
+    private boolean isReturnable=false;
     private String brand;
-    private Boolean isActive;
+    private Boolean isActive=false;
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     List<ProductVariation> productVariations;
@@ -71,19 +72,19 @@ public class Product {
         this.category = category;
     }
 
-    public Boolean getCancellable() {
+    public boolean isCancellable() {
         return isCancellable;
     }
 
-    public void setCancellable(Boolean cancellable) {
+    public void setCancellable(boolean cancellable) {
         isCancellable = cancellable;
     }
 
-    public Boolean getReturnable() {
+    public boolean isReturnable() {
         return isReturnable;
     }
 
-    public void setReturnable(Boolean returnable) {
+    public void setReturnable(boolean returnable) {
         isReturnable = returnable;
     }
 
@@ -101,6 +102,14 @@ public class Product {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public List<ProductVariation> getProductVariations() {
@@ -131,6 +140,7 @@ public class Product {
                 ", isReturnable=" + isReturnable +
                 ", brand='" + brand + '\'' +
                 ", isActive=" + isActive +
+                ", isDeleted=" + isDeleted +
                 ", productVariations=" + productVariations +
                 ", productReviews=" + productReviews +
                 '}';

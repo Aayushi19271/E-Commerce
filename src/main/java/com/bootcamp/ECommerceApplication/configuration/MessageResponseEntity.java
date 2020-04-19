@@ -15,6 +15,7 @@ public class MessageResponseEntity<T> {
     public MessageResponseEntity(T data, HttpStatus statusCode) {
         this(statusCode, "SUCCESS");
         this.data = data;
+        this.status=true;
     }
 
     public MessageResponseEntity(T data, HttpStatus statusCode, String message) {

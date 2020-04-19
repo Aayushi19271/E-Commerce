@@ -37,13 +37,13 @@ public class AdminController {
 
 //-----------------------------------------------GET USERS--------------------------------------------------------------
     //GET THE LIST OF USERS
-    @GetMapping
+    @GetMapping("/admin/users")
     public List<User> listOfUsers() {
         return adminService.findAllUsers();
     }
 
     //GET A SINGLE USER
-    @GetMapping("/admin/{id}")
+    @GetMapping("/admin/users/{id}")
     public User retrieveCustomer(@PathVariable Long id)
     {
         User user = adminService.getUser(id);
@@ -112,14 +112,14 @@ public class AdminController {
 
 //-------------------------------------------ADMIN CATEGORY API'S-------------------------------------------------------
 
-    //Admin Function to Add Category Metadata Field
-    @PostMapping("/admin/add-metadata-field")
+    //Admin Function to add a Metadata field
+    @PostMapping("/admin/metadata-field")
     public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldDTO>>
     addMetadataField(@Valid @RequestBody CategoryMetadataFieldCO categoryMetadataFieldCO){
         return adminService.addMetadataField(categoryMetadataFieldCO);
     }
 
-    //Admin Function to List All Category Metadata Field
+    //Admin Function to view all Metadata fields
     @GetMapping("/admin/metadata-fields")
     public ResponseEntity<MessageResponseEntity<List<CategoryMetadataField>>>
     listAllMetadata(@RequestParam(defaultValue = "0") Integer pageNo,
@@ -130,20 +130,20 @@ public class AdminController {
     }
 
     //Admin Function to Add New Category
-    @PostMapping("/admin/add-category")
+    @PostMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(@Valid @RequestBody CategoryCO categoryCO){
         return adminService.addCategory(categoryCO);
     }
 
     //Admin Function to List One Category
-    @GetMapping("/admin/category/{id}")
+    @GetMapping("/admin/categories/{id}")
     public ResponseEntity<MessageResponseEntity<Map<String, Object>>> listOneCategory(@PathVariable Long id){
         return adminService.listOneCategory(id);
     }
 
 
     //Admin Function to list All Category
-    @GetMapping("/admin/category")
+    @GetMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<List<Category>>> listAllCategory(@RequestParam(defaultValue = "0") Integer pageNo,
                                                                                  @RequestParam(defaultValue = "10") Integer pageSize,
                                                                                  @RequestParam(defaultValue = "id") String sortBy){
@@ -152,19 +152,19 @@ public class AdminController {
     }
 
     //Admin Function to Update One Category
-    @PutMapping("/admin/update-category")
+    @PutMapping("/admin/categories")
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> updateCategory(@Valid @RequestBody CategoryUpdateCO categoryUpdateCO){
         return adminService.updateCategory(categoryUpdateCO);
     }
 
     //Admin Function to Add Metadata Field Values
-    @PostMapping("/admin/add-metadata-field-value")
+    @PostMapping("/admin/metadata-field-values")
     public ResponseEntity<MessageResponseEntity<String>> addMetadataFieldValues(@Valid @RequestBody CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO){
         return adminService.addMetadataFieldValues(categoryMetadataFieldValuesCO);
     }
 
     //Admin Function to Update Metadata Field Values
-    @PutMapping("/admin/update-metadata-field-value")
+    @PutMapping("/admin/metadata-field-values")
     public ResponseEntity<MessageResponseEntity<CategoryMetadataFieldValuesCO>>
     updateMetadataFieldValues(@Valid @RequestBody CategoryMetadataFieldValuesCO categoryMetadataFieldValuesCO){
         return adminService.updateMetadataFieldValues(categoryMetadataFieldValuesCO);
