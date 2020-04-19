@@ -47,6 +47,8 @@ public class AdminService {
     @Autowired
     private ProductRepository productRepository;
     @Autowired
+    private ProductVariationRepository productVariationRepository;
+    @Autowired
     private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
     @Autowired
     private MessageSource messageSource;
@@ -358,12 +360,12 @@ public class AdminService {
     }
 
     //Admin Function to list All products
-    public ResponseEntity<MessageResponseEntity<List<Product>>> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Product> pagedResult = productRepository.listAllProductAdmin(paging);
+        List<Map<Object,Object>> pagedResult = productRepository.listAllProductAdmin(paging);
         if (pagedResult.isEmpty())
             throw new ProductNotFoundException("Product Not Found");
-        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
     //Admin Function to Activate A Product
@@ -421,5 +423,19 @@ public class AdminService {
         }
         else
             throw new ProductDeactiveException(" Product Already De-activated: "+id);
+    }
+
+    //Get the Product variation Image
+    public ResponseEntity<Object> getProductVariationImage(Long productVariationId) {
+
+        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationId);
+        if (optionalProductVariation.isPresent()) {
+            ProductVariation productVariation = optionalProductVariation.get();
+            if (productVariation.getPrimaryImageName() != null)
+                return new ResponseEntity<>(new MessageResponseEntity<>(productVariation.getPrimaryImageName(), HttpStatus.OK), HttpStatus.OK);
+            else
+                throw new ProductNotFoundException("The Product Does Not Exist: " + productVariationId);
+        }
+        return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
 }

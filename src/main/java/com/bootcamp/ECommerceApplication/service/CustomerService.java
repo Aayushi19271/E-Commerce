@@ -9,6 +9,7 @@ import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.AddressNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.CategoryNotFoundException;
 import com.bootcamp.ECommerceApplication.exception.PasswordDoesNotMatchException;
+import com.bootcamp.ECommerceApplication.exception.ProductNotFoundException;
 import com.bootcamp.ECommerceApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -53,6 +54,8 @@ public class CustomerService {
     private CategoryMetadataFieldValuesRepository categoryMetadataFieldValuesRepository;
     @Autowired
     private ImageUploaderService imageUploaderService;
+    @Autowired
+    private ProductVariationRepository productVariationRepository;
     @Autowired
     private MessageSource messageSource;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -280,7 +283,22 @@ public class CustomerService {
     //Customer Function to view all products
     public ResponseEntity<Object> listAllProducts(Integer pageNo, Integer pageSize, String sortBy, Long id) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Product> pagedResult = productRepository.listAllProductCustomer(paging,id);
-        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult.getContent(), HttpStatus.OK), HttpStatus.OK);
+        List<Map<Object,Object>> pagedResult = productRepository.listAllProductCustomer(paging,id);
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
+    //Get the Product variation Image
+    public ResponseEntity<Object> getProductVariationImage(Long productVariationId) {
+
+        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationId);
+        if (optionalProductVariation.isPresent()) {
+            ProductVariation productVariation = optionalProductVariation.get();
+            if (productVariation.getPrimaryImageName() != null)
+                return new ResponseEntity<>(new MessageResponseEntity<>(productVariation.getPrimaryImageName(), HttpStatus.OK), HttpStatus.OK);
+            else
+                throw new ProductNotFoundException("The Product Does Not Exist: " + productVariationId);
+        }
+        return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
 }

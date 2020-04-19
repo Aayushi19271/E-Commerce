@@ -179,9 +179,9 @@ public class AdminController {
 
     //Admin Function to list All Category
     @GetMapping("/admin/products")
-    public ResponseEntity<MessageResponseEntity<List<Product>>> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
-                                                                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                                                                @RequestParam(defaultValue = "id") String sortBy){
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
+                                                                                            @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                            @RequestParam(defaultValue = "id") String sortBy){
 
         return adminService.listAllProducts(pageNo,pageSize,sortBy);
     }
@@ -196,6 +196,12 @@ public class AdminController {
     @PutMapping("/admin/products/deactivate/{id}")
     public ResponseEntity<MessageResponseEntity<String>> deactivateProduct(@PathVariable Long id){
         return adminService.deactivateProduct(id);
+    }
+
+    //Get the Product variation Image
+    @GetMapping(value = "/admin/products/variations/image/{id}")
+    public ResponseEntity<Object> getProductVariationImage(@PathVariable(value = "id") Long id) {
+        return adminService.getProductVariationImage(id);
     }
 
 }

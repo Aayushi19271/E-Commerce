@@ -180,19 +180,30 @@ public class SellerController {
 
     //Upload Product variation Image
     @PostMapping(value = "/products/variations/image/{id}")
-    public ResponseEntity<MessageResponseEntity<String>> uploadProfileImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
-                                                                            Principal principal,
-                                                                            @PathVariable(value = "id") Long id) {
+    public ResponseEntity<MessageResponseEntity<String>> uploadProductVariationImage(@RequestParam(value = "upload", required = true) MultipartFile multipartFile,
+                                                                                    Principal principal,
+                                                                                    @PathVariable(value = "id") Long id) {
         String email = principal.getName();
         return sellerService.uploadProductVariationImage(multipartFile, email,id);
     }
 
     //Get the Product variation Image
     @GetMapping(value = "/products/variations/image/{id}")
-    public ResponseEntity<Object> getProfileImage(Principal principal,@PathVariable(value = "id") Long id) {
+    public ResponseEntity<Object> getProductVariationImage(Principal principal,@PathVariable(value = "id") Long id) {
         String email = principal.getName();
         return sellerService.getProductVariationImage(email,id);
     }
+
+    //Update the product Variation
+    @PatchMapping("/products/variations/{id}")
+    public ResponseEntity<Object> updateProductVariation(Principal principal,
+                                                        @RequestBody Map<Object,Object> fields,
+                                                        @PathVariable(value = "id") Long productVariationId){
+        String email = principal.getName();
+        return sellerService.updateProductVariation(email,fields,productVariationId);
+    }
+
+
 }
 
 

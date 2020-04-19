@@ -3,10 +3,7 @@ package com.bootcamp.ECommerceApplication.service;
 import com.bootcamp.ECommerceApplication.co.*;
 import com.bootcamp.ECommerceApplication.component.SmtpMailSender;
 import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
-import com.bootcamp.ECommerceApplication.dto.AddressDTO;
-import com.bootcamp.ECommerceApplication.dto.ProductDTO;
-import com.bootcamp.ECommerceApplication.dto.ProductVariationDTO;
-import com.bootcamp.ECommerceApplication.dto.SellerDTO;
+import com.bootcamp.ECommerceApplication.dto.*;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
 import com.bootcamp.ECommerceApplication.repository.*;
@@ -399,4 +396,41 @@ public class SellerService {
         }
         return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
+
+    //Update the product Variation
+    public ResponseEntity<Object> updateProductVariation(String email, Map<Object, Object> fields, Long productVariationId) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        Long productVariationRepositoryId = productVariationRepository.findAllBySellerId(user.getId(), productVariationId);
+        if(productVariationRepositoryId==null)
+            throw new ProductNotFoundException("The Product Does Not Exist: "+productVariationId);
+
+        Optional<ProductVariation> optionalProductVariation = productVariationRepository.findById(productVariationRepositoryId);
+        if (optionalProductVariation.isPresent()) {
+            ProductVariation productVariation = optionalProductVariation.get();
+
+            fields.forEach((k, v) -> {
+                Field field = ReflectionUtils.findRequiredField(ProductVariation.class, (String)k);
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, productVariation, v);
+            });
+            ProductVariationUpdateCO productVariationCO = converterService.convertToProductVariationCO(productVariation);
+
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<ProductVariationUpdateCO>> violations = validator.validate(productVariationCO);
+
+            final List<String> errors = new ArrayList<>();
+            for (ConstraintViolation<ProductVariationUpdateCO> violation : violations) {
+                errors.add(violation.getMessage());
+            }
+
+            if (!errors.isEmpty())
+                return new ResponseEntity<>(new MessageResponseEntity<>(errors, HttpStatus.BAD_REQUEST,null), HttpStatus.BAD_REQUEST);
+            productVariationRepository.save(productVariation);
+            ProductVariationDTO productVariationDTO = converterService.convertToProductVariationDTO(productVariation);
+            return new ResponseEntity<>(new MessageResponseEntity<>(productVariationDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+        }
+        throw new ProductNotFoundException("The Product Does Not Exist: " + productVariationId);
+    }
+
 }

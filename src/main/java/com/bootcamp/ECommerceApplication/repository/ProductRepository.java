@@ -51,7 +51,7 @@ public interface ProductRepository extends PagingAndSortingRepository<Product,Lo
             "ON b.product_id=a.id " +
             "INNER JOIN category c " +
             "ON a.category_id=c.id",nativeQuery = true)
-    Page<Product> listAllProductAdmin(Pageable paging);
+    List<Map<Object,Object>> listAllProductAdmin(Pageable paging);
 
 
     @Query(value = "select a.name AS ProductName,a.description,a.brand,a.is_cancellable,a.is_returnable,a.is_active As ProductActive," +
@@ -74,7 +74,7 @@ public interface ProductRepository extends PagingAndSortingRepository<Product,Lo
             "INNER JOIN category c " +
             "ON a.category_id=c.id " +
             "WHERE c.leaf_node=true AND c.id=:id",nativeQuery = true)
-    Page<Product> listAllProductCustomer(Pageable paging, Long id);
+    List<Map<Object,Object>> listAllProductCustomer(Pageable paging, Long id);
 
     @Query(value = "select brand from product where category_id=:id", nativeQuery = true)
     List<Object> findAllBrandsByCategoryId(Long id);

@@ -11,7 +11,7 @@ public class ProductVariationCO {
     @NotNull(message = "Please provide Quantity Available")
     private Integer quantityAvailable;
     @NotNull(message = "Please provide  price")
-    private Float price;
+    private Double price;
     @NotNull(message = "Please provide metadataHashmap")
     private HashMap metadataHashmap;
 
@@ -33,11 +33,11 @@ public class ProductVariationCO {
         this.quantityAvailable = quantityAvailable;
     }
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

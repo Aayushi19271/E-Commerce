@@ -15,6 +15,9 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableAuthorizationServer
@@ -25,6 +28,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Autowired
     AuthenticationManager authenticationManager;
+
+    @Autowired
+    DataSource dataSource;
 
     @Autowired
     UserDetailsService userDetailsService;
@@ -47,11 +53,12 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints.tokenStore(tokenStore()).userDetailsService(userDetailsService)
                 .authenticationManager(authenticationManager);
+
     }
 
     @Bean
-    public TokenStore tokenStore() {
-        return new InMemoryTokenStore();
+    public JdbcTokenStore tokenStore() {
+        return new JdbcTokenStore(dataSource);
     }
 
     @Override
@@ -72,4 +79,25 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         authorizationServerSecurityConfigurer.checkTokenAccess("permitAll()");
 
     }
+
+//
+//    @Bean
+//    @Primary
+//    DefaultTokenServices tokenServices() {
+//        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+//        defaultTokenServices.setTokenStore(tokenStore());
+//        defaultTokenServices.setSupportRefreshToken(true);
+//        return defaultTokenServices;
+//    }
+//
+//    @Override
+//    public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
+//        endpoints.tokenStore(tokenStore()).userDetailsService(userDetailsService)
+//                .authenticationManager(authenticationManager);
+//    }
+//
+//    @Bean
+//    public TokenStore tokenStore() {
+//        return new InMemoryTokenStore();
+//    }
 }

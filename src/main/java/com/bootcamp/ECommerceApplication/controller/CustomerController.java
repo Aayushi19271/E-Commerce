@@ -126,6 +126,9 @@ public class CustomerController {
         return customerService.listAllProducts(pageNo,pageSize,sortBy,id);
     }
 
-
-
+    //Get the Product variation Image
+    @GetMapping(value = "/products/variations/image/{id}")
+    public ResponseEntity<Object> getProductVariationImage(@PathVariable(value = "id") Long id) {
+        return customerService.getProductVariationImage(id);
+    }
 }
