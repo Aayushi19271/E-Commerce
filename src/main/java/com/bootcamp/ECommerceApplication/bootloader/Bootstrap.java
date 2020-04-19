@@ -289,15 +289,15 @@ public class Bootstrap implements ApplicationRunner {
         categoryMetadataFieldRepository.save(brand);
 
         CategoryMetadataField length = new CategoryMetadataField();
-        size.setName("length");
+        length.setName("length");
         categoryMetadataFieldRepository.save(length);
 
         CategoryMetadataField fabric = new CategoryMetadataField();
-        color.setName("fabric");
+        fabric.setName("fabric");
         categoryMetadataFieldRepository.save(fabric);
 
         CategoryMetadataField heelSize = new CategoryMetadataField();
-        brand.setName("Heel Size");
+        heelSize.setName("Heel Size");
         categoryMetadataFieldRepository.save(heelSize);
 
 //---------------ADD DATA TO CATEGORY METADATA FIELD VALUES TABLE------------------

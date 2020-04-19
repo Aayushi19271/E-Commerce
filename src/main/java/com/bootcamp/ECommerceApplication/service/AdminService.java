@@ -95,7 +95,11 @@ public class AdminService {
     //FIND A USER
     public User getUser(Long id) {
         Optional<User> userOptional = userRepository.findById(id);
-        return userOptional.orElse(null);
+        if (!userOptional.isPresent())
+            throw new UserNotFoundException("User Not Found!");
+        else{
+            return userOptional.get();
+        }
     }
 
     //SAVE THE USER
@@ -140,6 +144,7 @@ public class AdminService {
     public ResponseEntity<MessageResponseEntity<String>> deactivateAccount(Long id, Map<Object,Object> fields) throws MessagingException {
         User user = getUser(id);
         boolean flag = user.isActive();
+
         if (flag) {
             fields.forEach((k, v) -> {
                 Field field = ReflectionUtils.findRequiredField(User.class, (String) k);
