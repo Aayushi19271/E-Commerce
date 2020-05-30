@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.web.session.SessionManagementFilter;
 
 @Configuration
 @EnableResourceServer
@@ -25,6 +26,11 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     public ResourceServerConfiguration() {
         super();
+    }
+
+    @Bean
+    CorsFilter corsFilter() {
+        return new CorsFilter();
     }
 
     @Bean
@@ -48,6 +54,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Override
     public void configure(final HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(corsFilter(), SessionManagementFilter.class)
                 .authorizeRequests()
                 .antMatchers("/").anonymous()
                 .antMatchers("/swagger-ui.html","/v2/api-docs").permitAll()
