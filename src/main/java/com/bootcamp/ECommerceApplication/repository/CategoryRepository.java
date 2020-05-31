@@ -32,4 +32,7 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
 
     @Query(value = "select id, name, leaf_node from category where parent_id=:id", nativeQuery = true)
     List<Object> findAllChildrenAdmin(Long id);
+
+    @Query(value="select id,name from category where leaf_node=false", nativeQuery = true)
+    List<Map<Object, Object>> findAllRootCategories();
 }

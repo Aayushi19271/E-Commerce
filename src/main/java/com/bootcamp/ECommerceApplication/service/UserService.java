@@ -6,10 +6,7 @@ import com.bootcamp.ECommerceApplication.configuration.MessageResponseEntity;
 import com.bootcamp.ECommerceApplication.dto.UserDTO;
 import com.bootcamp.ECommerceApplication.entity.*;
 import com.bootcamp.ECommerceApplication.exception.*;
-import com.bootcamp.ECommerceApplication.repository.ConfirmationTokenRepository;
-import com.bootcamp.ECommerceApplication.repository.CustomerRepository;
-import com.bootcamp.ECommerceApplication.repository.RoleRepository;
-import com.bootcamp.ECommerceApplication.repository.UserRepository;
+import com.bootcamp.ECommerceApplication.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -52,6 +49,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductVariationRepository productVariationRepository;
 
 
 //------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
@@ -352,5 +353,23 @@ public class UserService {
             tokenStore.removeAccessToken(accessToken);
         }
         return new ResponseEntity<>(new MessageResponseEntity<>("Logout Successful!", HttpStatus.OK), HttpStatus.OK);
+    }
+
+    //---------------------------------------VIEW ALL CATEGORIES AND PRODUCT VARITIONS--------------------------------------
+
+    public List<Map<Object, Object>> getRootCategories() {
+        return categoryRepository.findAllRootCategories();
+    }
+
+    public List<Map<Object, Object>> getProductVariations(Long categoryID) {
+        return productVariationRepository.findProductVariationByCategoryID(categoryID);
+    }
+
+    public List<Map<Object, Object>> getAllProductVariations() {
+        return productVariationRepository.findAllProductVariation();
+    }
+
+    public List<Map<Object, Object>> getOneProductVariation(Long id) {
+        return productVariationRepository.findOneProductVariation(id);
     }
 }

@@ -60,6 +60,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/swagger-ui.html","/v2/api-docs").permitAll()
                 .antMatchers("/users/*").anonymous()
                 .antMatchers("/users/customers/confirm-account/*","/users/password/*").anonymous()
+                .antMatchers("/users/categories/*").permitAll()
+                .antMatchers("/users/products/*").permitAll()
                 .antMatchers("/users/customers/*").anonymous()
                 .antMatchers("/users/reset-password/*").anonymous()
                 .antMatchers("/admin/*").hasAnyRole("ADMIN")

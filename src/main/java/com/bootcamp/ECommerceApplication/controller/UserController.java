@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 @ApiModel(description = "User Controller Class")
@@ -82,6 +83,29 @@ public class UserController {
                                                 @RequestBody Map<Object,Object> fields) {
         return userService.resetPassword(token,fields);
     }
+
+//---------------------------------------VIEW ALL CATEGORIES AND PRODUCT VARIATIONS--------------------------------------
+
+    @GetMapping(value={"/users/categories"})
+    public List<Map<Object, Object>> getRootCategories(){
+        return userService.getRootCategories();
+    }
+
+    @GetMapping(value={"/users/categories/{categoryID}"})
+    public List<Map<Object, Object>> getProductVariations(@PathVariable Long categoryID ){
+        return userService.getProductVariations(categoryID);
+    }
+
+    @GetMapping(value={"/users/products"})
+    public List<Map<Object, Object>> getAllProductVariations(){
+        return userService.getAllProductVariations();
+    }
+
+    @GetMapping(value={"/users/products/{id}"})
+    public List<Map<Object, Object>> getOneProductVariation(@PathVariable Long id){
+        return userService.getOneProductVariation(id);
+    }
+
 
 //--------------------------------------------------LOGOUT METHOD'S-----------------------------------------------------
     @ApiOperation(value = "API to display Main Welcome page")
