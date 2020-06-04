@@ -48,6 +48,13 @@ public class SellerController {
         return sellerService.sellerProfile(email);
     }
 
+    @ApiOperation(value = "API to view my Address")
+    @GetMapping("/address")
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerAddress(Principal principal) {
+        String email = principal.getName();
+        return sellerService.sellerAddress(email);
+    }
+
     @ApiOperation(value = "API to update my profile")
     @PatchMapping("/profile")
     public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateProfile(Principal principal,

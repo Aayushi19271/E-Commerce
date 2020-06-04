@@ -70,6 +70,15 @@ public class SellerService {
         return new ResponseEntity<>(new MessageResponseEntity<>(sellerDTO, HttpStatus.OK), HttpStatus.OK);
     }
 
+    //Get the LoggedIn Seller's Address Details
+    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerAddress(String email) {
+        Seller seller = (Seller) userRepository.findByEmailIgnoreCase(email);
+        Long sellerId = seller.getId();
+        Address address = addressRepository.ListByAddressID(sellerId);
+        AddressDTO addressDTO = converterService.convertToAddressDto(address);
+        return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.OK), HttpStatus.OK);
+    }
+
     //Update the Profile of LoggedIn Seller
     public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateProfile(String email, Map<Object,Object> fields)
     {
@@ -432,5 +441,6 @@ public class SellerService {
         }
         throw new ProductNotFoundException("The Product Does Not Exist: " + productVariationId);
     }
+
 
 }

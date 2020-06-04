@@ -119,4 +119,11 @@ public class UserController {
     public ResponseEntity<MessageResponseEntity<String>> logout(HttpServletRequest request){
         return userService.logout(request);
     }
+
+//--------------------------------------------------USER ROLE VERIFY METHOD'S-----------------------------------------------------
+
+    @PostMapping("/users/role")
+    public ResponseEntity<MessageResponseEntity<String>> verifyUserRole(@RequestBody UserCO userCO){
+        return userService.verifyUserRole(userCO);
+    }
 }

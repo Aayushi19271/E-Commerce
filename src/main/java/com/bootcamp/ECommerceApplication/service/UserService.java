@@ -237,7 +237,7 @@ public class UserService {
         try {
             smtpMailSender.send(user.getEmail(), subject,
                     dear +" "+ user.getFirstName() + ", "+ message +
-                            "http://localhost:8080/users/customers/confirm-account?token=" + newConfirmationToken.getConfirmationToken());
+                            "http://localhost:3000/users/customers/confirm-account?token=" + newConfirmationToken.getConfirmationToken());
         }catch (Exception ex) {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
@@ -378,5 +378,11 @@ public class UserService {
 
     public List<Map<Object, Object>> getOneProductVariation(Long id) {
         return productVariationRepository.findOneProductVariation(id);
+    }
+
+    public ResponseEntity<MessageResponseEntity<String>> verifyUserRole(UserCO userCO) {
+        String email = userCO.getEmail();
+        String userRole = userRepository.getUserRole(email);
+        return new ResponseEntity<>(new MessageResponseEntity<>(userRole, HttpStatus.CREATED), HttpStatus.CREATED);
     }
 }
