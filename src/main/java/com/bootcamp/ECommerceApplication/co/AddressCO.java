@@ -21,7 +21,7 @@ public class AddressCO {
     private String addressLine;
 
     @NotNull(message = "Please provide Zip-Code")
-    private Integer zipCode;
+    private String zipCode;
 
     @NotNull(message = "Please provide Label")
     @NotBlank(message = "Please provide valid Label")
@@ -61,11 +61,11 @@ public class AddressCO {
         this.addressLine = addressLine;
     }
 
-    public Integer getZipCode() {
+    public String getZipCode() {
         return zipCode;
     }
 
-    public void setZipCode(Integer zipCode) {
+    public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
     }
 

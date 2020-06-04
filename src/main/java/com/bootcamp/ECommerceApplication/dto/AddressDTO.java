@@ -5,7 +5,7 @@ public class AddressDTO {
     private String state;
     private String country;
     private String addressLine;
-    private Integer zipCode;
+    private String zipCode;
     private String label;
 
     public String getCity() {
@@ -40,11 +40,19 @@ public class AddressDTO {
         this.addressLine = address;
     }
 
-    public Integer getZipCode() {
+    public String getAddressLine() {
+        return addressLine;
+    }
+
+    public void setAddressLine(String addressLine) {
+        this.addressLine = addressLine;
+    }
+
+    public String getZipCode() {
         return zipCode;
     }
 
-    public void setZipCode(Integer zipCode) {
+    public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
     }
 

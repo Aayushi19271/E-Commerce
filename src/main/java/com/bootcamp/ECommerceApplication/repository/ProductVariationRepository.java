@@ -53,7 +53,7 @@ public interface ProductVariationRepository extends PagingAndSortingRepository<P
     @Query(value= "SELECT a.id AS CategoryID,a.name AS CategoryName," +
             "b.name AS RootCategoryName," +
             "c.name AS ProductName,c.brand AS Brand,c.description AS Description, " +
-            "d.price AS Price,d.primary_image_name AS Image,d.quantity_available AS Quantity  " +
+            "d.price AS Price,d.primary_image_name AS Image,d.quantity_available AS Quantity,d.id AS ProductVariationID  " +
             "FROM category AS a " +
             "JOIN category AS b ON a.parent_id=b.id " +
             "JOIN product c ON c.category_id= a.id " +

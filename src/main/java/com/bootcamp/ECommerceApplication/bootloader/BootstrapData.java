@@ -46,7 +46,7 @@ public class BootstrapData {
     public void addAdmin() {
         User user = new User();
         user.setEmail("aayushi.thani@tothenew.com");
-        user.setFirstName("Aayushi");
+        user.setFirstName("Admin");
         user.setLastName("Thani");
         user.setPassword(passwordEncoder.encode("Aayushi12#"));
         user.setActive(true);
@@ -65,17 +65,56 @@ public class BootstrapData {
         address.setState("Delhi");
         address.setCountry("India");
         address.setAddress("B7- Pitmapura");
-        address.setZipCode(110085);
+        address.setZipCode("110085");
         address.setLabel("Home");
         address.setUser(user);
         addressRepository.save(address);
     }
 
     public void addData(){
+//---------CUSTOMER DATA--------------------------------------------------------------------------------------------------
+        //CUSTOMER 1
+        Customer customer = new Customer();
+        customer.setEmail("aayushithani27@gmail.com");
+        customer.setFirstName("Aayushi");
+        customer.setLastName("Thani");
+        customer.setPassword(passwordEncoder.encode("Aayushi12#"));
+        customer.setActive(true);
+        customer.setDeleted(false);
+        customer.setContact("8130170780");
+
+        ArrayList<Role> tempRole4 = new ArrayList<>();
+        Role customerRole = roleRepository.findByAuthority("ROLE_CUSTOMER");
+        tempRole4.add(customerRole);
+        customer.setRoles(tempRole4);
+        customer.setCreatedBy(customer.getFirstName());
+        customer.setDateCreated(new Date());
+        userRepository.save(customer);
+
+        Address customerAddress1 = new Address();
+        customerAddress1.setCity("Mumbai");
+        customerAddress1.setState("Maharashtra");
+        customerAddress1.setCountry("India");
+        customerAddress1.setAddress("AU-Block");
+        customerAddress1.setZipCode("110999");
+        customerAddress1.setLabel("Home");
+        customerAddress1.setUser(customer);
+        addressRepository.save(customerAddress1);
+
+        Address customerAddress2 = new Address();
+        customerAddress2.setCity("Mumbai");
+        customerAddress2.setState("Maharashtra");
+        customerAddress2.setCountry("India");
+        customerAddress2.setAddress("AU-Block");
+        customerAddress2.setZipCode("110999");
+        customerAddress2.setLabel("Home");
+        customerAddress2.setUser(customer);
+        addressRepository.save(customerAddress2);
+
 //---------SELLER DATA--------------------------------------------------------------------------------------------------
         //SELLER 1
         Seller seller1 = new Seller();
-        seller1.setEmail("aayushithani@yahoo.in");
+        seller1.setEmail("ecommerce476@gmail.com");
         seller1.setFirstName("Mohan");
         seller1.setLastName("Sharma");
         seller1.setPassword(passwordEncoder.encode("Aayushi12#"));
@@ -98,7 +137,7 @@ public class BootstrapData {
         sellerAddress.setState("Maharashtra");
         sellerAddress.setCountry("India");
         sellerAddress.setAddress("AU-Block");
-        sellerAddress.setZipCode(110999);
+        sellerAddress.setZipCode("110999");
         sellerAddress.setLabel("Office");
         sellerAddress.setUser(seller1);
         addressRepository.save(sellerAddress);
@@ -127,7 +166,7 @@ public class BootstrapData {
         sellerAddress2.setState("Maharashtra");
         sellerAddress2.setCountry("India");
         sellerAddress2.setAddress("BU-Block");
-        sellerAddress2.setZipCode(110989);
+        sellerAddress2.setZipCode("110989");
         sellerAddress2.setLabel("Office");
         sellerAddress2.setUser(seller2);
         addressRepository.save(sellerAddress2);

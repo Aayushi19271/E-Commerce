@@ -3,6 +3,7 @@ package com.bootcamp.ECommerceApplication.dto;
 public class UserDTO {
     private String email;
     private String firstName;
+    private String middleName;
     private String lastName;
     private boolean isActive;
     private String profileImage;
@@ -22,6 +23,14 @@ public class UserDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
     public String getLastName() {

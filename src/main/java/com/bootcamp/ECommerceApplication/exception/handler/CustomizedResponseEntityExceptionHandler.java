@@ -142,6 +142,16 @@ public class CustomizedResponseEntityExceptionHandler
         return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
     }
 
+    //HTTP STATUS 302 FOUND - User's  already Exists
+    @ExceptionHandler(GstNumberFoundException.class)
+    public final ResponseEntity<Object> handleGSTFoundException
+    (GstNumberFoundException ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse( HttpStatus.FOUND,new Date(), "GST Number Already Exist!",
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.FOUND);
+    }
+
     //HTTP STATUS 302 FOUND - Category Metadata Field Values Found Exception
     @ExceptionHandler(CategoryMetadataFieldValuesFoundException.class)
     public final ResponseEntity<Object> handleCategoryMetadataFieldValuesFoundException

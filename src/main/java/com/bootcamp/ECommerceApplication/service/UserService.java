@@ -53,6 +53,8 @@ public class UserService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductVariationRepository productVariationRepository;
+    @Autowired
+    private SellerRepository sellerRepository;
 
 
 //------------------------------------------------FIND CUSTOMER METHOD--------------------------------------------------
@@ -93,32 +95,37 @@ public class UserService {
         String customerEmail = seller.getEmail();
         final User user = userRepository.findByEmailIgnoreCase(customerEmail);
         UserDTO userDTO = converterService.convertToSellerDto(seller);
-
         if (user == null) {
             if (seller.getConfirmPassword().equals(seller.getPassword())) {
-                seller.setActive(false);
-                seller.setDeleted(false);
-                seller.setPassword(passwordEncoder.encode(seller.getPassword()));
-                String companyName = seller.getCompanyName().toLowerCase();
-                seller.setCompanyName(companyName);
-                ArrayList<Role> tempRole = new ArrayList<>();
-                Role role = roleRepository.findByAuthority("ROLE_SELLER");
-                tempRole.add(role);
-                seller.setRoles(tempRole);
-                seller.setCreatedBy("user@" + seller.getFirstName());
-                seller.setDateCreated(new Date());
-                userRepository.save(seller);
-                try {
-                    String goodMorning = messageSource.getMessage("good.morning.message", null, LocaleContextHolder.getLocale());
-                    String subject = messageSource.getMessage("pending.approval.subject", null, LocaleContextHolder.getLocale());
-                    String text = messageSource.getMessage("pending.approval.message", null, LocaleContextHolder.getLocale());
-                    String message = goodMorning+" "+seller.getFirstName()+", "+text;
+                String byGstNumber = sellerRepository.findByGstNumber(seller.getGst());
+                if(!byGstNumber.isEmpty())
+                    throw new GstNumberFoundException("Gst Number Already Exists!");
+                else{
+                    seller.setActive(false);
+                    seller.setDeleted(false);
+                    seller.setPassword(passwordEncoder.encode(seller.getPassword()));
+                    String companyName = seller.getCompanyName().toLowerCase();
+                    seller.setCompanyName(companyName);
+                    ArrayList<Role> tempRole = new ArrayList<>();
+                    Role role = roleRepository.findByAuthority("ROLE_SELLER");
+                    tempRole.add(role);
+                    seller.setRoles(tempRole);
+                    seller.setCreatedBy("user@" + seller.getFirstName());
+                    seller.setDateCreated(new Date());
+                    userRepository.save(seller);
+                    try {
+                        String goodMorning = messageSource.getMessage("good.morning.message", null, LocaleContextHolder.getLocale());
+                        String subject = messageSource.getMessage("pending.approval.subject", null, LocaleContextHolder.getLocale());
+                        String text = messageSource.getMessage("pending.approval.message", null, LocaleContextHolder.getLocale());
+                        String message = goodMorning+" "+seller.getFirstName()+", "+text;
 
-                    smtpMailSender.send(seller.getEmail(), subject, message);
-                    return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
-                } catch (Exception ex) {
-                    throw new MailSendFailedException("Failed to Send Mail: " + seller.getEmail());
+                        smtpMailSender.send(seller.getEmail(), subject, message);
+                        return new ResponseEntity<>(new MessageResponseEntity<>(userDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+                    } catch (Exception ex) {
+                        throw new MailSendFailedException("Failed to Send Mail: " + seller.getEmail());
+                    }
                 }
+
             } else
                 throw new PasswordDoesNotMatchException("Password And Confirm Password Does Not Match!");
         }
@@ -262,15 +269,15 @@ public class UserService {
         String subject = messageSource.getMessage("password.reset.subject", null, LocaleContextHolder.getLocale());
         String dear = messageSource.getMessage("dear", null, LocaleContextHolder.getLocale());
         String message = messageSource.getMessage("password.reset.message", null, LocaleContextHolder.getLocale());
-
+        String token = newConfirmationToken.getConfirmationToken();
         try {
             smtpMailSender.send(user.getEmail(), subject, dear +" "+ user.getFirstName() + ", "+message +
-                            "http://localhost:8080/users/password/reset?token="
-                            + newConfirmationToken.getConfirmationToken());
+                            "http://localhost:3000/users/password/reset?token="
+                            + token);
         }catch (Exception ex) {
             throw new MailSendFailedException("Failed to Send Mail: "+user.getEmail());
         }
-        return new ResponseEntity<>(new MessageResponseEntity<>("Mail Send Successfully!", HttpStatus.CREATED), HttpStatus.CREATED);
+        return new ResponseEntity<>(new MessageResponseEntity<>(token, HttpStatus.CREATED), HttpStatus.CREATED);
     }
 
 

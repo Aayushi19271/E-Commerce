@@ -12,7 +12,7 @@ public class Address implements Serializable {
     private String state;
     private String country;
     private String addressLine;
-    private Integer zipCode;
+    private String zipCode;
     private String label;
 
     @ManyToOne
@@ -59,11 +59,19 @@ public class Address implements Serializable {
         this.addressLine = address;
     }
 
-    public Integer getZipCode() {
+    public String getAddressLine() {
+        return addressLine;
+    }
+
+    public void setAddressLine(String addressLine) {
+        this.addressLine = addressLine;
+    }
+
+    public String getZipCode() {
         return zipCode;
     }
 
-    public void setZipCode(Integer zipCode) {
+    public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
     }
 

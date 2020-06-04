@@ -18,4 +18,7 @@ public interface SellerRepository extends PagingAndSortingRepository<Seller,Long
     List<Map<Object,Object>> findAllSellers(Pageable paging);
 
     Seller findByEmailIgnoreCase(String emailId);
+
+    @Query(value= "select gst from seller where gst=:gstNo",nativeQuery = true)
+    String findByGstNumber(String gstNo);
 }
