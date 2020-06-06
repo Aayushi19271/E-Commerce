@@ -16,6 +16,9 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
     @Query(value = "select * from category where name=:name and parent_id=:id", nativeQuery = true)
     Category findByNameAndParent(String name, Long id);
 
+    @Query(value = "select * from category where name=:name", nativeQuery = true)
+    Category findByName(String name);
+
 
     @Query(value = "select id as CategoryID,name as CategoryName " +
             "from category " +
@@ -35,4 +38,10 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
 
     @Query(value="select id,name from category where leaf_node=false", nativeQuery = true)
     List<Map<Object, Object>> findAllRootCategories();
+
+    @Query(value = "select * from category where parent_id=:id",nativeQuery = true)
+    List<Map<Object, Object>> listAllSubCategory(Long id);
+
+    @Query(value = "select * from category where name=:name",nativeQuery = true)
+    Category findCategoryByName(String name);
 }

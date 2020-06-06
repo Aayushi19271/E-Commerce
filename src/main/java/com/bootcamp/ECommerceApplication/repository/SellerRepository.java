@@ -12,7 +12,7 @@ import java.util.Map;
 @Repository
 public interface SellerRepository extends PagingAndSortingRepository<Seller,Long> {
 
-    @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active,s.company_name,s.company_contact " +
+    @Query(value = "select u.id,u.first_name,u.middle_name,u.last_name,u.email,u.is_active,s.company_name,s.company_contact,s.gst " +
             "from user u inner join seller s " +
             "on u.id=s.user_id ",nativeQuery = true)
     List<Map<Object,Object>> findAllSellers(Pageable paging);

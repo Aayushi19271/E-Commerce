@@ -160,6 +160,19 @@ public class AdminController {
         return adminService.listAllCategory(pageNo,pageSize,sortBy);
     }
 
+    @ApiOperation(value = "API to view all categories")
+    @GetMapping("/admin/rootCategories/{id}")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllSubCategory(@PathVariable Long id){
+        return adminService.listAllSubCategory(id);
+    }
+
+    @ApiOperation(value = "API to view all categories")
+    @PostMapping("/admin/rootCategories/{id}")
+    public ResponseEntity<MessageResponseEntity<CategoryDTO>> updateRootCategory(@PathVariable Long id,
+                                                                             @RequestBody CategoryUpdateCO categoryUpdateCO){
+        return adminService.updateRootCategory(id,categoryUpdateCO);
+    }
+
 
     @ApiOperation(value = "API to update a category")
     @PutMapping("/admin/categories")
@@ -191,12 +204,25 @@ public class AdminController {
 
 
     @ApiOperation(value = "API to view all products")
-    @GetMapping("/admin/products")
-    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(@RequestParam(defaultValue = "0") Integer pageNo,
+    @GetMapping("/admin/products/variations")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProductsVariations(@RequestParam(defaultValue = "0") Integer pageNo,
                                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                                                                             @RequestParam(defaultValue = "id") String sortBy){
 
-        return adminService.listAllProducts(pageNo,pageSize,sortBy);
+        return adminService.listAllProductsVariations(pageNo,pageSize,sortBy);
+    }
+
+    @ApiOperation(value = "API to view all products")
+    @GetMapping("/admin/products")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(){
+
+        return adminService.listAllProducts();
+    }
+
+    @ApiOperation(value = "API to view all products variations")
+    @GetMapping("/admin/variations/{id}")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllVariation(@PathVariable Long id){
+        return adminService.listAllVariation(id);
     }
 
 

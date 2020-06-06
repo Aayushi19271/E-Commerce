@@ -199,10 +199,9 @@ public class AdminService {
 
     //Admin Function to Add New Category
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(CategoryCO categoryCO) {
-        Category savedCategory = categoryRepository.findByNameAndParent(categoryCO.getName(), categoryCO.getParentId());
+        Category savedCategory = categoryRepository.findByName(categoryCO.getName());
         if (savedCategory != null)
             throw new CategoryFoundException("Category Already Exists: "+categoryCO.getName());
-
 
         if(categoryCO.getParentId()==null){
             Category category = new Category();
@@ -238,6 +237,29 @@ public class AdminService {
         return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
     }
 
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllSubCategory(Long id) {
+        List<Map<Object, Object>> categoryList = categoryRepository.listAllSubCategory(id);
+        return new ResponseEntity<>(new MessageResponseEntity<>(categoryList, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<MessageResponseEntity<CategoryDTO>> updateRootCategory(Long id, CategoryUpdateCO categoryUpdateCO) {
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isPresent()) {
+            Category savedCategory = optionalCategory.get();
+            Category oldCategory = categoryRepository.findCategoryByName(categoryUpdateCO.getName());
+
+            if (oldCategory != null)
+                throw new CategoryFoundException("Category with similar name already exists".toUpperCase());
+
+            savedCategory.setName(categoryUpdateCO.getName());
+            categoryRepository.save(savedCategory);
+            CategoryDTO categoryDTO = converterService.convertToCategoryDTO(savedCategory);
+            return new ResponseEntity<>(new MessageResponseEntity<>(categoryDTO, HttpStatus.CREATED), HttpStatus.CREATED);
+        }
+        else
+            throw new CategoryNotFoundException("Category Not Found:"+categoryUpdateCO.getId());
+    }
 
    //Admin Function to List One Category
     public ResponseEntity<MessageResponseEntity<Map<String, Object>>> listOneCategory(Long id) {
@@ -365,7 +387,7 @@ public class AdminService {
     }
 
     //Admin Function to list All products
-    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts(Integer pageNo, Integer pageSize, String sortBy) {
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProductsVariations(Integer pageNo, Integer pageSize, String sortBy) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
         List<Map<Object,Object>> pagedResult = productRepository.listAllProductAdmin(paging);
         if (pagedResult.isEmpty())
@@ -443,4 +465,20 @@ public class AdminService {
         }
         return new ResponseEntity<>(new MessageResponseEntity<>("Try again!",HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
     }
+
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProducts() {
+        List<Map<Object,Object>> pagedResult = productRepository.listAllProductsByCategory();
+        if (pagedResult.isEmpty())
+            throw new ProductNotFoundException("Product Not Found");
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllVariation(Long id) {
+        List<Map<Object,Object>> pagedResult = productRepository.listAllVariationsByProducts(id);
+        if (pagedResult.isEmpty())
+            throw new ProductNotFoundException("Product Not Found");
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
 }

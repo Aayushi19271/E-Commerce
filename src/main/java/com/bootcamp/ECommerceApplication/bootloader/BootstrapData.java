@@ -75,9 +75,9 @@ public class BootstrapData {
 //---------CUSTOMER DATA--------------------------------------------------------------------------------------------------
         //CUSTOMER 1
         Customer customer = new Customer();
-        customer.setEmail("aayushithani27@gmail.com");
-        customer.setFirstName("Aayushi");
-        customer.setLastName("Thani");
+        customer.setEmail("dhingra93akhil@gmail.com");
+        customer.setFirstName("Akhil");
+        customer.setLastName("Dhingra");
         customer.setPassword(passwordEncoder.encode("Aayushi12#"));
         customer.setActive(true);
         customer.setDeleted(false);
@@ -92,8 +92,8 @@ public class BootstrapData {
         userRepository.save(customer);
 
         Address customerAddress1 = new Address();
-        customerAddress1.setCity("Mumbai");
-        customerAddress1.setState("Maharashtra");
+        customerAddress1.setCity("Delhi");
+        customerAddress1.setState("Delhi");
         customerAddress1.setCountry("India");
         customerAddress1.setAddress("AU-Block");
         customerAddress1.setZipCode("110999");
@@ -111,6 +111,45 @@ public class BootstrapData {
         customerAddress2.setUser(customer);
         addressRepository.save(customerAddress2);
 
+        //CUSTOMER 1
+        Customer customer2 = new Customer();
+        customer2.setEmail("aayushithani27@gmail.com");
+        customer2.setFirstName("Aayushi");
+        customer2.setLastName("Thani");
+        customer2.setPassword(passwordEncoder.encode("Aayushi12#"));
+        customer2.setActive(false);
+        customer2.setDeleted(false);
+        customer2.setContact("8130170780");
+
+        ArrayList<Role> tempRole5 = new ArrayList<>();
+        Role customerRole2 = roleRepository.findByAuthority("ROLE_CUSTOMER");
+        tempRole5.add(customerRole2);
+        customer2.setRoles(tempRole5);
+        customer2.setCreatedBy(customer2.getFirstName());
+        customer2.setDateCreated(new Date());
+        userRepository.save(customer2);
+
+        Address customerAddress3 = new Address();
+        customerAddress3.setCity("Mumbai");
+        customerAddress3.setState("Maharashtra");
+        customerAddress3.setCountry("India");
+        customerAddress3.setAddress("AU-Block");
+        customerAddress3.setZipCode("110999");
+        customerAddress3.setLabel("Home");
+        customerAddress3.setUser(customer2);
+        addressRepository.save(customerAddress3);
+
+        Address customerAddress4 = new Address();
+        customerAddress4.setCity("Mumbai");
+        customerAddress4.setState("Maharashtra");
+        customerAddress4.setCountry("India");
+        customerAddress4.setAddress("AU-Block");
+        customerAddress4.setZipCode("110999");
+        customerAddress4.setLabel("Home");
+        customerAddress4.setUser(customer2);
+        addressRepository.save(customerAddress4);
+
+
 //---------SELLER DATA--------------------------------------------------------------------------------------------------
         //SELLER 1
         Seller seller1 = new Seller();
@@ -120,7 +159,7 @@ public class BootstrapData {
         seller1.setPassword(passwordEncoder.encode("Aayushi12#"));
         seller1.setActive(true);
         seller1.setDeleted(false);
-        seller1.setCompanyName("Company Name 1");
+        seller1.setCompanyName("Shoppers");
         seller1.setCompanyContact("8130170780");
         seller1.setGst("37adapm1724a2Z6");
 
@@ -150,7 +189,7 @@ public class BootstrapData {
         seller2.setPassword(passwordEncoder.encode("Aayushi12#"));
         seller2.setActive(true);
         seller2.setDeleted(false);
-        seller2.setCompanyName("Company Name 2");
+        seller2.setCompanyName("Trending");
         seller2.setCompanyContact("9930198680");
         seller2.setGst("27adapm1924a2Z2");
 
@@ -608,6 +647,29 @@ public class BootstrapData {
         featurePhoneNokia.setActive(true);
         featurePhoneNokia.setSeller(seller2);
         productRepository.save(featurePhoneNokia);
+
+        //Feature Phones
+        Product diningTable = new Product();
+        diningTable.setName("IKEA Table");
+        diningTable.setDescription("IKEA furniture and home accessories are practical, well designed and affordable. ");
+        diningTable.setCategory(diningFurniture);
+        diningTable.setBrand("IKEA");
+        diningTable.setCancellable(true);
+        diningTable.setReturnable(true);
+        diningTable.setActive(true);
+        diningTable.setSeller(seller1);
+        productRepository.save(diningTable);
+
+        Product bed = new Product();
+        bed.setName("IKEA Beds");
+        bed.setDescription("IKEA furniture and home accessories are practical, well designed and affordable. ");
+        bed.setCategory(bedRoomFurniture);
+        bed.setBrand("IKEA");
+        bed.setCancellable(true);
+        bed.setReturnable(true);
+        bed.setActive(true);
+        bed.setSeller(seller1);
+        productRepository.save(bed);
 
 //-------------------PRODUCT-VARIATION TABLE DATA-----------------------------------------------------------
         //WOODLAND VARIATIONS SPORTS WEAR

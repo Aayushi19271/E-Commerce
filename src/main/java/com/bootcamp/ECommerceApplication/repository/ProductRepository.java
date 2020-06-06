@@ -92,5 +92,17 @@ public interface ProductRepository extends PagingAndSortingRepository<Product,Lo
             + "where b.category_id=:id", nativeQuery = true)
     Object findMaximum(Long id);
 
+    @Query(value = "select a.name AS ProductName,a.description,a.brand,a.is_cancellable,a.is_returnable,a.is_active As ProductActive,a.id,  " +
+            "c.name As CategoryName from product a " +
+            "INNER JOIN category c  " +
+            "ON a.category_id=c.id",nativeQuery = true)
+    List<Map<Object,Object>> listAllProductsByCategory();
 
+    @Query(value="select a.name AS ProductName,a.description,a.brand AS Brand,a.is_cancellable,a.is_returnable,a.is_active As ProductActive," +
+            "b.quantity_available,b.price AS Price,b.primary_image_name AS ProductImg,b.is_active As ProductVariationActive,b.id AS VariationId " +
+            "from  " +
+            "product_variation b INNER JOIN product a  " +
+            "ON b.product_id=a.id  " +
+            "where a.id=:id",nativeQuery = true)
+    List<Map<Object, Object>> listAllVariationsByProducts(Long id);
 }
