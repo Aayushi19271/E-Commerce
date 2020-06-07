@@ -136,6 +136,13 @@ public class AdminController {
         return adminService.listAllMetadata(pageNo,pageSize,sortBy);
     }
 
+    @ApiOperation(value = "API to view all Metadata fields Values")
+    @GetMapping("/admin/metadata-fields-values")
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
+    listAllMetadataFieldValues(){
+        return adminService.listAllMetadataFieldValues();
+    }
+
 
     @ApiOperation(value = "API to add a category")
     @PostMapping("/admin/categories")

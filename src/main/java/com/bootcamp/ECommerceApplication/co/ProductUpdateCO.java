@@ -9,6 +9,8 @@ public class ProductUpdateCO {
     private boolean isCancellable=false;
     @JsonProperty
     private boolean isReturnable=false;
+    private String brand;
+
 
     public String getName() {
         return name;
@@ -20,6 +22,14 @@ public class ProductUpdateCO {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
     public void setDescription(String description) {

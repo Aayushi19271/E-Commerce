@@ -133,7 +133,7 @@ public class SellerController {
     @GetMapping("/products")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(Principal principal,
                                                                                            @RequestParam(defaultValue = "0") Integer pageNo,
-                                                                                           @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                           @RequestParam(defaultValue = "9") Integer pageSize,
                                                                                            @RequestParam(defaultValue = "id") String sortBy){
         String email = principal.getName();
         return sellerService.listAllProduct(email,pageNo,pageSize,sortBy);
@@ -165,14 +165,15 @@ public class SellerController {
     }
 
     @ApiOperation(value = "API to view all product variations")
-    @GetMapping("/products/variations")
+    @GetMapping("/products/{id}/variations")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
                 listAllProductVariation(Principal principal,@RequestParam(defaultValue = "0") Integer pageNo,
                                                             @RequestParam(defaultValue = "10") Integer pageSize,
-                                                            @RequestParam(defaultValue = "id") String sortBy){
+                                                            @RequestParam(defaultValue = "id") String sortBy,
+                                                            @PathVariable Long id){
 
         String email = principal.getName();
-        return sellerService.listAllProductVariation(email,pageNo,pageSize,sortBy);
+        return sellerService.listAllProductVariation(email,pageNo,pageSize,sortBy,id);
     }
 
     @ApiOperation(value = "API to add a product variation")

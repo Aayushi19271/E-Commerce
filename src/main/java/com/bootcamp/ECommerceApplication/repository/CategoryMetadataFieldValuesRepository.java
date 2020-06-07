@@ -1,7 +1,10 @@
 package com.bootcamp.ECommerceApplication.repository;
 
+import com.bootcamp.ECommerceApplication.entity.CategoryMetadataField;
 import com.bootcamp.ECommerceApplication.entity.CategoryMetadataFieldValues;
 import com.bootcamp.ECommerceApplication.entity.CategoryMetadataFieldValuesID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -21,4 +24,6 @@ public interface CategoryMetadataFieldValuesRepository extends CrudRepository<Ca
             + "c.category_id=:id", nativeQuery = true)
     List<Map<Object, Object>> findByCategoryId(Long id);
 
+    @Query(value = "select category_id,category_metadata_field_id,value from category_metadata_field_values", nativeQuery = true)
+    List<Map<Object, Object>> findAllMetadataFieldValues();
 }

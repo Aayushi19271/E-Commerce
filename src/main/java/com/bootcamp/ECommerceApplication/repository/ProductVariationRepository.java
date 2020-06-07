@@ -16,11 +16,11 @@ public interface ProductVariationRepository extends PagingAndSortingRepository<P
             "a.id=:id",nativeQuery = true)
     List<Map<Object,Object>> findOneProductVariationById(Long sellerId,Long id);
 
-    @Query(value = "SELECT a.id AS ProductVariationID,a.quantity_available,a.price,a.is_active,b.name As ProductName," +
+    @Query(value = "SELECT a.id AS ProductVariationID,a.quantity_available,a.primary_image_name AS Image,a.price,a.is_active,b.name As ProductName," +
             "b.description,b.brand FROM product_variation a INNER JOIN product b " +
             "ON a.product_id=b.id " +
-            "WHERE b.seller_user_id=:sellerId",nativeQuery = true)
-    List<Map<Object,Object>> findAll(Pageable paging,Long sellerId);
+            "WHERE b.seller_user_id=:sellerId and b.id=:id",nativeQuery = true)
+    List<Map<Object,Object>> findAll(Pageable paging,Long sellerId,Long id);
 
     @Query(value = "SELECT a.id " +
             "FROM product_variation a INNER JOIN product b " +

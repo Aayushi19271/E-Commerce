@@ -196,6 +196,12 @@ public class AdminService {
         return new ResponseEntity<>(new MessageResponseEntity<>(metadataFieldsList.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
+    //Admin Function to view all Metadata fields Values
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllMetadataFieldValues() {
+        List<Map<Object, Object>> metadataFieldsList = categoryMetadataFieldValuesRepository.findAllMetadataFieldValues();
+        return new ResponseEntity<>(new MessageResponseEntity<>(metadataFieldsList, HttpStatus.OK), HttpStatus.OK);
+    }
+
 
     //Admin Function to Add New Category
     public ResponseEntity<MessageResponseEntity<CategoryDTO>> addCategory(CategoryCO categoryCO) {
@@ -365,12 +371,12 @@ public class AdminService {
             throw new CategoryMetadataFieldValuesFoundException("Category meta data already exists:"+categoryMetadataFieldValuesId);
         }
 
-        String newValue = categoryMetadataFieldValues.getValue()
-                .concat("," + categoryMetadataFieldValuesCO.getValue());
-        categoryMetadataFieldValues.setValue(newValue);
+//        String newValue = categoryMetadataFieldValues.getValue()
+//                .concat("," + categoryMetadataFieldValuesCO.getValue());
+        categoryMetadataFieldValues.setValue(categoryMetadataFieldValuesCO.getValue());
         categoryMetadataFieldValuesRepository.save(categoryMetadataFieldValues);
 
-        categoryMetadataFieldValuesCO.setValue(newValue);
+        categoryMetadataFieldValuesCO.setValue(categoryMetadataFieldValuesCO.getValue());
         return new ResponseEntity<>(new MessageResponseEntity<>(categoryMetadataFieldValuesCO, HttpStatus.OK, "Metadata Field Values Updated"), HttpStatus.OK);
 
     }

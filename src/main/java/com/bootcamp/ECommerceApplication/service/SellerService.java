@@ -336,10 +336,10 @@ public class SellerService {
 
     //List Details All Product Variation
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>>
-    listAllProductVariation(String email, Integer pageNo, Integer pageSize, String sortBy) {
+    listAllProductVariation(String email, Integer pageNo, Integer pageSize, String sortBy, Long id) {
         Seller seller = sellerRepository.findByEmailIgnoreCase(email);
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        List<Map<Object, Object>> pagedResult = productVariationRepository.findAll(paging,seller.getId());
+        List<Map<Object, Object>> pagedResult = productVariationRepository.findAll(paging,seller.getId(),id);
         return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
