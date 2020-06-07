@@ -116,42 +116,42 @@ public class BootstrapData {
         addressRepository.save(customerAddress2);
 
         //CUSTOMER 1
-        Customer customer2 = new Customer();
-        customer2.setEmail("aayushithani27@gmail.com");
-        customer2.setFirstName("Aayushi");
-        customer2.setLastName("Thani");
-        customer2.setPassword(passwordEncoder.encode("Aayushi12#"));
-        customer2.setActive(false);
-        customer2.setDeleted(false);
-        customer2.setContact("8130170780");
-
-        ArrayList<Role> tempRole5 = new ArrayList<>();
-        Role customerRole2 = roleRepository.findByAuthority("ROLE_CUSTOMER");
-        tempRole5.add(customerRole2);
-        customer2.setRoles(tempRole5);
-        customer2.setCreatedBy(customer2.getFirstName());
-        customer2.setDateCreated(new Date());
-        userRepository.save(customer2);
-
-        Address customerAddress3 = new Address();
-        customerAddress3.setCity("Mumbai");
-        customerAddress3.setState("Maharashtra");
-        customerAddress3.setCountry("India");
-        customerAddress3.setAddress("AU-Block");
-        customerAddress3.setZipCode("110999");
-        customerAddress3.setLabel("Home");
-        customerAddress3.setUser(customer2);
-        addressRepository.save(customerAddress3);
-
-        Address customerAddress4 = new Address();
-        customerAddress4.setCity("Mumbai");
-        customerAddress4.setState("Maharashtra");
-        customerAddress4.setCountry("India");
-        customerAddress4.setAddress("AU-Block");
-        customerAddress4.setZipCode("110999");
-        customerAddress4.setLabel("Home");
-        customerAddress4.setUser(customer2);
-        addressRepository.save(customerAddress4);
+//        Customer customer2 = new Customer();
+//        customer2.setEmail("aayushithani27@gmail.com");
+//        customer2.setFirstName("Aayushi");
+//        customer2.setLastName("Thani");
+//        customer2.setPassword(passwordEncoder.encode("Aayushi12#"));
+//        customer2.setActive(false);
+//        customer2.setDeleted(false);
+//        customer2.setContact("8130170780");
+//
+//        ArrayList<Role> tempRole5 = new ArrayList<>();
+//        Role customerRole2 = roleRepository.findByAuthority("ROLE_CUSTOMER");
+//        tempRole5.add(customerRole2);
+//        customer2.setRoles(tempRole5);
+//        customer2.setCreatedBy(customer2.getFirstName());
+//        customer2.setDateCreated(new Date());
+//        userRepository.save(customer2);
+//
+//        Address customerAddress3 = new Address();
+//        customerAddress3.setCity("Mumbai");
+//        customerAddress3.setState("Maharashtra");
+//        customerAddress3.setCountry("India");
+//        customerAddress3.setAddress("AU-Block");
+//        customerAddress3.setZipCode("110999");
+//        customerAddress3.setLabel("Home");
+//        customerAddress3.setUser(customer2);
+//        addressRepository.save(customerAddress3);
+//
+//        Address customerAddress4 = new Address();
+//        customerAddress4.setCity("Mumbai");
+//        customerAddress4.setState("Maharashtra");
+//        customerAddress4.setCountry("India");
+//        customerAddress4.setAddress("AU-Block");
+//        customerAddress4.setZipCode("110999");
+//        customerAddress4.setLabel("Home");
+//        customerAddress4.setUser(customer2);
+//        addressRepository.save(customerAddress4);
 
 
 //---------SELLER DATA--------------------------------------------------------------------------------------------------
@@ -680,7 +680,7 @@ public class BootstrapData {
         ProductVariation sportsWear1 = new ProductVariation();
         sportsWear1.setProduct(sportsWear);
         sportsWear1.setQuantityAvailable(10);
-        sportsWear1.setPrice(2999.00);
+        sportsWear1.setPrice(2999);
         sportsWear1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855091/ProductVariationImages/4_MEN_SPORTS_SHOES_yve091.jpg");
         sportsWear1.setActive(true);
         productVariationRepository.save(sportsWear1);
@@ -689,14 +689,14 @@ public class BootstrapData {
         sportsWear2.setProduct(sportsWear);
         sportsWear2.setQuantityAvailable(10);
         sportsWear2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855091/ProductVariationImages/3_MEN_SPORTS_SHOES_cn44um.jpg");
-        sportsWear2.setPrice(2999.00);
+        sportsWear2.setPrice(2999);
         sportsWear2.setActive(true);
         productVariationRepository.save(sportsWear2);
 
         ProductVariation sportsWear3 = new ProductVariation();
         sportsWear3.setProduct(sportsWear);
         sportsWear3.setQuantityAvailable(10);
-        sportsWear3.setPrice(4000.00);
+        sportsWear3.setPrice(4000);
         sportsWear3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855091/ProductVariationImages/2_MEN_SPORTS_SHOES_ppmhtp.jpg");
         sportsWear3.setActive(true);
         productVariationRepository.save(sportsWear3);
@@ -706,7 +706,7 @@ public class BootstrapData {
         sportsWear4.setProduct(sportsWear);
         sportsWear4.setQuantityAvailable(10);
         sportsWear4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/1_MEN_SPORTS_SHOES_vko0i4.jpg");
-        sportsWear4.setPrice(6000.00);
+        sportsWear4.setPrice(6000);
         sportsWear4.setActive(true);
         productVariationRepository.save(sportsWear4);
 
@@ -715,7 +715,7 @@ public class BootstrapData {
         sportsWear5.setProduct(sportsWear);
         sportsWear5.setQuantityAvailable(10);
         sportsWear5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855093/ProductVariationImages/6_MEN_SPORTS_SHOES_kc9tsq.jpg");
-        sportsWear5.setPrice(1200.00);
+        sportsWear5.setPrice(1200);
         sportsWear5.setActive(true);
         productVariationRepository.save(sportsWear5);
 
@@ -723,7 +723,7 @@ public class BootstrapData {
         sportsWear6.setProduct(sportsWear);
         sportsWear6.setQuantityAvailable(10);
         sportsWear6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855093/ProductVariationImages/5_MEN_SPORTS_SHOES_igbswy.jpg");
-        sportsWear6.setPrice(1300.00);
+        sportsWear6.setPrice(1300);
         sportsWear6.setActive(true);
         productVariationRepository.save(sportsWear6);
 
@@ -731,7 +731,7 @@ public class BootstrapData {
         ProductVariation sportsWearPuma1 = new ProductVariation();
         sportsWearPuma1.setProduct(sportsWearPuma);
         sportsWearPuma1.setQuantityAvailable(10);
-        sportsWearPuma1.setPrice(5000.00);
+        sportsWearPuma1.setPrice(5000);
         sportsWearPuma1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/9_MEN_SPORTS_SHOES_evhq13.jpg");
         sportsWearPuma1.setActive(true);
         productVariationRepository.save(sportsWearPuma1);
@@ -740,14 +740,14 @@ public class BootstrapData {
         sportsWearPuma2.setProduct(sportsWearPuma);
         sportsWearPuma2.setQuantityAvailable(10);
         sportsWearPuma2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/8_MEN_SPORTS_SHOES_nyo0lz.jpg");
-        sportsWearPuma2.setPrice(4000.00);
+        sportsWearPuma2.setPrice(4000);
         sportsWearPuma2.setActive(true);
         productVariationRepository.save(sportsWearPuma2);
 
         ProductVariation sportsWearPuma3 = new ProductVariation();
         sportsWearPuma3.setProduct(sportsWearPuma);
         sportsWearPuma3.setQuantityAvailable(10);
-        sportsWearPuma3.setPrice(3400.00);
+        sportsWearPuma3.setPrice(3400);
         sportsWearPuma3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/7_MEN_SPORTS_SHOES_wisn7x.jpg");
         sportsWearPuma3.setActive(true);
         productVariationRepository.save(sportsWearPuma3);
@@ -755,7 +755,7 @@ public class BootstrapData {
         ProductVariation sportsWearPuma4 = new ProductVariation();
         sportsWearPuma4.setProduct(sportsWearPuma);
         sportsWearPuma4.setQuantityAvailable(10);
-        sportsWearPuma4.setPrice(2300.00);
+        sportsWearPuma4.setPrice(2300);
         sportsWearPuma4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855093/ProductVariationImages/13_MEN_SPORTS_SHOES_mxflxo.jpg");
         sportsWearPuma4.setActive(true);
         productVariationRepository.save(sportsWearPuma4);
@@ -764,14 +764,14 @@ public class BootstrapData {
         sportsWearPuma5.setProduct(sportsWearPuma);
         sportsWearPuma5.setQuantityAvailable(10);
         sportsWearPuma5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/12_MEN_SPORTS_SHOES_x6bsig.jpg");
-        sportsWearPuma5.setPrice(4500.00);
+        sportsWearPuma5.setPrice(4500);
         sportsWearPuma5.setActive(true);
         productVariationRepository.save(sportsWearPuma5);
 
         ProductVariation sportsWearPuma6 = new ProductVariation();
         sportsWearPuma6.setProduct(sportsWearPuma);
         sportsWearPuma6.setQuantityAvailable(10);
-        sportsWearPuma6.setPrice(3500.00);
+        sportsWearPuma6.setPrice(3500);
         sportsWearPuma6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/11_MEN_SPORTS_SHOES_dkl2bm.jpg");
         sportsWearPuma6.setActive(true);
         productVariationRepository.save(sportsWearPuma6);
@@ -779,7 +779,7 @@ public class BootstrapData {
         ProductVariation sportsWearPuma7 = new ProductVariation();
         sportsWearPuma7.setProduct(sportsWearPuma);
         sportsWearPuma7.setQuantityAvailable(10);
-        sportsWearPuma7.setPrice(5500.00);
+        sportsWearPuma7.setPrice(5500);
         sportsWearPuma7.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590855092/ProductVariationImages/10_MEN_SPORTS_SHOES_iej0o8.jpg");
         sportsWearPuma7.setActive(true);
         productVariationRepository.save(sportsWearPuma7);
@@ -789,7 +789,7 @@ public class BootstrapData {
         ProductVariation formalWearBata1 = new ProductVariation();
         formalWearBata1.setProduct(formalWear);
         formalWearBata1.setQuantityAvailable(10);
-        formalWearBata1.setPrice(1200.00);
+        formalWearBata1.setPrice(1200);
         formalWearBata1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860985/ProductVariationImages/BATA_4_txhznc.jpg");
         formalWearBata1.setActive(true);
         productVariationRepository.save(formalWearBata1);
@@ -797,7 +797,7 @@ public class BootstrapData {
         ProductVariation formalWearBata2 = new ProductVariation();
         formalWearBata2.setProduct(formalWear);
         formalWearBata2.setQuantityAvailable(10);
-        formalWearBata2.setPrice(1300.00);
+        formalWearBata2.setPrice(1300);
         formalWearBata2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860979/ProductVariationImages/BATA_6_t6jypl.jpg");
         formalWearBata2.setActive(true);
         productVariationRepository.save(formalWearBata2);
@@ -805,7 +805,7 @@ public class BootstrapData {
         ProductVariation formalWearBata3 = new ProductVariation();
         formalWearBata3.setProduct(formalWear);
         formalWearBata3.setQuantityAvailable(10);
-        formalWearBata3.setPrice(1400.00);
+        formalWearBata3.setPrice(1400);
         formalWearBata3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860976/ProductVariationImages/BATA_5_vtakoz.jpg");
         formalWearBata3.setActive(true);
         productVariationRepository.save(formalWearBata3);
@@ -813,7 +813,7 @@ public class BootstrapData {
         ProductVariation formalWearBata4 = new ProductVariation();
         formalWearBata4.setProduct(formalWear);
         formalWearBata4.setQuantityAvailable(10);
-        formalWearBata4.setPrice(1500.00);
+        formalWearBata4.setPrice(1500);
         formalWearBata4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860975/ProductVariationImages/BATA_1_gcef1l.jpg");
         formalWearBata4.setActive(true);
         productVariationRepository.save(formalWearBata4);
@@ -821,7 +821,7 @@ public class BootstrapData {
         ProductVariation formalWearBata5 = new ProductVariation();
         formalWearBata5.setProduct(formalWear);
         formalWearBata5.setQuantityAvailable(10);
-        formalWearBata5.setPrice(1600.00);
+        formalWearBata5.setPrice(1600);
         formalWearBata5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860974/ProductVariationImages/BATA_3_h9i25c.jpg");
         formalWearBata5.setActive(true);
         productVariationRepository.save(formalWearBata5);
@@ -829,7 +829,7 @@ public class BootstrapData {
         ProductVariation formalWearBata6 = new ProductVariation();
         formalWearBata6.setProduct(formalWear);
         formalWearBata6.setQuantityAvailable(10);
-        formalWearBata6.setPrice(1700.00);
+        formalWearBata6.setPrice(1700);
         formalWearBata6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590860974/ProductVariationImages/BATA_2_gbcpp2.jpg");
         formalWearBata6.setActive(true);
         productVariationRepository.save(formalWearBata6);
@@ -839,7 +839,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow = new ProductVariation();
         casualShirtsArrow.setProduct(casualShirts);
         casualShirtsArrow.setQuantityAvailable(10);
-        casualShirtsArrow.setPrice(4000.00);
+        casualShirtsArrow.setPrice(4000);
         casualShirtsArrow.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow2_esyehl.jpg");
         casualShirtsArrow.setActive(true);
         productVariationRepository.save(casualShirtsArrow);
@@ -847,7 +847,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow2 = new ProductVariation();
         casualShirtsArrow2.setProduct(casualShirts);
         casualShirtsArrow2.setQuantityAvailable(10);
-        casualShirtsArrow2.setPrice(5000.00);
+        casualShirtsArrow2.setPrice(5000);
         casualShirtsArrow2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow3_fundmw.jpg");
         casualShirtsArrow2.setActive(true);
         productVariationRepository.save(casualShirtsArrow2);
@@ -855,7 +855,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow3 = new ProductVariation();
         casualShirtsArrow3.setProduct(casualShirts);
         casualShirtsArrow3.setQuantityAvailable(10);
-        casualShirtsArrow3.setPrice(5500.00);
+        casualShirtsArrow3.setPrice(5500);
         casualShirtsArrow3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow5_k7lrfx.jpg");
         casualShirtsArrow3.setActive(true);
         productVariationRepository.save(casualShirtsArrow3);
@@ -863,7 +863,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow4 = new ProductVariation();
         casualShirtsArrow4.setProduct(casualShirts);
         casualShirtsArrow4.setQuantityAvailable(10);
-        casualShirtsArrow4.setPrice(4500.00);
+        casualShirtsArrow4.setPrice(4500);
         casualShirtsArrow4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow4_cecyyf.jpg");
         casualShirtsArrow4.setActive(true);
         productVariationRepository.save(casualShirtsArrow4);
@@ -871,7 +871,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow5 = new ProductVariation();
         casualShirtsArrow5.setProduct(casualShirts);
         casualShirtsArrow5.setQuantityAvailable(10);
-        casualShirtsArrow5.setPrice(5300.00);
+        casualShirtsArrow5.setPrice(5300);
         casualShirtsArrow5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow6_riw7db.jpg");
         casualShirtsArrow5.setActive(true);
         productVariationRepository.save(casualShirtsArrow5);
@@ -879,7 +879,7 @@ public class BootstrapData {
         ProductVariation casualShirtsArrow6 = new ProductVariation();
         casualShirtsArrow6.setProduct(casualShirts);
         casualShirtsArrow6.setQuantityAvailable(10);
-        casualShirtsArrow6.setPrice(4500.00);
+        casualShirtsArrow6.setPrice(4500);
         casualShirtsArrow6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow1_xskbon.jpg");
         casualShirtsArrow6.setActive(true);
         productVariationRepository.save(casualShirtsArrow6);
@@ -889,7 +889,7 @@ public class BootstrapData {
         ProductVariation formalShirtsVanHeusen = new ProductVariation();
         formalShirtsVanHeusen.setProduct(formalShirts);
         formalShirtsVanHeusen.setQuantityAvailable(10);
-        formalShirtsVanHeusen.setPrice(2300.00);
+        formalShirtsVanHeusen.setPrice(2300);
         formalShirtsVanHeusen.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590954196/ProductVariationImages/v22_lbhux5.jpg");
         formalShirtsVanHeusen.setActive(true);
         productVariationRepository.save(formalShirtsVanHeusen);
@@ -897,7 +897,7 @@ public class BootstrapData {
         ProductVariation formalShirtsVanHeusen2 = new ProductVariation();
         formalShirtsVanHeusen2.setProduct(formalShirts);
         formalShirtsVanHeusen2.setQuantityAvailable(10);
-        formalShirtsVanHeusen2.setPrice(3200.00);
+        formalShirtsVanHeusen2.setPrice(3200);
         formalShirtsVanHeusen2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590954196/ProductVariationImages/v22_lbhux5.jpg");
         formalShirtsVanHeusen2.setActive(true);
         productVariationRepository.save(formalShirtsVanHeusen2);
@@ -905,7 +905,7 @@ public class BootstrapData {
         ProductVariation formalShirtsVanHeusen3 = new ProductVariation();
         formalShirtsVanHeusen3.setProduct(formalShirts);
         formalShirtsVanHeusen3.setQuantityAvailable(10);
-        formalShirtsVanHeusen3.setPrice(4300.00);
+        formalShirtsVanHeusen3.setPrice(4300);
         formalShirtsVanHeusen3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862699/ProductVariationImages/arrow1_xskbon.jpg");
         formalShirtsVanHeusen3.setActive(true);
         productVariationRepository.save(formalShirtsVanHeusen3);
@@ -914,7 +914,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo1 = new ProductVariation();
         casualShirtsPolo1.setProduct(casualShirts2);
         casualShirtsPolo1.setQuantityAvailable(10);
-        casualShirtsPolo1.setPrice(3200.00);
+        casualShirtsPolo1.setPrice(3200);
         casualShirtsPolo1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo6_hipyoq.jpg");
         casualShirtsPolo1.setActive(true);
         productVariationRepository.save(casualShirtsPolo1);
@@ -922,7 +922,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo2 = new ProductVariation();
         casualShirtsPolo2.setProduct(casualShirts2);
         casualShirtsPolo2.setQuantityAvailable(10);
-        casualShirtsPolo2.setPrice(4300.00);
+        casualShirtsPolo2.setPrice(4300);
         casualShirtsPolo2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo2_g6xir2.jpg");
         casualShirtsPolo2.setActive(true);
         productVariationRepository.save(casualShirtsPolo2);
@@ -930,7 +930,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo3 = new ProductVariation();
         casualShirtsPolo3.setProduct(casualShirts2);
         casualShirtsPolo3.setQuantityAvailable(10);
-        casualShirtsPolo3.setPrice(5600.00);
+        casualShirtsPolo3.setPrice(5600);
         casualShirtsPolo3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo5_n2rxcn.jpg");
         casualShirtsPolo3.setActive(true);
         productVariationRepository.save(casualShirtsPolo3);
@@ -938,7 +938,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo4 = new ProductVariation();
         casualShirtsPolo4.setProduct(casualShirts2);
         casualShirtsPolo4.setQuantityAvailable(10);
-        casualShirtsPolo4.setPrice(3300.00);
+        casualShirtsPolo4.setPrice(3300);
         casualShirtsPolo4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo3_zh0eoo.jpg");
         casualShirtsPolo4.setActive(true);
         productVariationRepository.save(casualShirtsPolo4);
@@ -946,7 +946,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo5 = new ProductVariation();
         casualShirtsPolo5.setProduct(casualShirts2);
         casualShirtsPolo5.setQuantityAvailable(10);
-        casualShirtsPolo5.setPrice(2500.00);
+        casualShirtsPolo5.setPrice(2500);
         casualShirtsPolo5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo_zgvejl.jpg");
         casualShirtsPolo5.setActive(true);
         productVariationRepository.save(casualShirtsPolo5);
@@ -954,7 +954,7 @@ public class BootstrapData {
         ProductVariation casualShirtsPolo6 = new ProductVariation();
         casualShirtsPolo6.setProduct(casualShirts2);
         casualShirtsPolo6.setQuantityAvailable(10);
-        casualShirtsPolo6.setPrice(6500.00);
+        casualShirtsPolo6.setPrice(6500);
         casualShirtsPolo6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590862868/ProductVariationImages/polo4_iwtfqy.jpg");
         casualShirtsPolo6.setActive(true);
         productVariationRepository.save(casualShirtsPolo6);
@@ -964,7 +964,7 @@ public class BootstrapData {
         ProductVariation casualShoesWomenCrocs = new ProductVariation();
         casualShoesWomenCrocs.setProduct(causalWearWomen);
         casualShoesWomenCrocs.setQuantityAvailable(10);
-        casualShoesWomenCrocs.setPrice(3300.00);
+        casualShoesWomenCrocs.setPrice(3300);
         casualShoesWomenCrocs.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590863307/ProductVariationImages/2_WOMEN_SHOES_rn1ufu.jpg");
         casualShoesWomenCrocs.setActive(true);
         productVariationRepository.save(casualShoesWomenCrocs);
@@ -972,7 +972,7 @@ public class BootstrapData {
         ProductVariation casualShoesWomenCrocs2 = new ProductVariation();
         casualShoesWomenCrocs2.setProduct(causalWearWomen);
         casualShoesWomenCrocs2.setQuantityAvailable(10);
-        casualShoesWomenCrocs2.setPrice(2300.00);
+        casualShoesWomenCrocs2.setPrice(2300);
         casualShoesWomenCrocs2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590863307/ProductVariationImages/1_WOMEN_SHOES_ku7cai.jpg");
         casualShoesWomenCrocs2.setActive(true);
         productVariationRepository.save(casualShoesWomenCrocs2);
@@ -980,7 +980,7 @@ public class BootstrapData {
         ProductVariation casualShoesWomenCrocs3 = new ProductVariation();
         casualShoesWomenCrocs3.setProduct(causalWearWomen);
         casualShoesWomenCrocs3.setQuantityAvailable(10);
-        casualShoesWomenCrocs3.setPrice(3300.00);
+        casualShoesWomenCrocs3.setPrice(3300);
         casualShoesWomenCrocs3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590863307/ProductVariationImages/4_WOMEN_SHOES_tpiojj.jpg");
         casualShoesWomenCrocs3.setActive(true);
         productVariationRepository.save(casualShoesWomenCrocs3);
@@ -990,7 +990,7 @@ public class BootstrapData {
         ProductVariation casualShirtsWomen1 = new ProductVariation();
         casualShirtsWomen1.setProduct(casualShirtsWomen);
         casualShirtsWomen1.setQuantityAvailable(10);
-        casualShirtsWomen1.setPrice(5500.00);
+        casualShirtsWomen1.setPrice(5500);
         casualShirtsWomen1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590864667/ProductVariationImages/shirtg12_q13csh.jpg");
         casualShirtsWomen1.setActive(true);
         productVariationRepository.save(casualShirtsWomen1);
@@ -998,7 +998,7 @@ public class BootstrapData {
         ProductVariation casualShirtsWomen2 = new ProductVariation();
         casualShirtsWomen2.setProduct(casualShirtsWomen);
         casualShirtsWomen2.setQuantityAvailable(10);
-        casualShirtsWomen2.setPrice(4500.00);
+        casualShirtsWomen2.setPrice(4500);
         casualShirtsWomen2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590864668/ProductVariationImages/shirtg13_ongrvv.jpg");
         casualShirtsWomen2.setActive(true);
         productVariationRepository.save(casualShirtsWomen2);
@@ -1006,7 +1006,7 @@ public class BootstrapData {
         ProductVariation casualShirtsWomen3 = new ProductVariation();
         casualShirtsWomen3.setProduct(casualShirtsWomen);
         casualShirtsWomen3.setQuantityAvailable(10);
-        casualShirtsWomen3.setPrice(4300.00);
+        casualShirtsWomen3.setPrice(4300);
         casualShirtsWomen3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590864669/ProductVariationImages/shirtg1_hiddmo.jpg");
         casualShirtsWomen3.setActive(true);
         productVariationRepository.save(casualShirtsWomen3);
@@ -1015,7 +1015,7 @@ public class BootstrapData {
         ProductVariation formalShirtsWomen1 = new ProductVariation();
         formalShirtsWomen1.setProduct(formalShirtsWomen);
         formalShirtsWomen1.setQuantityAvailable(10);
-        formalShirtsWomen1.setPrice(3500.00);
+        formalShirtsWomen1.setPrice(3500);
         formalShirtsWomen1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590953758/ProductVariationImages/v3_yphsph.jpg");
         formalShirtsWomen1.setActive(true);
         productVariationRepository.save(formalShirtsWomen1);
@@ -1023,7 +1023,7 @@ public class BootstrapData {
         ProductVariation formalShirtsWomen2 = new ProductVariation();
         formalShirtsWomen2.setProduct(formalShirtsWomen);
         formalShirtsWomen2.setQuantityAvailable(10);
-        formalShirtsWomen2.setPrice(2300.00);
+        formalShirtsWomen2.setPrice(2300);
         formalShirtsWomen2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590953758/ProductVariationImages/v1_jrmxho.jpg");
         formalShirtsWomen2.setActive(true);
         productVariationRepository.save(formalShirtsWomen2);
@@ -1031,7 +1031,7 @@ public class BootstrapData {
         ProductVariation formalShirtsWomen3 = new ProductVariation();
         formalShirtsWomen3.setProduct(formalShirtsWomen);
         formalShirtsWomen3.setQuantityAvailable(10);
-        formalShirtsWomen3.setPrice(4500.00);
+        formalShirtsWomen3.setPrice(4500);
         formalShirtsWomen3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590953758/ProductVariationImages/v2_iwfnpj.jpg");
         formalShirtsWomen3.setActive(true);
         productVariationRepository.save(formalShirtsWomen3);
@@ -1040,7 +1040,7 @@ public class BootstrapData {
         ProductVariation businessLaptopDell1 = new ProductVariation();
         businessLaptopDell1.setProduct(businessLaptopDell);
         businessLaptopDell1.setQuantityAvailable(10);
-        businessLaptopDell1.setPrice(203000.00);
+        businessLaptopDell1.setPrice(203000);
         businessLaptopDell1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865344/ProductVariationImages/61GpzFRWiOL._SL1000__kd2kte.jpg");
         businessLaptopDell1.setActive(true);
         productVariationRepository.save(businessLaptopDell1);
@@ -1048,7 +1048,7 @@ public class BootstrapData {
         ProductVariation businessLaptopDell2 = new ProductVariation();
         businessLaptopDell2.setProduct(businessLaptopDell);
         businessLaptopDell2.setQuantityAvailable(10);
-        businessLaptopDell2.setPrice(143000.00);
+        businessLaptopDell2.setPrice(143000);
         businessLaptopDell2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865343/ProductVariationImages/buisness143_iltook.jpg");
         businessLaptopDell2.setActive(true);
         productVariationRepository.save(businessLaptopDell2);
@@ -1056,7 +1056,7 @@ public class BootstrapData {
         ProductVariation businessLaptopDell3 = new ProductVariation();
         businessLaptopDell3.setProduct(businessLaptopDell);
         businessLaptopDell3.setQuantityAvailable(10);
-        businessLaptopDell3.setPrice(53000.00);
+        businessLaptopDell3.setPrice(53000);
         businessLaptopDell3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865337/ProductVariationImages/buisness1_r408pn.jpg");
         businessLaptopDell3.setActive(true);
         productVariationRepository.save(businessLaptopDell3);
@@ -1065,7 +1065,7 @@ public class BootstrapData {
         ProductVariation businessLaptopLenovo1 = new ProductVariation();
         businessLaptopLenovo1.setProduct(businessLaptopLenovo);
         businessLaptopLenovo1.setQuantityAvailable(10);
-        businessLaptopLenovo1.setPrice(55000.00);
+        businessLaptopLenovo1.setPrice(55000);
         businessLaptopLenovo1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865474/ProductVariationImages/buisness143121111_eixug3.jpg");
         businessLaptopLenovo1.setActive(true);
         productVariationRepository.save(businessLaptopLenovo1);
@@ -1073,24 +1073,24 @@ public class BootstrapData {
         ProductVariation businessLaptopLenovo2 = new ProductVariation();
         businessLaptopLenovo2.setProduct(businessLaptopLenovo);
         businessLaptopLenovo2.setQuantityAvailable(10);
-        businessLaptopLenovo2.setPrice(45000.00);
+        businessLaptopLenovo2.setPrice(45000);
         businessLaptopLenovo2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865471/ProductVariationImages/buisness14312_nn41nn.jpg");
         businessLaptopLenovo2.setActive(true);
         productVariationRepository.save(businessLaptopLenovo2);
 
         ////ProductVariation businessLaptopLenovo3 = new ProductVariation();
-      ////  businessLaptopLenovo3.setProduct(businessLaptopLenovo);
-      ////  businessLaptopLenovo3.setQuantityAvailable(10);
-       //// businessLaptopLenovo3.setPrice(100000.00);
-     ////   businessLaptopLenovo3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865471/ProductVariationImages/buisness1431211_chlgow.jpg");
-     ////   businessLaptopLenovo3.setActive(true);
-     ////   productVariationRepository.save(businessLaptopLenovo3);
+        ////  businessLaptopLenovo3.setProduct(businessLaptopLenovo);
+        ////  businessLaptopLenovo3.setQuantityAvailable(10);
+        //// businessLaptopLenovo3.setPrice(100000);
+        ////   businessLaptopLenovo3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865471/ProductVariationImages/buisness1431211_chlgow.jpg");
+        ////   businessLaptopLenovo3.setActive(true);
+        ////   productVariationRepository.save(businessLaptopLenovo3);
 
         //BUSINESS LAPTOP HP
         ProductVariation businessLaptopHp1 = new ProductVariation();
         businessLaptopHp1.setProduct(businessLaptopHp);
         businessLaptopHp1.setQuantityAvailable(10);
-        businessLaptopHp1.setPrice(102300.00);
+        businessLaptopHp1.setPrice(102300);
         businessLaptopHp1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865474/ProductVariationImages/buisness143121111_eixug3.jpg");
         businessLaptopHp1.setActive(true);
         productVariationRepository.save(businessLaptopHp1);
@@ -1098,7 +1098,7 @@ public class BootstrapData {
         ProductVariation businessLaptopHp2 = new ProductVariation();
         businessLaptopHp2.setProduct(businessLaptopHp);
         businessLaptopHp2.setQuantityAvailable(10);
-        businessLaptopHp2.setPrice(65000.00);
+        businessLaptopHp2.setPrice(65000);
         businessLaptopHp2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865471/ProductVariationImages/buisness14312_nn41nn.jpg");
         businessLaptopHp2.setActive(true);
         productVariationRepository.save(businessLaptopHp2);
@@ -1106,7 +1106,7 @@ public class BootstrapData {
         ProductVariation businessLaptopHp3 = new ProductVariation();
         businessLaptopHp3.setProduct(businessLaptopHp);
         businessLaptopHp3.setQuantityAvailable(10);
-        businessLaptopHp3.setPrice(76000.00);
+        businessLaptopHp3.setPrice(76000);
         businessLaptopHp3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865343/ProductVariationImages/buisness143_iltook.jpg");
         businessLaptopHp3.setActive(true);
         productVariationRepository.save(businessLaptopHp3);
@@ -1115,7 +1115,7 @@ public class BootstrapData {
         ProductVariation casualWatchTitan1 = new ProductVariation();
         casualWatchTitan1.setProduct(casualWatchTitan);
         casualWatchTitan1.setQuantityAvailable(10);
-        casualWatchTitan1.setPrice(95800.00);
+        casualWatchTitan1.setPrice(95800);
         casualWatchTitan1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865753/ProductVariationImages/tt3_erbx0m.jpg");
         casualWatchTitan1.setActive(true);
         productVariationRepository.save(casualWatchTitan1);
@@ -1123,7 +1123,7 @@ public class BootstrapData {
         ProductVariation casualWatchTitan2 = new ProductVariation();
         casualWatchTitan2.setProduct(casualWatchTitan);
         casualWatchTitan2.setQuantityAvailable(10);
-        casualWatchTitan2.setPrice(45900.00);
+        casualWatchTitan2.setPrice(45900);
         casualWatchTitan2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590955297/ProductVariationImages/91EaG1lR31L._UL1500__k9hebf.jpg");
         casualWatchTitan2.setActive(true);
         productVariationRepository.save(casualWatchTitan2);
@@ -1131,7 +1131,7 @@ public class BootstrapData {
         ProductVariation casualWatchTitan3 = new ProductVariation();
         casualWatchTitan3.setProduct(casualWatchTitan);
         casualWatchTitan3.setQuantityAvailable(10);
-        casualWatchTitan3.setPrice(66000.00);
+        casualWatchTitan3.setPrice(66000);
         casualWatchTitan3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865753/ProductVariationImages/tt_kgkr4m.jpg");
         casualWatchTitan3.setActive(true);
         productVariationRepository.save(casualWatchTitan3);
@@ -1140,7 +1140,7 @@ public class BootstrapData {
         ProductVariation casualWatchRado1 = new ProductVariation();
         casualWatchRado1.setProduct(casualWatchRado);
         casualWatchRado1.setQuantityAvailable(10);
-        casualWatchRado1.setPrice(77000.00);
+        casualWatchRado1.setPrice(77000);
         casualWatchRado1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590955607/ProductVariationImages/download_ui1el1.png");
         casualWatchRado1.setActive(true);
         productVariationRepository.save(casualWatchRado1);
@@ -1148,7 +1148,7 @@ public class BootstrapData {
         ProductVariation casualWatchRado2 = new ProductVariation();
         casualWatchRado2.setProduct(casualWatchRado);
         casualWatchRado2.setQuantityAvailable(10);
-        casualWatchRado2.setPrice(43000.00);
+        casualWatchRado2.setPrice(43000);
         casualWatchRado2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590955759/ProductVariationImages/roadooo_qcld02.png");
         casualWatchRado2.setActive(true);
         productVariationRepository.save(casualWatchRado2);
@@ -1156,7 +1156,7 @@ public class BootstrapData {
         ProductVariation casualWatchRado3 = new ProductVariation();
         casualWatchRado3.setProduct(casualWatchRado);
         casualWatchRado3.setQuantityAvailable(10);
-        casualWatchRado3.setPrice(65000.00);
+        casualWatchRado3.setPrice(65000);
         casualWatchRado3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590865831/ProductVariationImages/r3_ckeo5p.jpg");
         casualWatchRado3.setActive(true);
         productVariationRepository.save(casualWatchRado3);
@@ -1165,7 +1165,7 @@ public class BootstrapData {
         ProductVariation smartWatchFastrack1 = new ProductVariation();
         smartWatchFastrack1.setProduct(smartWatchFastrack);
         smartWatchFastrack1.setQuantityAvailable(10);
-        smartWatchFastrack1.setPrice(34000.00);
+        smartWatchFastrack1.setPrice(34000);
         smartWatchFastrack1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590866612/ProductVariationImages/fast3_sov5ed.jpg");
         smartWatchFastrack1.setActive(true);
         productVariationRepository.save(smartWatchFastrack1);
@@ -1173,7 +1173,7 @@ public class BootstrapData {
         ProductVariation smartWatchFastrack2 = new ProductVariation();
         smartWatchFastrack2.setProduct(smartWatchFastrack);
         smartWatchFastrack2.setQuantityAvailable(10);
-        smartWatchFastrack2.setPrice(10000.00);
+        smartWatchFastrack2.setPrice(10000);
         smartWatchFastrack2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590866612/ProductVariationImages/fadt2_rkxtpo.jpg");
         smartWatchFastrack2.setActive(true);
         productVariationRepository.save(smartWatchFastrack2);
@@ -1181,7 +1181,7 @@ public class BootstrapData {
         ProductVariation smartWatchFastrack3 = new ProductVariation();
         smartWatchFastrack3.setProduct(smartWatchFastrack);
         smartWatchFastrack3.setQuantityAvailable(10);
-        smartWatchFastrack3.setPrice(12000.00);
+        smartWatchFastrack3.setPrice(12000);
         smartWatchFastrack3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590866612/ProductVariationImages/fastrack1_iwjp5c.jpg");
         smartWatchFastrack3.setActive(true);
         productVariationRepository.save(smartWatchFastrack3);
@@ -1190,7 +1190,7 @@ public class BootstrapData {
         ProductVariation dslrCameraNikon1 = new ProductVariation();
         dslrCameraNikon1.setProduct(dslrCameraNikon);
         dslrCameraNikon1.setQuantityAvailable(10);
-        dslrCameraNikon1.setPrice(55000.00);
+        dslrCameraNikon1.setPrice(55000);
         dslrCameraNikon1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869333/ProductVariationImages/n1_tufzhi.jpg");
         dslrCameraNikon1.setActive(true);
         productVariationRepository.save(dslrCameraNikon1);
@@ -1198,7 +1198,7 @@ public class BootstrapData {
         ProductVariation dslrCameraNikon2 = new ProductVariation();
         dslrCameraNikon2.setProduct(dslrCameraNikon);
         dslrCameraNikon2.setQuantityAvailable(10);
-        dslrCameraNikon2.setPrice(65000.00);
+        dslrCameraNikon2.setPrice(65000);
         dslrCameraNikon2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869332/ProductVariationImages/n2_sovjbz.jpg");
         dslrCameraNikon2.setActive(true);
         productVariationRepository.save(dslrCameraNikon2);
@@ -1206,7 +1206,7 @@ public class BootstrapData {
         ProductVariation dslrCameraNikon3 = new ProductVariation();
         dslrCameraNikon3.setProduct(dslrCameraNikon);
         dslrCameraNikon3.setQuantityAvailable(10);
-        dslrCameraNikon3.setPrice(55000.00);
+        dslrCameraNikon3.setPrice(55000);
         dslrCameraNikon3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869332/ProductVariationImages/n3_s1czsh.jpg");
         dslrCameraNikon3.setActive(true);
         productVariationRepository.save(dslrCameraNikon3);
@@ -1215,7 +1215,7 @@ public class BootstrapData {
         ProductVariation dslrCameraSony1 = new ProductVariation();
         dslrCameraSony1.setProduct(dslrCameraSony);
         dslrCameraSony1.setQuantityAvailable(10);
-        dslrCameraSony1.setPrice(65000.00);
+        dslrCameraSony1.setPrice(65000);
         dslrCameraSony1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590867110/ProductVariationImages/SONY1212121_ppf4m5.jpg");
         dslrCameraSony1.setActive(true);
         productVariationRepository.save(dslrCameraSony1);
@@ -1223,7 +1223,7 @@ public class BootstrapData {
         ProductVariation dslrCameraSony2 = new ProductVariation();
         dslrCameraSony2.setProduct(dslrCameraSony);
         dslrCameraSony2.setQuantityAvailable(10);
-        dslrCameraSony2.setPrice(34000.00);
+        dslrCameraSony2.setPrice(34000);
         dslrCameraSony2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590867110/ProductVariationImages/SONY2_muqc8k.jpg");
         dslrCameraSony2.setActive(true);
         productVariationRepository.save(dslrCameraSony2);
@@ -1231,7 +1231,7 @@ public class BootstrapData {
         ProductVariation dslrCameraSony3 = new ProductVariation();
         dslrCameraSony3.setProduct(dslrCameraSony);
         dslrCameraSony3.setQuantityAvailable(10);
-        dslrCameraSony3.setPrice(109700.00);
+        dslrCameraSony3.setPrice(109700);
         dslrCameraSony3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590955155/ProductVariationImages/dslrnew_wunauh.jpg");
         dslrCameraSony3.setActive(true);
         productVariationRepository.save(dslrCameraSony3);
@@ -1240,7 +1240,7 @@ public class BootstrapData {
         ProductVariation mobileOnePlus1 = new ProductVariation();
         mobileOnePlus1.setProduct(mobileOnePlus);
         mobileOnePlus1.setQuantityAvailable(10);
-        mobileOnePlus1.setPrice(55000.00);
+        mobileOnePlus1.setPrice(55000);
         mobileOnePlus1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep3_jnun2h.jpg");
         mobileOnePlus1.setActive(true);
         productVariationRepository.save(mobileOnePlus1);
@@ -1248,7 +1248,7 @@ public class BootstrapData {
         ProductVariation mobileOnePlus2 = new ProductVariation();
         mobileOnePlus2.setProduct(mobileOnePlus);
         mobileOnePlus2.setQuantityAvailable(10);
-        mobileOnePlus2.setPrice(45000.00);
+        mobileOnePlus2.setPrice(45000);
         mobileOnePlus2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep_pdgl5d.jpg");
         mobileOnePlus2.setActive(true);
         productVariationRepository.save(mobileOnePlus2);
@@ -1256,7 +1256,7 @@ public class BootstrapData {
         ProductVariation mobileOnePlus3 = new ProductVariation();
         mobileOnePlus3.setProduct(mobileOnePlus);
         mobileOnePlus3.setQuantityAvailable(10);
-        mobileOnePlus3.setPrice(46000.00);
+        mobileOnePlus3.setPrice(46000);
         mobileOnePlus3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep6_tyahnn.jpg");
         mobileOnePlus3.setActive(true);
         productVariationRepository.save(mobileOnePlus3);
@@ -1264,32 +1264,32 @@ public class BootstrapData {
         ProductVariation mobileOnePlus4 = new ProductVariation();
         mobileOnePlus4.setProduct(mobileOnePlus);
         mobileOnePlus4.setQuantityAvailable(10);
-        mobileOnePlus4.setPrice(55000.00);
+        mobileOnePlus4.setPrice(55000);
         mobileOnePlus4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep2_akq6op.jpg");
         mobileOnePlus4.setActive(true);
         productVariationRepository.save(mobileOnePlus4);
 
-       //// ProductVariation mobileOnePlus5 = new ProductVariation();
-      ////  mobileOnePlus5.setProduct(mobileOnePlus);
-      ////  mobileOnePlus5.setQuantityAvailable(10);
-      ////  mobileOnePlus5.setPrice(65000.00);
-     ////   mobileOnePlus5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep5_ugurq8.jpg");
-      ////  mobileOnePlus5.setActive(true);
-    ///    productVariationRepository.save(mobileOnePlus5);
+        //// ProductVariation mobileOnePlus5 = new ProductVariation();
+        ////  mobileOnePlus5.setProduct(mobileOnePlus);
+        ////  mobileOnePlus5.setQuantityAvailable(10);
+        ////  mobileOnePlus5.setPrice(65000);
+        ////   mobileOnePlus5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep5_ugurq8.jpg");
+        ////  mobileOnePlus5.setActive(true);
+        ///    productVariationRepository.save(mobileOnePlus5);
 
-       //// ProductVariation mobileOnePlus6 = new ProductVariation();
-      ////  mobileOnePlus6.setProduct(mobileOnePlus);
-      ////  mobileOnePlus6.setQuantityAvailable(10);
-      ////  mobileOnePlus6.setPrice(55000.00);
-     ////   mobileOnePlus6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep4_lpgkdv.jpg");
-      ////  mobileOnePlus6.setActive(true);
-      ////  productVariationRepository.save(mobileOnePlus6);
+        //// ProductVariation mobileOnePlus6 = new ProductVariation();
+        ////  mobileOnePlus6.setProduct(mobileOnePlus);
+        ////  mobileOnePlus6.setQuantityAvailable(10);
+        ////  mobileOnePlus6.setPrice(55000);
+        ////   mobileOnePlus6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590869801/ProductVariationImages/onep4_lpgkdv.jpg");
+        ////  mobileOnePlus6.setActive(true);
+        ////  productVariationRepository.save(mobileOnePlus6);
 
         //MOBILE APPLE
         ProductVariation mobileApple1 = new ProductVariation();
         mobileApple1.setProduct(mobileApple);
         mobileApple1.setQuantityAvailable(10);
-        mobileApple1.setPrice(100000.00);
+        mobileApple1.setPrice(100000);
         mobileApple1.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple1_oixi95.jpg");
         mobileApple1.setActive(true);
         productVariationRepository.save(mobileApple1);
@@ -1297,7 +1297,7 @@ public class BootstrapData {
         ProductVariation mobileApple2 = new ProductVariation();
         mobileApple2.setProduct(mobileApple);
         mobileApple2.setQuantityAvailable(10);
-        mobileApple2.setPrice(134000.00);
+        mobileApple2.setPrice(134000);
         mobileApple2.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple6_qvlm4d.jpg");
         mobileApple2.setActive(true);
         productVariationRepository.save(mobileApple2);
@@ -1305,7 +1305,7 @@ public class BootstrapData {
         ProductVariation mobileApple3 = new ProductVariation();
         mobileApple3.setProduct(mobileApple);
         mobileApple3.setQuantityAvailable(10);
-        mobileApple3.setPrice(107000.00);
+        mobileApple3.setPrice(107000);
         mobileApple3.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple5_v9bqpt.jpg");
         mobileApple3.setActive(true);
         productVariationRepository.save(mobileApple3);
@@ -1313,7 +1313,7 @@ public class BootstrapData {
         ProductVariation mobileApple4 = new ProductVariation();
         mobileApple4.setProduct(mobileApple);
         mobileApple4.setQuantityAvailable(10);
-        mobileApple4.setPrice(100860.00);
+        mobileApple4.setPrice(100860);
         mobileApple4.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple2_f0l20z.jpg");
         mobileApple4.setActive(true);
         productVariationRepository.save(mobileApple4);
@@ -1321,7 +1321,7 @@ public class BootstrapData {
         ProductVariation mobileApple5 = new ProductVariation();
         mobileApple5.setProduct(mobileApple);
         mobileApple5.setQuantityAvailable(10);
-        mobileApple5.setPrice(105600.00);
+        mobileApple5.setPrice(105600);
         mobileApple5.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple4_i5llrz.jpg");
         mobileApple5.setActive(true);
         productVariationRepository.save(mobileApple5);
@@ -1329,7 +1329,7 @@ public class BootstrapData {
         ProductVariation mobileApple6 = new ProductVariation();
         mobileApple6.setProduct(mobileApple);
         mobileApple6.setQuantityAvailable(10);
-        mobileApple6.setPrice(100470.00);
+        mobileApple6.setPrice(100470);
         mobileApple6.setPrimaryImageName("https://res.cloudinary.com/da8palx8c/image/upload/v1590870042/ProductVariationImages/apple3_rzu8ox.jpg");
         mobileApple6.setActive(true);
         productVariationRepository.save(mobileApple6);

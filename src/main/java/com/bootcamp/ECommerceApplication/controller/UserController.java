@@ -30,14 +30,13 @@ public class UserController {
     private ConverterService converterService;
 
 //---------------------------------------REGISTER CUSTOMER AND SELLER---------------------------------------------------
-    @ApiOperation(value = "API to register a seller")
-    @PostMapping("/users/sellers-registration")
-    public ResponseEntity<MessageResponseEntity<UserDTO>> createSeller(@Valid @RequestBody SellerCO sellerCO)
-            throws MessagingException {
-        Seller seller = converterService.convertToSeller(sellerCO);
-        return userService.createSeller(seller);
-    }
-
+@ApiOperation(value = "API to register a seller")
+@PostMapping("/users/sellers-registration")
+public ResponseEntity<MessageResponseEntity<UserDTO>> createSeller(@Valid @RequestBody SellerCO sellerCO)
+        throws MessagingException {
+    Seller seller = converterService.convertToSeller(sellerCO);
+    return userService.createSeller(seller);
+}
 
     @ApiOperation(value = "API to register a customer")
     @PostMapping("/users/customers-registration")
@@ -115,9 +114,15 @@ public class UserController {
     }
 
     @ApiOperation(value = "API to logout of account")
-    @GetMapping("/doLogout")
-    public ResponseEntity<MessageResponseEntity<String>> logout(HttpServletRequest request){
-        return userService.logout(request);
+//    @GetMapping("/doLogout")
+//    public ResponseEntity<MessageResponseEntity<String>> logout(HttpServletRequest request){
+//        return userService.logout(request);
+//    }
+
+    @PostMapping(path = "/doLogout")
+    public ResponseEntity<MessageResponseEntity> userLogout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return userService.doLogout(authHeader);
     }
 
 //--------------------------------------------------USER ROLE VERIFY METHOD'S-----------------------------------------------------

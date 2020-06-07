@@ -20,6 +20,7 @@ public class AddressCO {
     @NotBlank(message = "Please provide valid  Address Line")
     private String addressLine;
 
+    @NotBlank(message = "Please provide valid  Zip-Code")
     @NotNull(message = "Please provide Zip-Code")
     private String zipCode;
 

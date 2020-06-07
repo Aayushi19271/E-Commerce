@@ -44,4 +44,7 @@ public interface CategoryRepository extends PagingAndSortingRepository<Category,
 
     @Query(value = "select * from category where name=:name",nativeQuery = true)
     Category findCategoryByName(String name);
+
+    @Query(value="select id,name from category where leaf_node=true", nativeQuery = true)
+    List<Map<Object, Object>> findAllLeafCategories();
 }

@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ProductVariationDTO {
+    private Long id;
     private Integer quantityAvailable;
-    private Double price;
+    private Integer price;
     private String metadata;
     private boolean isActive;
     @Transient
@@ -22,11 +23,19 @@ public class ProductVariationDTO {
         this.quantityAvailable = quantityAvailable;
     }
 
-    public Double getPrice() {
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 

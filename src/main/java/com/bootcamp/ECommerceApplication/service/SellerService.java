@@ -151,7 +151,7 @@ public class SellerService {
 
 
     //Update the already existing Address of LoggedIn Seller
-    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerUpdateAddress(String email, Map<Object,Object> fields) {
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateAddress(String email, AddressCO addressCO) {
         Seller seller= (Seller) userRepository.findByEmailIgnoreCase(email);
         List<Address> addresses = seller.getAddresses();
         Address address = addresses.get(0);
@@ -159,13 +159,9 @@ public class SellerService {
         Optional<Address> optionalAddress = addressRepository.findById(address.getId());
 
         if(optionalAddress.isPresent()) {
-            fields.forEach((k, v) -> {
-                Field field = ReflectionUtils.findRequiredField(Address.class, (String) k);
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, address, v);
-            });
-
-            addressRepository.save(address);
+            Address savedAddress = optionalAddress.get();
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.map(addressCO, savedAddress);
             AddressDTO addressDTO = converterService.convertToAddressDto(address);
             return new ResponseEntity<>(new MessageResponseEntity<>(addressDTO, HttpStatus.CREATED), HttpStatus.CREATED);
         }
@@ -200,17 +196,9 @@ public class SellerService {
 //-------------------------------------------SELLER CATEGORY API'S-------------------------------------------------------
 
     //List All Category
-    public ResponseEntity<MessageResponseEntity<Map<Category, Object>>> listAllCategory(Integer pageNo, Integer pageSize, String sortBy) {
-        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-
-        Map<Category, Object> response = new HashMap<>();
-
-        List<Category> categoryList = categoryRepository.findAllCategory(paging);
-        categoryList.forEach(category -> {
-            List<Map<Object, Object>> metadataValueList = categoryMetadataFieldValuesRepository.findByCategoryId(category.getId());
-            response.put(category, metadataValueList);
-        });
-        return new ResponseEntity<>(new MessageResponseEntity<>(response, HttpStatus.OK), HttpStatus.OK);
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllCategory() {
+        List<Map<Object,Object>> pagedResult = categoryRepository.findAllLeafCategories();
+        return new ResponseEntity<>(new MessageResponseEntity<>(pagedResult, HttpStatus.OK), HttpStatus.OK);
     }
 
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------

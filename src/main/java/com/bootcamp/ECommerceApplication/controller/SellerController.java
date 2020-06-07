@@ -76,10 +76,9 @@ public class SellerController {
 
     @ApiOperation(value = "API to update an address")
     @PatchMapping("/addresses")
-    public ResponseEntity<MessageResponseEntity<AddressDTO>> sellerUpdateAddress(Principal principal,
-                                                                                 @RequestBody Map<Object,Object> fields){
+    public ResponseEntity<MessageResponseEntity<Object>> sellerUpdateAddress(Principal principal,@Valid @RequestBody AddressCO addressCO){
         String email = principal.getName();
-        return sellerService.sellerUpdateAddress(email,fields);
+        return sellerService.sellerUpdateAddress(email,addressCO);
     }
 
 //---------------------------------------CUSTOMER PROFILE IMAGE API'S---------------------------------------------------
@@ -102,12 +101,8 @@ public class SellerController {
 
     @ApiOperation(value = "API to list all categories")
     @GetMapping("/categories")
-    public ResponseEntity<MessageResponseEntity<Map<Category, Object>>> listAllCategory(
-            @RequestParam(defaultValue = "0") Integer pageNo,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(defaultValue = "id") String sortBy) {
-
-        return sellerService.listAllCategory(pageNo, pageSize, sortBy);
+    public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllCategory() {
+        return sellerService.listAllCategory();
     }
 
 //-------------------------------------------SELLER PRODUCT API'S-------------------------------------------------------
@@ -133,7 +128,7 @@ public class SellerController {
     @GetMapping("/products")
     public ResponseEntity<MessageResponseEntity<List<Map<Object, Object>>>> listAllProduct(Principal principal,
                                                                                            @RequestParam(defaultValue = "0") Integer pageNo,
-                                                                                           @RequestParam(defaultValue = "9") Integer pageSize,
+                                                                                           @RequestParam(defaultValue = "19") Integer pageSize,
                                                                                            @RequestParam(defaultValue = "id") String sortBy){
         String email = principal.getName();
         return sellerService.listAllProduct(email,pageNo,pageSize,sortBy);
